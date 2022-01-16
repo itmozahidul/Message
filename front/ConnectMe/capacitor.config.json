@@ -1,0 +1,6 @@
+{
+	"appId": "io.ionic.starter",
+	"appName": "ConnectMe",
+	"webDir": "www",
+	"bundledWebRuntime": false
+}
