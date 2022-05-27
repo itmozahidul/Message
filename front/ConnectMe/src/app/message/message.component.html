@@ -1,0 +1,29 @@
+<ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="end">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+<ion-content>
+<div>
+    <app-text
+    *ngFor="let msg of msgs"
+   [text]=msg.text
+   [sender]=msg.sender
+   [reciever]=msg.reciever
+   [time]=msg.time
+   [seen]=msg.seen
+   [user]=this.generalService.getUser()
+   >
+   </app-text>
+</div>
+
+</ion-content>
+<ion-footer>
+    <ion-item>
+        <ion-label position="stacked">Stacked Label</ion-label>
+        <ion-input #inputText></ion-input>
+        <ion-button (click)="send(inputText)">send</ion-button>
+    </ion-item>
+</ion-footer>

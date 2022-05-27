@@ -1,0 +1,64 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-fab horizontal="end" vertical="bottom" slot="fixed">
+    <ion-fab-button color="dark">
+      <ion-icon md="caret-up" ios="chevron-up-circle-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-list side="top">
+      <ion-fab-button color="light"  (click)="gotoNewFriend()">
+        <ion-icon name="add-circle"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button color="light" [routerLink]="['/profile']">
+        <ion-icon name="person"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button color="light">
+        <ion-icon name="logo-vimeo"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button color="light">
+        <ion-icon name="logo-google"></ion-icon>
+      </ion-fab-button>
+    </ion-fab-list>
+  </ion-fab>
+  <ion-grid>
+    <ion-row size="12">
+      <ion-col size="12">
+        <ion-searchbar id="sc"></ion-searchbar>
+        <ion-list #cilist id = "listid">
+          <ion-item *ngFor="let friend of friends;key" [routerLink]="['/message',friend]" (click)="gotoChatDetail()">
+            <ion-avatar slot="start">
+              <img src="assets/avatar.png" />
+            </ion-avatar>
+            <ion-label>
+              <h2>{{key}}</h2>
+              <h3>{{friend[0]}}</h3>
+              <p>{{friend[1]}}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+        <!-- <div id="add">
+          <ion-icon name="add-circle" size="small"></ion-icon>
+          
+        </div> -->
+        <ion-fab vertical="bottom" horizontal="start" edge slot="fixed">
+          <ion-fab-button>
+            <ion-icon name="settings"></ion-icon>
+          </ion-fab-button>
+          <ion-fab-list side="end">
+            <ion-fab-button><ion-icon name="logo-vimeo"></ion-icon></ion-fab-button>
+          </ion-fab-list>
+        </ion-fab>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  
+</ion-content>
