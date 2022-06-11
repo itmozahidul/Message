@@ -1,0 +1,28 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <!-- <ion-searchbar></ion-searchbar> -->
+  <div class="searchBar">
+    <input #inpt (input)="srch(inpt.value)" type="text" value="" placeholder="search" style="width:95%"><span style="width:5%" (click)="srch(inpt.value)"><ion-icon name="search"></ion-icon></span>
+  </div>
+  <ion-list id = "listids">
+    <ion-item *ngFor="let name of items" [routerLink]="['/message',name]" >
+      <!-- <ion-avatar slot="start">
+        <img src="assets/avatar.png" />
+      </ion-avatar> -->
+      <ion-label>
+        <h2>{{name}}</h2>
+        <!-- <h3>{{friend[0]}}</h3>
+        <p>{{friend[1]}}</p> -->
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>

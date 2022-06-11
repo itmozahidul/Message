@@ -1,0 +1,50 @@
+<ion-content>
+  
+  <ion-card class="g" id="wrap">
+    <ion-card-header>
+      <ion-item>
+        <ion-text style="font-size: 4vw;text-align: center;">Login</ion-text>
+      </ion-item>
+    </ion-card-header>
+      
+    <ion-card-content>
+      <ion-grid>
+        <ion-row size = "12">
+          <ion-col size = "3">
+            
+          </ion-col>
+          <ion-col size = "6">
+            <form [formGroup]="loginForm" (ngSubmit)="onFormSubmit()">
+    
+             <div>
+               <div>Email:</div> <input #ad formControlName="adress"  >
+               <div><label *ngIf="loginForm.get('adress').invalid && ad.value!=''" [ngClass] = "'error'"> email is not correct. </label></div>
+             </div>
+             <div>
+              <div>password:</div> <input #pd formControlName="imp"  >
+              <div><label *ngIf="loginForm.get('imp').invalid && pd.value!=''" [ngClass] = "'error'"> password mus6t contain numbers and one special character </label></div>
+             </div>
+             <div>
+              <ion-button type="submit" color="success"    >Login</ion-button>
+             </div>
+            </form>
+            <div class="info" [routerLink]="['/register']">Register</div>
+            <div class="info">Forgotten password?</div>
+          </ion-col>
+          <ion-col size = "3">
+             
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+    
+  
+    </ion-card>
+    <ion-card  id="err" *ngIf="hasError">
+      <div class = "errbx">{{errommsg}}</div>
+    </ion-card>
+    
+</ion-content>
+<div *ngIf="progress" class="overlay">
+  
+</div>

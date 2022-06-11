@@ -1,0 +1,49 @@
+<!-- <div id="textWrap" *ngIf="isLeftSide">
+  <ion-avatar slot="start"  >
+    <img src="assets/avatar.png" id="ionAvaterRight" />
+  </ion-avatar>
+  <ion-card id="msgtxtRight">
+    ffdgdfgdfgdfgdfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff ffdgdfgdfgdfgdffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  </ion-card> 
+</div>  
+<div id="textWrap" *ngIf="!isLeftSide">
+  <ion-avatar slot="start"  >
+    <img src="assets/avatar.png" id="ionAvaterLeft" />
+  </ion-avatar>
+  <ion-card id="msgtxtLeft">
+    ffdgdfgdfgdfgdffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff ffdgdfgdfgdfgdffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  </ion-card> 
+</div> -->
+<ion-grid>
+  <ion-row size="12"  *ngIf="isLeftSide">
+    <ion-col size="10">
+      <div id="textWrap">
+        <div style="display: flex; position: absolute; left: 0;" >
+          <ion-avatar slot="start" style="height:25px;width: 25px;"  >
+            <img src="assets/avatar.png"  />
+          </ion-avatar>
+          <ion-card>
+            {{text}}
+          </ion-card>
+        </div>
+      </div>
+    </ion-col >
+  </ion-row>
+  <ion-row size="12"  *ngIf="!isLeftSide">
+    
+    
+    <ion-col size="12">
+      <div id="textWrap">
+        <div style="display: flex; position: absolute; right: 0;">
+          <ion-card>
+            {{text}}
+          </ion-card>
+          <ion-avatar slot="start" style="height:25px;width: 25px;"  >
+            <img src="assets/avatar.png"  />
+          </ion-avatar>
+        </div>
+      </div>
+    </ion-col >
+  </ion-row>
+</ion-grid>
+

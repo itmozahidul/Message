@@ -1,0 +1,25 @@
+ion-grid{
+    height:100%;
+}
+ion-row{
+    height:100%;
+}
+ion-col{
+}
+
+.message{
+    display: flex;
+    height: 98%;
+    overflow: auto;
+}
+#msgtxt{
+    padding: 5px;
+    height: fit-content;
+}
+
+#add{
+    position: fixed;
+    right: 10px;
+    width: fit-content;
+    top: 65px;
+}
