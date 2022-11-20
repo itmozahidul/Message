@@ -21,6 +21,8 @@ import { TokenInterceptorService } from './token-interceptor.service';
 import { TextComponent } from './text/text.component';
 import { NewFriendComponent } from './new-friend/new-friend.component';
 import { ProfileComponent } from './profile/profile.component';
+import { MenuComponent } from './menu/menu.component';
+import { WaitComponent } from './wait/wait.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +33,9 @@ import { ProfileComponent } from './profile/profile.component';
     MessageComponent,
     TextComponent,
     NewFriendComponent,
-    ProfileComponent
+    ProfileComponent,
+    MenuComponent,
+    WaitComponent,
   ],
   entryComponents: [],
   imports: [
@@ -40,24 +44,31 @@ import { ProfileComponent } from './profile/profile.component';
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    StoreModule.forRoot({'app':appReducer.appReducer},{
-      runtimeChecks: {
-        strictStateImmutability: false,
-        strictActionImmutability: false,
-      },
-    }),
+    StoreModule.forRoot(
+      { app: appReducer.appReducer },
+      {
+        runtimeChecks: {
+          strictStateImmutability: false,
+          strictActionImmutability: false,
+        },
+      }
+    ),
     ReactiveFormsModule,
     StoreDevtoolsModule.instrument({
       maxAge: 25,
-      logOnly: environment.production
+      logOnly: environment.production,
     }),
     EffectsModule.forRoot([]),
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     GeneralService,
-    {provide: HTTP_INTERCEPTORS, useClass: TokenInterceptorService, multi:true},
-     ],
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenInterceptorService,
+      multi: true,
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

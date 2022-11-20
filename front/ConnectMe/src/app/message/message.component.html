@@ -1,29 +1,49 @@
 <ion-header>
-    <ion-toolbar>
-      <ion-buttons slot="end">
-        <ion-menu-button></ion-menu-button>
-      </ion-buttons>
-    </ion-toolbar>
-  </ion-header>
-<ion-content>
-<div>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button [routerLink]="['/chat', '']"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content #cnt id="cont">
+  <div class="messageBox">
     <app-text
-    *ngFor="let msg of msgs"
-   [text]=msg.text
-   [sender]=msg.sender
-   [reciever]=msg.reciever
-   [time]=msg.time
-   [seen]=msg.seen
-   [user]=this.generalService.getUser()
-   >
-   </app-text>
-</div>
-
+      *ngFor="let msg of msgs"
+      [text]="msg.text"
+      [sender]="msg.sender"
+      [reciever]="msg.reciever"
+      [time]="msg.time"
+      [seen]="msg.seen"
+      [user]="this.generalService.getUser()"
+    >
+    </app-text>
+  </div>
 </ion-content>
 <ion-footer>
-    <ion-item>
-        <ion-label position="stacked">Stacked Label</ion-label>
-        <ion-input #inputText></ion-input>
-        <ion-button (click)="send(inputText)">send</ion-button>
-    </ion-item>
+  <ion-grid>
+    <ion-row size="12">
+      <ion-col size="6">
+        <ion-row size="12">
+          <ion-col size="3"><ion-icon name="happy-outline"></ion-icon></ion-col>
+          <ion-col size="3"
+            ><ion-icon name="attach-outline"></ion-icon
+          ></ion-col>
+          <ion-col size="3"><ion-icon name="mic"></ion-icon></ion-col>
+          <ion-col size="3" id="gif"><b>gif</b></ion-col>
+        </ion-row>
+      </ion-col>
+      <ion-col size="6"> </ion-col>
+    </ion-row>
+    <ion-row size="12">
+      <ion-col size="11">
+        <ion-input #inputText placeholder="write..."></ion-input>
+      </ion-col>
+      <ion-col size="1">
+        <ion-icon name="send" (click)="send(inputText)"></ion-icon>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-footer>

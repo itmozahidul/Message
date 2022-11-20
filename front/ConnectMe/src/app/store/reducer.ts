@@ -1,33 +1,44 @@
 import { Action, createReducer, on } from '@ngrx/store';
+import { chatResponse } from '../DTO/chatResponse';
 import * as action from '../Store/action';
 
 export interface State {
-//   imgList: any[];
-//   crntImgList:any[];
-//   pSelectedImage:string;
-//   level:string;
-//   timer:boolean,
-//   playTime:number,
-//   wait:boolean,
-//   puzzleUser:any[];
-currentUser:string;
+  //   imgList: any[];
+  //   crntImgList:any[];
+  //   pSelectedImage:string;
+  //   level:string;
+  //   timer:boolean,
+  //   playTime:number,
+  //   wait:boolean,
+  //   puzzleUser:any[];
+  currentUser: string;
+  currentReciever: string;
+  msgs: chatResponse[];
+  currentChatHeads: chatResponse[];
+  sentText: chatResponse;
+  unreadMessagesNo: Map<string, number>;
 }
 
 export const initialState: State = {
-    // imgList: [],
-    // crntImgList: [],
-    // pSelectedImage:"assets/images/puzzle/pic_1.jpg",
-    // level:"Easy",
-    // timer:false ,
-    // playTime:1,
-    // wait:true,
-    // puzzleUser:[]
-    currentUser:localStorage.getItem("currentUser"),
-  };
+  // imgList: [],
+  // crntImgList: [],
+  // pSelectedImage:"assets/images/puzzle/pic_1.jpg",
+  // level:"Easy",
+  // timer:false ,
+  // playTime:1,
+  // wait:true,
+  // puzzleUser:[]
+  currentReciever: '',
+  currentUser: localStorage.getItem('currentUser'),
+  msgs: [],
+  currentChatHeads: [],
+  sentText: null,
+  unreadMessagesNo: new Map(),
+};
 
-  export const appReducer = createReducer(
-    initialState,
-   /*  on(action.updateImgList, (state,{imgList}) => {
+export const appReducer = createReducer(
+  initialState,
+  /*  on(action.updateImgList, (state,{imgList}) => {
         var newImgList = imgList;
         console.log("in dispatch img lst");
         return {
@@ -85,7 +96,7 @@ export const initialState: State = {
     wait:newwait,
   }
 }), */
-/* on(action.updatePuzzleUser, (state,{puzzleUser})=>{
+  /* on(action.updatePuzzleUser, (state,{puzzleUser})=>{
   var newPuzzleUser = puzzleUser;
   console.log("in dispatch PuzzleUser ");
   console.log(newPuzzleUser);
@@ -94,16 +105,46 @@ return {
   puzzleUser:newPuzzleUser,
 }
 }), */
-
-  on(action.updateurrentUser, (state,{currentUser})=>{
+  on(action.updateViewdMessage, (state, { msgs }) => {
+    var newMsgs = msgs;
+    console.log('in reducer view msg');
+    return {
+      ...state,
+      msgs: newMsgs,
+    };
+  }),
+  on(action.updateurrentUser, (state, { currentUser }) => {
     var newCurrentUser = currentUser;
-    console.log("in dispatch currentUser ");
+    console.log('in dispatch currentUser ');
     console.log(newCurrentUser);
-  
-  return {
-    ...state,
-    currentUser:newCurrentUser,
-  }
-}),
-  );
-  
+
+    return {
+      ...state,
+      currentUser: newCurrentUser,
+    };
+  }),
+  on(action.updateCurrentReciever, (state, { currentReciever }) => {
+    var newCurentReciever = currentReciever;
+
+    return {
+      ...state,
+      currentReciever: newCurentReciever,
+    };
+  }),
+  on(action.updateCurrentChatHeads, (state, { currentChatHeads }) => {
+    var newCurentChatHeads = currentChatHeads;
+
+    return {
+      ...state,
+      currentChatHeads: newCurentChatHeads,
+    };
+  }),
+  on(action.updateRecentSentText, (state, { sentText }) => {
+    var newSentText = sentText;
+
+    return {
+      ...state,
+      sentText: newSentText,
+    };
+  })
+);

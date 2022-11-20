@@ -1,37 +1,41 @@
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import {
+  HttpEvent,
+  HttpHandler,
+  HttpInterceptor,
+  HttpRequest,
+} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { GeneralService } from './service/general.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TokenInterceptorService implements HttpInterceptor {
-
-  constructor(private generalService:GeneralService) { console.log("token interceptor");}
+  constructor(private generalService: GeneralService) {
+    console.log('token interceptor');
+  }
 
   intercept(
-    req:HttpRequest<any>,
+    req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    var tokenizedRequest=null;
-    console.log("token interceptor");
-    console.log(this.generalService.getBearerToken());
-    if(this.generalService.getBearerToken()!=null){
-      tokenizedRequest = req.clone({
-        setHeaders:{
-          Authorization: `${this.generalService.getBearerToken()}`
-        }
-      });
+    var tokenizedRequest = null;
 
-    }else{
-      alert("token invalid")
+    if (this.generalService.getBearerToken() != null) {
+      tokenizedRequest = req.clone({
+        setHeaders: {
+          Authorization: `${this.generalService.getBearerToken()}`,
+        },
+      });
+    } else {
+      alert('token invalid');
     }
-    
+
     return next.handle(tokenizedRequest);
   }
 
- /*  private handle401Error(request: HttpRequest<any>, next: HttpHandler) {
+  /*  private handle401Error(request: HttpRequest<any>, next: HttpHandler) {
     if (!this.isRefreshing) {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);

@@ -1,8 +1,9 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
+      <ion-back-button [routerLink]="['/chat', '']"></ion-back-button>
     </ion-buttons>
+    <ion-title>Find New Friend</ion-title>
     <ion-buttons slot="end">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
@@ -10,16 +11,29 @@
 </ion-header>
 <ion-content>
   <!-- <ion-searchbar></ion-searchbar> -->
-  <div class="searchBar">
-    <input #inpt (input)="srch(inpt.value)" type="text" value="" placeholder="search" style="width:95%"><span style="width:5%" (click)="srch(inpt.value)"><ion-icon name="search"></ion-icon></span>
-  </div>
-  <ion-list id = "listids">
-    <ion-item *ngFor="let name of items" [routerLink]="['/message',name]" >
+  <!-- <div class="searchBar">
+    <span>
+      <ion-input
+        #inpt
+        (input)="srch(inpt.value)"
+        type="text"
+        value=""
+        placeholder="search"
+        style="width: 95%"
+      ></ion-input>
+    </span>
+    <span style="width: 5%" (click)="srch(inpt.value)"
+      ><ion-icon name="search"></ion-icon
+    ></span>
+  </div> -->
+  <ion-searchbar #inpt id="sc" (input)="srch(inpt.value)"></ion-searchbar>
+  <ion-list id="listids">
+    <ion-item *ngFor="let name of items" (click)="gotoChatDetail(name)">
       <!-- <ion-avatar slot="start">
         <img src="assets/avatar.png" />
       </ion-avatar> -->
       <ion-label>
-        <h2>{{name}}</h2>
+        <h2>{{ name }}</h2>
         <!-- <h3>{{friend[0]}}</h3>
         <p>{{friend[1]}}</p> -->
       </ion-label>

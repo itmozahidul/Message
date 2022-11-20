@@ -1,8 +1,8 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start">
+    <!-- <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
-    </ion-buttons>
+    </ion-buttons> -->
     <ion-buttons slot="end">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
@@ -14,7 +14,7 @@
       <ion-icon md="caret-up" ios="chevron-up-circle-outline"></ion-icon>
     </ion-fab-button>
     <ion-fab-list side="top">
-      <ion-fab-button color="light"  (click)="gotoNewFriend()">
+      <ion-fab-button color="light" (click)="gotoNewFriend()">
         <ion-icon name="add-circle"></ion-icon>
       </ion-fab-button>
       <ion-fab-button color="light" [routerLink]="['/profile']">
@@ -31,16 +31,40 @@
   <ion-grid>
     <ion-row size="12">
       <ion-col size="12">
-        <ion-searchbar id="sc"></ion-searchbar>
-        <ion-list #cilist id = "listid">
-          <ion-item *ngFor="let friend of friends;key" [routerLink]="['/message',friend]" (click)="gotoChatDetail()">
+        <ion-searchbar
+          id="sc"
+          #inpt
+          (input)="search($event, inpt.value)"
+        ></ion-searchbar>
+        <ion-list #cilist id="listid">
+          <ion-item
+            *ngFor="let key of friends.keys()"
+            [routerLink]="['/message', key]"
+            (click)="gotoChatDetail(key, friends.get(key))"
+          >
+            <ion-badge
+              color="danger"
+              *ngIf="
+                unreadMessagesNo.get(key) != undefined &&
+                unreadMessagesNo.get(key) != null &&
+                unreadMessagesNo.get(key) > 0
+              "
+              slot="end"
+              >{{ unreadMessagesNo.get(key) }}</ion-badge
+            >
             <ion-avatar slot="start">
               <img src="assets/avatar.png" />
             </ion-avatar>
             <ion-label>
-              <h2>{{key}}</h2>
-              <h3>{{friend[0]}}</h3>
-              <p>{{friend[1]}}</p>
+              <h2>
+                <b>{{ key }}</b>
+              </h2>
+              <h3 *ngIf="friends.get(key)[friends.get(key).length - 2]">
+                {{ friends.get(key)[friends.get(key).length - 2].text }}
+              </h3>
+              <p *ngIf="friends.get(key)[friends.get(key).length - 1]">
+                {{ friends.get(key)[friends.get(key).length - 1].text }}
+              </p>
             </ion-label>
           </ion-item>
         </ion-list>
@@ -53,12 +77,21 @@
             <ion-icon name="settings"></ion-icon>
           </ion-fab-button>
           <ion-fab-list side="end">
-            <ion-fab-button><ion-icon name="logo-vimeo"></ion-icon></ion-fab-button>
+            <ion-fab-button
+              ><ion-icon name="logo-vimeo"></ion-icon
+            ></ion-fab-button>
           </ion-fab-list>
         </ion-fab>
       </ion-col>
     </ion-row>
   </ion-grid>
-
-  
 </ion-content>
+<div *ngIf="hasError" class="overlay">
+  <div class="popup">
+    <div>ERROR!</div>
+    <div>{{ errommsg }}</div>
+    <div>
+      <ion-button color="success" (click)="hasError = false">close</ion-button>
+    </div>
+  </div>
+</div>

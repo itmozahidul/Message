@@ -1,3 +1,27 @@
-.searchBar{
-    padding: 4px;
+.searchBar {
+  padding: 4px;
+}
+
+ion-content {
+  --background: #fff url("../../assets/images/advertise/advertise.png")
+    no-repeat center center / cover;
+}
+
+ion-searchbar {
+  --background: aliceblue;
+}
+
+ion-list {
+  background: none;
+}
+
+ion-item {
+  --background: #00000057;
+  --color: #f5f6f9;
+  /* --border-radius: 5px; */
+  --ripple-color: purple;
+  /* --detail-icon-color: white; */
+  /* --detail-icon-opacity: 1; */
+  /* --detail-icon-font-size: 20px; */
+  padding: 1vh;
 }

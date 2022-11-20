@@ -15,35 +15,38 @@
   </ion-card> 
 </div> -->
 <ion-grid>
-  <ion-row size="12"  *ngIf="isLeftSide">
-    <ion-col size="10">
-      <div id="textWrap">
-        <div style="display: flex; position: absolute; left: 0;" >
-          <ion-avatar slot="start" style="height:25px;width: 25px;"  >
-            <img src="assets/avatar.png"  />
-          </ion-avatar>
-          <ion-card>
-            {{text}}
-          </ion-card>
-        </div>
-      </div>
-    </ion-col >
+  <ion-row size="12" *ngIf="leftSide()">
+    <ion-col size="8">
+      <ion-row size="12">
+        <ion-col size="1">
+          <div>
+            <ion-avatar slot="start" style="height: 5vw; width: 5vw">
+              <img src="assets/avatar.png" />
+            </ion-avatar>
+          </div>
+        </ion-col>
+        <ion-col size="11">
+          <ion-card> {{ text }}</ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <ion-col size="4"> </ion-col>
   </ion-row>
-  <ion-row size="12"  *ngIf="!isLeftSide">
-    
-    
-    <ion-col size="12">
-      <div id="textWrap">
-        <div style="display: flex; position: absolute; right: 0;">
-          <ion-card>
-            {{text}}
-          </ion-card>
-          <ion-avatar slot="start" style="height:25px;width: 25px;"  >
-            <img src="assets/avatar.png"  />
-          </ion-avatar>
-        </div>
-      </div>
-    </ion-col >
+  <ion-row size="12" *ngIf="!leftSide()" style="text-align: right">
+    <ion-col size="4"> </ion-col>
+    <ion-col size="8">
+      <ion-row size="12">
+        <ion-col size="11" style="text-align: -webkit-right">
+          <ion-card> {{ text }} </ion-card>
+        </ion-col>
+        <ion-col size="1">
+          <div>
+            <ion-avatar slot="start" style="height: 5vw; width: 5vw">
+              <img src="assets/avatar.png" />
+            </ion-avatar>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-col>
   </ion-row>
 </ion-grid>
-

@@ -1,33 +1,46 @@
-#textWrap{
-    display: flex;
+#textWrap {
+  // display: flex;
+  width: 100%;
 }
 
-#msgtxtRight{
-    position: absolute;
-    width: 80vw;
-    right: 6vw;
-    bottom: 0;
-    padding: 3px;
+#msgtxtRight {
+  position: absolute;
+  width: 80vw;
+  right: 6vw;
+  bottom: 0;
+  padding: 3px;
 }
-#msgtxtLeft{
-    position: absolute;
-    width: 80vw;
-    left: 6vw;
-    bottom: 0;
-    padding: 3px;
+
+#msgtxtLeft {
+  position: absolute;
+  width: 80vw;
+  left: 6vw;
+  bottom: 0;
+  padding: 3px;
 }
-#ionAvaterRight{
-    position: absolute;
-    width: 6vw;
-    height: 6vw;
-    right: 0;
-    bottom: 0;
+
+#ionAvaterRight {
+  position: absolute;
+  width: 6vw;
+  height: 6vw;
+  right: 0;
+  bottom: 0;
 }
-#ionAvaterLeft{
-    position: absolute;
-    width: 6vw;
-    height: 6vw;
-    left: 0;
-    bottom: 0;
-    
+
+#ionAvaterLeft {
+  position: absolute;
+  width: 6vw;
+  height: 6vw;
+  left: 0;
+  bottom: 0;
+}
+
+ion-card {
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.5vh;
+  margin: 0.5vh;
+  font-size: 23px;
+  background-color: lavender;
+  color: currentColor;
 }
