@@ -4,6 +4,10 @@ import { Router } from '@angular/router';
 import { loginUser } from '../Model/loginUser';
 import { registerUser } from '../Model/registerUser';
 import { GeneralService } from '../service/general.service';
+import { Store } from '@ngrx/store';
+import { State } from '../Store/reducer';
+import * as selector from '../store/selector';
+import * as action from '../store/action';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +24,11 @@ export class LoginComponent implements OnInit {
   });
   errommsg: string = '';
   hasError: boolean = false;
-  constructor(private general: GeneralService, private router: Router) {}
+  constructor(
+    private general: GeneralService,
+    private router: Router,
+    private store: Store<State>
+  ) {}
 
   ngOnInit() {}
 
@@ -54,7 +62,17 @@ export class LoginComponent implements OnInit {
             console.log(suc);
             if (this.general.prepareSession(suc.jwt)) {
               //this.router.navigate(['chat']);
-              this.router.navigate(['/chat', '']);
+              this.store.dispatch(
+                action.updateurrentUser({ currentUser: this.general.getUser() })
+              );
+              this.general.connect().then(
+                (suc) => {
+                  this.router.navigate(['/chat', '']);
+                },
+                (err) => {
+                  console.log(err);
+                }
+              );
             }
           } else {
             console.log('ERROR');

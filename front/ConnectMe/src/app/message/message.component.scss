@@ -29,3 +29,22 @@ ion-input {
   background-color: cornflowerblue;
   color: white;
 }
+.fileInput {
+  outline: none;
+  border-radius: 12px;
+  font-size: 90%;
+  padding: 1vh;
+  width: 50vw;
+}
+::-webkit-file-upload-button {
+  /* border-radius: 100px;
+  width: 20%;
+  outline: none;
+  color: white;
+  background-color: cornflowerblue; */
+  display: none;
+}
+
+app-text {
+  display: block;
+}

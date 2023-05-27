@@ -54,6 +54,10 @@ export const updateRecentSentText = createAction(
   '[app] updateRecentSentText',
   props<{ sentText: chatResponse }>()
 );
+export const updateRecentSentTextChat = createAction(
+  '[app] updateRecentSentTextChat',
+  props<{ sentTextChat: chatResponse }>()
+);
 
 export const updateUnreadMessagesNo = createAction(
   '[app] updateUnreadMessagesNo',

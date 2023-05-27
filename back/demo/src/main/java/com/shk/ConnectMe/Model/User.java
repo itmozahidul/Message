@@ -15,6 +15,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
@@ -23,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 @Entity
 //@Table(name = "User")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) 
 public class User {
 
 	/**
@@ -34,24 +36,28 @@ public class User {
 	private String name;
 	private String firstName;
 	private String lastName;
+	private String spokento;
 	
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "sender")
-	@JsonIgnoreProperties("sender")
+	@JsonIgnoreProperties({"sender","reciever"})
 	private List<Message> sendMessageList;
 	
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "reciever")
-	@JsonIgnoreProperties("reciever")
+	@JsonIgnoreProperties({"sender","reciever"})
 	private List<Message> recievedMessageList;
 	
 	  @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy =
-	  "user") private Geheim card;
-	 @JsonIgnoreProperties("user")
+	  "user") 
+	  @JsonIgnoreProperties("user")
+	  private Geheim card;
+	 
 	private String Mobile;
 	private String Adress;
 	private String image;
 
 	public User() {
 		super();
+		this.spokento="";
 		// TODO Auto-generated constructor stub
 	}
 
@@ -63,6 +69,7 @@ public class User {
 		this.lastName = lastName;
 		this.sendMessageList = sendMessageList;
 		this.recievedMessageList = recievedMessageList;
+		this.spokento="";
 		this.card = card;
 		Mobile = mobile;
 		Adress = adress;
@@ -76,6 +83,7 @@ public class User {
 		Mobile = mobile;
 		Adress = adress;
 		this.image = image;
+		this.spokento="";
 	}
 
 	public int getId() {
@@ -156,6 +164,14 @@ public class User {
 
 	public void setImage(String image) {
 		this.image = image;
+	}
+
+	public String getSpokenTo() {
+		return spokento;
+	}
+
+	public void setSpokenTo(String spokenTo) {
+		this.spokento = spokenTo;
 	}
 
 	

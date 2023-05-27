@@ -1,62 +1,94 @@
 <ion-content>
-  
   <ion-card class="g" id="wrap">
     <ion-card-header>
       <ion-item>
-        <ion-text style="font-size: 4vw;text-align: center;">Register</ion-text>
+        <ion-text style="font-size: 4vw; text-align: center">Register</ion-text>
       </ion-item>
     </ion-card-header>
-  
+
     <ion-card-content>
       <ion-grid>
-        <ion-row size = "12">
-          <ion-col size = "3">
-            
-          </ion-col>
-          <ion-col size = "6">
+        <ion-row size="12">
+          <ion-col size="3"> </ion-col>
+          <ion-col size="6">
             <form [formGroup]="registerForm" (ngSubmit)="onFormSubmit()">
-              
-                <div><ion-text>First Name</ion-text></div><input #fnm formControlName="fname"  > 
-               <div><label *ngIf="registerForm.get('fname').invalid && fnm.value!=''" [ngClass] = "'error'"> Name is too long. </label></div> 
-              
-              
-                <div><ion-text>Last Name </ion-text></div><input #lnm formControlName="lname"  >
-               <div><label *ngIf="registerForm.get('lname').invalid && lnm.value!=''" [ngClass] = "'error'"> Name is too long. </label> </div>
-              
-              
-                <div><ion-text>Email </ion-text></div><input #eadress formControlName="adress"  > 
-               <div><label *ngIf="registerForm.get('adress').invalid && eadress.value!=''" [ngClass] = "'error'"> email is not correct. </label> </div>
-              
-              
-                <div><ion-text>Mobile </ion-text></div><input #mbnm formControlName="mobile"  > 
-               <div><label *ngIf="registerForm.get('mobile').invalid && mbnm.value!=''" [ngClass] = "'error'"> mobile no is not correct. </label> </div>
-              
-              
-                <div><ion-text>password </ion-text></div><input #p1 formControlName="imp1"  >
-              
-              
-                <div><ion-text>confirm </ion-text></div><input #p2 formControlName="imp2"  > 
-              
-              <div><ion-button type="submit" color="success"    >Register</ion-button></div>
-              
-             </form>
+              <div><ion-text>First Name</ion-text></div>
+              <input #fnm formControlName="fname" />
+              <div>
+                <label
+                  *ngIf="registerForm.get('fname').invalid && fnm.value != ''"
+                  [ngClass]="'error'"
+                >
+                  Name is too long.
+                </label>
+              </div>
+
+              <div><ion-text>Last Name </ion-text></div>
+              <input #lnm formControlName="lname" />
+              <div>
+                <label
+                  *ngIf="registerForm.get('lname').invalid && lnm.value != ''"
+                  [ngClass]="'error'"
+                >
+                  Name is too long.
+                </label>
+              </div>
+
+              <div><ion-text>Email </ion-text></div>
+              <input #eadress formControlName="adress" />
+              <div>
+                <label
+                  *ngIf="
+                    registerForm.get('adress').invalid && eadress.value != ''
+                  "
+                  [ngClass]="'error'"
+                >
+                  email is not correct.
+                </label>
+              </div>
+
+              <div><ion-text>Mobile </ion-text></div>
+              <input #mbnm formControlName="mobile" />
+              <div>
+                <label
+                  *ngIf="registerForm.get('mobile').invalid && mbnm.value != ''"
+                  [ngClass]="'error'"
+                >
+                  mobile no is not correct.
+                </label>
+              </div>
+
+              <div><ion-text>password </ion-text></div>
+              <input #p1 formControlName="imp1" />
+
+              <div><ion-text>confirm </ion-text></div>
+              <input #p2 formControlName="imp2" />
+
+              <div>
+                <ion-button type="submit" color="success">Register</ion-button>
+              </div>
+            </form>
           </ion-col>
-          <ion-col size = "3">
-             
-          </ion-col>
+          <ion-col size="3"> </ion-col>
         </ion-row>
       </ion-grid>
     </ion-card-content>
-  
-    </ion-card>
-    <ion-card  id="err" *ngIf="hasError">
-      <div class = "errbx">{{errommsg}}</div>
-    </ion-card>
+  </ion-card>
+  <ion-card id="err" *ngIf="hasError">
+    <div class="errbx">{{ errommsg }}</div>
+  </ion-card>
 </ion-content>
 <div *ngIf="res" class="overlay">
   <div class="popup">
-    <div>Welcome {{uname}}!</div>
-  <div>Registration was successful</div>
-  <div><ion-button  color="success" [routerLink]="['/login']">OK</ion-button></div>
+    <div>Welcome {{ uname }}!</div>
+    <div>Registration was successful</div>
+    <div>
+      <ion-button
+        color="success"
+        [routerLink]="['/login']"
+        (click)="res = false"
+        >OK</ion-button
+      >
+    </div>
   </div>
 </div>

@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  server: 'http://192.168.2.133:8080',
+  webSoket: 'ws://192.168.2.133:8080',
 };
 
 /*

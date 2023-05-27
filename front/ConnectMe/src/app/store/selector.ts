@@ -46,6 +46,13 @@ export const selectRecentSentText = createSelector(selectAppState, (state) => {
   return state.sentText;
 });
 
+export const selectRecentSentTextChat = createSelector(
+  selectAppState,
+  (state) => {
+    return state.sentTextChat;
+  }
+);
+
 export const selectUnreadMessagesNo = createSelector(
   selectAppState,
   (state) => {

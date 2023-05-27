@@ -9,7 +9,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) 
 public class Message {
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -18,11 +22,15 @@ public class Message {
     private String text;
     private boolean seen;
     
+    @JsonIgnoreProperties({"sendMessageList","recievedMessageList"})
     @ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "sender", nullable = false ) private User sender;
+	@JoinColumn(name = "sender", nullable = false ) 
+    private User sender;
     
+    @JsonIgnoreProperties({"sendMessageList","recievedMessageList"})
     @ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "reciever", nullable = false) private User reciever;
+	@JoinColumn(name = "reciever", nullable = false) 
+    private User reciever;
     
 	public Message() {
 		// TODO Auto-generated constructor stub

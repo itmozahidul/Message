@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button [routerLink]="['/chat', '']"></ion-back-button>
+      <ion-back-button [routerLink]="['/chat']"></ion-back-button>
     </ion-buttons>
     <ion-buttons slot="end">
       <ion-menu-button></ion-menu-button>
@@ -9,40 +9,124 @@
   </ion-toolbar>
 </ion-header>
 <ion-content #cnt id="cont">
-  <div class="messageBox">
-    <app-text
-      *ngFor="let msg of msgs"
-      [text]="msg.text"
-      [sender]="msg.sender"
-      [reciever]="msg.reciever"
-      [time]="msg.time"
-      [seen]="msg.seen"
-      [user]="this.generalService.getUser()"
+  <ion-grid>
+    <ion-row class="messageBox">
+      <ion-col>
+        <app-text
+          *ngFor="let msg of msgs"
+          [text]="msg.text"
+          [sender]="msg.sender"
+          [reciever]="msg.reciever"
+          [time]="msg.time"
+          [seen]="msg.seen"
+          [user]="this.generalService.getUser()"
+        >
+        </app-text>
+      </ion-col>
+    </ion-row>
+    <ion-row
+      *ngIf="
+        inptmode == 3 &&
+        imageFileName != undefined &&
+        imageFileName != null &&
+        imageFileName != ''
+      "
     >
-    </app-text>
-  </div>
+      <ion-col size="12">
+        <ion-row *ngIf="dataProcess">
+          <ion-col size="12">
+            <ion-item>
+              <p>{{ imageURI }}</p>
+            </ion-item>
+            <ion-item>
+              <h4>Image Preview</h4>
+              <img
+                src="{{ imageFileName }}"
+                *ngIf="imageFileName"
+                alt="Ionic File"
+                width="300"
+              />
+            </ion-item>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">
+            <ion-item>
+              <button ion-button (click)="setFinalImage()">Use</button>
+            </ion-item>
+          </ion-col>
+          <ion-col size="6">
+            <ion-item>
+              <button ion-button (click)="getImage()">Discard</button>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>
 <ion-footer>
   <ion-grid>
     <ion-row size="12">
       <ion-col size="6">
         <ion-row size="12">
-          <ion-col size="3"><ion-icon name="happy-outline"></ion-icon></ion-col>
-          <ion-col size="3"
-            ><ion-icon name="attach-outline"></ion-icon
+          <ion-col size="2">
+            <ion-icon name="text" (click)="inptmodeSet(1)"></ion-icon>
+          </ion-col>
+          <ion-col size="2">
+            <ion-icon name="attach-outline" (click)="inptmodeSet(2)"></ion-icon>
+          </ion-col>
+          <ion-col size="2"
+            ><ion-icon name="camera" (click)="inptmodeSet(3)"></ion-icon
           ></ion-col>
-          <ion-col size="3"><ion-icon name="mic"></ion-icon></ion-col>
-          <ion-col size="3" id="gif"><b>gif</b></ion-col>
+          <ion-col size="2">
+            <ion-icon name="mic" (click)="inptmodeSet(4)"></ion-icon>
+          </ion-col>
+          <ion-col size="2" id="gif" (click)="inptmodeSet(5)">
+            <b>gif</b>
+          </ion-col>
+          <ion-col size="2">
+            <ion-icon name="happy-outline" (click)="inptmodeSet(6)"></ion-icon>
+          </ion-col>
         </ion-row>
       </ion-col>
       <ion-col size="6"> </ion-col>
     </ion-row>
-    <ion-row size="12">
+
+    <ion-row size="12" *ngIf="inptmode == 1">
       <ion-col size="11">
         <ion-input #inputText placeholder="write..."></ion-input>
       </ion-col>
       <ion-col size="1">
         <ion-icon name="send" (click)="send(inputText)"></ion-icon>
+      </ion-col>
+    </ion-row>
+
+    <ion-row size="12" [style.display]="inptmode == 2 ? 'block' : 'none'">
+      <ion-col size="11">
+        <input class="fileInput" #inputFile type="file" />
+      </ion-col>
+      <ion-col size="1">
+        <ion-icon name="send" (click)="sendFile(inputFile)"></ion-icon>
+      </ion-col>
+    </ion-row>
+
+    <ion-row size="12" *ngIf="inptmode == 3">
+      <ion-col size="11">
+        <img
+          *ngIf="
+            imageFileNameFinal != undefined &&
+            imageFileNameFinal != null &&
+            imageFileNameFinal != ''
+          "
+          #inputImage
+          src="{{ imageFileNameFinal }}"
+          alt="img"
+          type="image"
+        />
+      </ion-col>
+      <ion-col size="1">
+        <ion-icon name="send" (click)="sendImage(inputImage)"></ion-icon>
       </ion-col>
     </ion-row>
   </ion-grid>

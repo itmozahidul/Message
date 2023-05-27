@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { Store } from '@ngrx/store';
@@ -11,13 +11,16 @@ import { Observable } from 'rxjs';
 import * as selector from '../store/selector';
 import { actionEvent } from '../DTO/actionEvent';
 import { encode } from 'querystring';
+import { environment } from 'src/environments/environment.prod';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GeneralService {
-  endpoint = 'http://localhost:8080';
-  wsendpoint = 'ws://localhost:8080';
+  endpoint = environment.server; // 'http://192.168.2.133:8080';
+  wsendpoint = environment.webSoket; // 'ws://192.168.2.133:8080';
+  //endpoint = 'http://localhost:8080';
+  //wsendpoint = 'ws://localhost:8080';
   httpHeader = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
@@ -39,7 +42,7 @@ export class GeneralService {
     this.msgs$ = this.store.select(selector.selectViewMessage);
 
     this.msgs$.subscribe((m) => {
-      if (m.length > 0) {
+      if (m != undefined && m != null && m.length > 0) {
         this.msgs = m;
       } else {
         //loadMsgFromBack();
@@ -95,6 +98,16 @@ export class GeneralService {
     );
   }
 
+  updateMsgSeen(id: number, ans: boolean) {
+    //const params = new HttpParams().set('id', id).set('ans', ans);
+    console.log('msg seen rqst sent to backend');
+    return this.httpClient.post<any>(
+      this.endpoint + '/message/messageSeen',
+      [id, ans],
+      this.httpHeader
+    );
+  }
+
   showBusy() {
     let p = document.createElement('div');
     p.setAttribute('id', 'busyid');
@@ -123,9 +136,11 @@ export class GeneralService {
   destroySession() {
     localStorage.removeItem('token');
     let currentUser = '';
+    this.store.dispatch(action.updateCurrentReciever({ currentReciever: '' }));
     this.store.dispatch(action.updateurrentUser({ currentUser }));
     this.store.dispatch(action.updateViewdMessage({ msgs: [] }));
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('friends');
   }
   setToken(token: string): boolean {
     if (token) {
@@ -255,12 +270,21 @@ export class GeneralService {
     switch (data.type) {
       case 'message':
         // condition is useless
+        console.log(
+          data.from == this.getUser() || data.to == this.getUser()
+            ? 'data relavant to user'
+            : 'data is not relavant to user'
+        );
         if (data.from == this.getUser() || data.to == this.getUser()) {
           //this.msgs.push(data.msgr);
-
           this.store.dispatch(
             action.updateRecentSentText({
               sentText: data.msgr,
+            })
+          );
+          this.store.dispatch(
+            action.updateRecentSentTextChat({
+              sentTextChat: data.msgr,
             })
           );
           /* this.store.dispatch(

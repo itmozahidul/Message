@@ -1,6 +1,7 @@
 package DTO;
 
 public class MessageResponse {
+	private long id;
 	    private String time;
 	    private String text;
 	    private boolean seen;
@@ -9,8 +10,9 @@ public class MessageResponse {
 	public MessageResponse() {
 		// TODO Auto-generated constructor stub
 	}
-	public MessageResponse(String time, String text, boolean seen, String sender, String reciever) {
+	public MessageResponse(long id, String time, String text, boolean seen, String sender, String reciever) {
 		super();
+		this.id = id;
 		this.time = time;
 		this.text = text;
 		this.seen = seen;
@@ -47,5 +49,12 @@ public class MessageResponse {
 	public void setReciever(String reciever) {
 		this.reciever = reciever;
 	}
+	public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
+	
     
 }

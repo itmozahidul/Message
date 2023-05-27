@@ -16,6 +16,7 @@ export interface State {
   msgs: chatResponse[];
   currentChatHeads: chatResponse[];
   sentText: chatResponse;
+  sentTextChat: chatResponse;
   unreadMessagesNo: Map<string, number>;
 }
 
@@ -29,10 +30,11 @@ export const initialState: State = {
   // wait:true,
   // puzzleUser:[]
   currentReciever: '',
-  currentUser: localStorage.getItem('currentUser'),
+  currentUser: '',
   msgs: [],
   currentChatHeads: [],
   sentText: null,
+  sentTextChat: null,
   unreadMessagesNo: new Map(),
 };
 
@@ -106,7 +108,10 @@ return {
 }
 }), */
   on(action.updateViewdMessage, (state, { msgs }) => {
-    var newMsgs = msgs;
+    var newMsgs = [];
+    msgs.forEach((m) => {
+      newMsgs.push(m);
+    });
     console.log('in reducer view msg');
     return {
       ...state,
@@ -132,7 +137,10 @@ return {
     };
   }),
   on(action.updateCurrentChatHeads, (state, { currentChatHeads }) => {
-    var newCurentChatHeads = currentChatHeads;
+    var newCurentChatHeads = [];
+    newCurentChatHeads.forEach((m) => {
+      currentChatHeads.push(m);
+    });
 
     return {
       ...state,
@@ -140,11 +148,19 @@ return {
     };
   }),
   on(action.updateRecentSentText, (state, { sentText }) => {
-    var newSentText = sentText;
-
+    var newSentText: chatResponse = sentText;
+    console.log('in reducer updateRecentSentText');
     return {
       ...state,
       sentText: newSentText,
+    };
+  }),
+  on(action.updateRecentSentTextChat, (state, { sentTextChat }) => {
+    var newSentTextChat: chatResponse = sentTextChat;
+    console.log('in reducer updateRecentSentTextchat');
+    return {
+      ...state,
+      sentTextChat: sentTextChat,
     };
   })
 );

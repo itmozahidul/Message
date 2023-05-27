@@ -47,7 +47,9 @@ export class NewFriendComponent implements OnInit, AfterViewInit {
   }
 
   gotoChatDetail(newPerson) {
-    this.router.navigate(['/chat', newPerson]);
+    if (newPerson != this.generalService.getUser()) {
+      this.router.navigate(['/chat', newPerson]);
+    }
 
     //this part is needed if ,the chats data has to be handeled here.
     /* this.store.dispatch(

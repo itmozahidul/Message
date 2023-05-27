@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shk.ConnectMe.Model.Geheim;
 import com.shk.ConnectMe.Model.RestResponse;
+import com.shk.ConnectMe.Model.SpokenToEntry;
 import com.shk.ConnectMe.Model.User;
 import com.shk.ConnectMe.Repository.GeheimRepository;
 import com.shk.ConnectMe.Repository.UserRepository;
@@ -29,7 +30,7 @@ import org.json.simple.JSONObject;
 import DTO.SearchedUser;
 import DTO.UserRegister;
 
-@CrossOrigin
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -100,9 +101,28 @@ public class UserController {
 		return ResponseEntity.ok(this.names);
 	}
 	
+	@PostMapping("/spokenTo")
+	ResponseEntity<?> getSpokenTo(@RequestBody String key){
+		String spokenTo="";
+		try { //this.user_rpt.getUsersByKey("shakil");
+			User u = this.user_rpt.getUsersByKey(key);//key means username
+			spokenTo = u.getSpokenTo();
+//			List<User> users = this.user_rpt.getUsersByKey(key);
+//			for(User u:users) {
+//				this.userNames.add(new SearchedUser(u.getName(),u.getImage()));
+//			}
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return ResponseEntity.ok(new SpokenToEntry(spokenTo));
+	}
+	
 	@PostMapping("/login")
 	ResponseEntity<?> login(@RequestBody String string_info){
-		
+		this.jwt=null;
 		this.job_info= new JSONObject();
 		try {
 			this.job_info = (JSONObject)new JSONParser().parse(string_info);

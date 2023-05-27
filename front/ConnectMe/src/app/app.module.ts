@@ -23,6 +23,13 @@ import { NewFriendComponent } from './new-friend/new-friend.component';
 import { ProfileComponent } from './profile/profile.component';
 import { MenuComponent } from './menu/menu.component';
 import { WaitComponent } from './wait/wait.component';
+import { Camera } from '@ionic-native/camera/ngx';
+import { File } from '@ionic-native/file/ngx';
+import {
+  FileTransfer,
+  FileTransferObject,
+} from '@ionic-native/file-transfer/ngx';
+//import { FileUploadOptions } from '@ionic-native/file-transfer/__ivy_ngcc__/ngx';
 
 @NgModule({
   declarations: [
@@ -68,6 +75,10 @@ import { WaitComponent } from './wait/wait.component';
       useClass: TokenInterceptorService,
       multi: true,
     },
+    Camera,
+    File,
+    FileTransfer,
+    FileTransferObject,
   ],
   bootstrap: [AppComponent],
 })

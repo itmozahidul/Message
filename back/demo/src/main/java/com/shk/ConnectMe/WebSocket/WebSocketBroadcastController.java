@@ -2,15 +2,21 @@ package com.shk.ConnectMe.WebSocket;
 
 
 import DTO.MessageResponse;
+import DTO.actionEvent;
+
+import java.util.Date;
 
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.shk.ConnectMe.Controller.MessageController;
 import com.shk.ConnectMe.Model.Message;
 import com.shk.ConnectMe.Model.User;
 import com.shk.ConnectMe.Repository.MessageRepository;
@@ -18,7 +24,7 @@ import com.shk.ConnectMe.Repository.UserRepository;
 
 @Controller
 public class WebSocketBroadcastController {
-	    
+	Logger log = LoggerFactory.getLogger(WebSocketBroadcastController.class);
 	@Autowired
 	private UserRepository user_rpt; 
 	@Autowired
@@ -27,12 +33,35 @@ public class WebSocketBroadcastController {
 	    @Transactional
 	    @MessageMapping("/broadcast")
 	    @SendTo("/topic/messages")
-	    public MessageResponse send( MessageResponse chatMessage) throws Exception {
+	    public actionEvent send( actionEvent action) throws Exception {
 	    	//MessageResponse(String time, String text, boolean seen, String sender, String reciever)
 	    	// Message(String time, String text, boolean seen, User sender, User reciever)
-	    	Message m = new Message(chatMessage.getTime(),chatMessage.getText(),chatMessage.isSeen(),this.user_rpt.getUsersByKey(chatMessage.getSender()),this.user_rpt.getUsersByKey(chatMessage.getReciever()));
-	    	this.msg_rpt.save(m);
-	        return chatMessage;
+	    	User sender = this.user_rpt.getUsersByKey(action.getMsgr().getSender());
+	    	User reciever = this.user_rpt.getUsersByKey(action.getMsgr().getReciever());
+	    	
+	    	String sendersSpokenTo = sender.getSpokenTo();
+	    	if(!sendersSpokenTo.contains(reciever.getName())) {
+	    		sendersSpokenTo = (sendersSpokenTo.length()>0? sendersSpokenTo+" ":"")+reciever.getName();
+	    		this.user_rpt.UpdateUserSpokenToEntry(sendersSpokenTo, sender.getName());
+	    	}
+	    	
+	    	String recieversSpokenTo = reciever.getSpokenTo();
+	    	if(!recieversSpokenTo.contains(sender.getName())) {
+	    		recieversSpokenTo = (recieversSpokenTo.length()>0?recieversSpokenTo+" ":"")+sender.getName();
+	    		this.user_rpt.UpdateUserSpokenToEntry(recieversSpokenTo, reciever .getName());
+	    	}
+	    	
+	    	
+	    	Date date = new Date();
+	    	action.setTime(Long.toString(date.getTime()));
+	    	action.getMsgr().setTime(Long.toString(date.getTime()));
+	    	
+	    	Message m = new Message(action.getMsgr().getTime(),action.getMsgr().getText(),action.getMsgr().isSeen(),this.user_rpt.getUsersByKey(action.getMsgr().getSender()),this.user_rpt.getUsersByKey(action.getMsgr().getReciever()));
+	    	log.info("msg seved");
+	    	MessageResponse mr = action.getMsgr();
+	    	mr.setId(this.msg_rpt.save(m).getId());
+	    	action.setMsgr(mr);
+	        return action;
 	    }
 
 }

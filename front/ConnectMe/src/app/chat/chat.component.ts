@@ -30,21 +30,25 @@ export class ChatComponent implements OnInit, OnDestroy {
   currrentUser$: Observable<string>;
   items: any[] = [];
   friends: Map<string, chatResponse[]> = new Map();
-  msgs: chatResponse[] = [];
-  msgs$: Observable<chatResponse[]>;
+  currentChatHeads: chatResponse[] = [];
+  currentChatHeads$: Observable<chatResponse[]>;
   msgsSnglVw: chatResponse = null;
   msgsSnglVw$: Observable<chatResponse>;
   //@ViewChild('cilist') cilist:IonList;
-  originalOrder2 = (a, b) => {
+  originalOrder2() {
+    return 0;
+  }
+  originalOrder = (a: KeyValue<string, any>, b: KeyValue<string, any>) => {
+    console.log(a.key);
+    console.log(b.key);
+    console.log(
+      a.value[a.value.length - 1].time > b.value[b.value.length - 1].time
+    );
     return 0;
   };
-  originalOrder = (
-    a: KeyValue<number, chatResponse[]>,
-    b: KeyValue<number, chatResponse[]>
-  ): number => {
-    return 0;
-  };
-  unreadMessagesNo: Map<string, number> = new Map();
+  unreadMessagesNo: Map<string, number[]> = new Map();
+  reciever: string = null;
+  reciever$: Observable<string>;
   constructor(
     private store: Store<State>,
     private router: Router,
@@ -52,173 +56,250 @@ export class ChatComponent implements OnInit, OnDestroy {
     private activatedroute: ActivatedRoute
   ) {
     this.currrentUser$ = this.store.select(selector.selectCurrentUser);
-    this.msgs$ = this.store.select(selector.selectCurrentChatHeads);
-    this.msgsSnglVw$ = this.store.select(selector.selectRecentSentText);
+    this.currentChatHeads$ = this.store.select(selector.selectCurrentChatHeads);
+    this.msgsSnglVw$ = this.store.select(selector.selectRecentSentTextChat);
+    this.reciever$ = this.store.select(selector.selectCurrentReciever);
   }
 
   ngOnInit() {
-    let urm: Map<string, number> =
-      this.generalService.getFromLocal('unreadMessagesNo')[0];
-    console.log(urm);
-    if (urm != undefined && urm != null) {
-      urm.forEach((data, key) => {
-        this.unreadMessagesNo.delete(key);
-        this.unreadMessagesNo.set(key, data);
-      });
-    }
-    this.store.dispatch(
-      action.updateurrentUser({ currentUser: this.generalService.getUser() })
-    );
     console.log('in chat ngoninit');
+    //this updating current user will be helpfull if user refreshes the page unless it wont have any impact because login is doing it
+    // this.store.dispatch(
+    //   action.updateurrentUser({ currentUser: this.generalService.getUser() })
+    // );
+    //in chat list there is no reciever
+    // this.store.dispatch(
+    //   action.updateCurrentReciever({
+    //     currentReciever: '',
+    //   })
+    // );
+    this.store.dispatch(
+      action.updateCurrentReciever({
+        currentReciever: '',
+      })
+    );
+
+    this.subscriptionList.push(
+      this.reciever$.subscribe((data) => {
+        this.reciever = data;
+      })
+    );
+
     this.subscriptionList.push(
       this.activatedroute.paramMap.subscribe((params) => {
+        console.log('in chat and param url is');
+        console.log(params);
         let name = params.get('friend');
-        if (name.length > 0 && name.trim() != '' && name != null) {
+        if (
+          name != undefined &&
+          name != null &&
+          name.length > 0 &&
+          name.trim() != ''
+        ) {
           this.subscriptionList.push(
             this.generalService
               .getMesssages(this.generalService.getUser())
               .subscribe((ml) => {
-                this.store.dispatch(
-                  action.updateCurrentChatHeads({
-                    currentChatHeads: ml,
-                  })
-                );
-                this.router.navigate(['wait']);
+                this.prepareChatHead(ml);
+                //this.router.navigate(['wait']);
                 setTimeout(() => {
-                  this.gotoChatDetail(name, this.friends.get(name));
+                  this.gotoChatDetail(name);
                   this.router.navigate(['/message', name]);
                 }, 500);
               })
           );
+        } else {
+          let s = this.generalService.getUser();
+
+          if (s != '') {
+            if (
+              this.generalService.client == null ||
+              this.generalService.client.connected == false
+            ) {
+              this.generalService.connect().then(
+                (suc) => {
+                  this.subscriptionList.push(
+                    this.generalService.getMesssages(s).subscribe((ml) => {
+                      console.log(ml);
+                      this.prepareChatHead(ml);
+                    })
+                  );
+                },
+                (err) => {
+                  this.hasError = true;
+                  console.log(err);
+                  this.errommsg = 'can not connect';
+                }
+              );
+            } else {
+              this.subscriptionList.push(
+                this.generalService.getMesssages(s).subscribe((ml) => {
+                  this.prepareChatHead(ml);
+                })
+              );
+            }
+          }
         }
       })
     );
     this.subscriptionList.push(
       this.currrentUser$.subscribe((s) => {
-        this.currentUser = s;
+        console.log('current user in chat ');
+        console.log(s);
+      })
+    );
 
-        if (s != '') {
+    // this.subscriptionList.push(
+    //   this.currentChatHeads$.subscribe((ms) => {
+    //     this.currentChatHeads = ms;
+    //     this.prepareChatHead(ms);
+    //   })
+    // );
+    this.subscriptionList.push(
+      this.msgsSnglVw$.subscribe((recentText) => {
+        //debugger;
+        console.log('in chat component updating recent text');
+        if (recentText != null) {
+          let finalP = '';
+
           if (
-            this.generalService.client == null ||
-            this.generalService.client.connected == false
+            recentText.reciever == this.generalService.getUser() ||
+            recentText.sender == this.generalService.getUser()
           ) {
-            this.generalService.connect().then(
-              (suc) => {
-                this.subscriptionList.push(
-                  this.generalService.getMesssages(s).subscribe((ml) => {
-                    this.store.dispatch(
-                      action.updateCurrentChatHeads({
-                        currentChatHeads: ml,
-                      })
-                    );
-                  })
-                );
-              },
-              (err) => {
-                this.hasError = true;
-                console.log(err);
-                this.errommsg = 'can not connect';
+            if (recentText.reciever == this.generalService.getUser()) {
+              finalP = recentText.sender;
+            }
+            if (recentText.sender == this.generalService.getUser()) {
+              finalP = recentText.reciever;
+            }
+          }
+          if (this.friends.size > 0) {
+            //this.friends.get(finalP.toString()).push(recentText);
+
+            let tempfriends: Map<string, chatResponse[]> = new Map();
+            this.friends.forEach((d, k) => {
+              tempfriends.set(k.toString(), d);
+            });
+            this.friends.clear();
+            let temp: chatResponse[] = [];
+            try {
+              temp = tempfriends.get(finalP);
+              if (temp == undefined || temp == null || temp.length < 0) {
+                temp = [];
               }
-            );
+
+              // checking if it is a reciever's side of a message sent by this user
+              console.log(recentText.sender != this.generalService.getUser());
+              console.log('current user : ' + this.generalService.getUser());
+              console.log('new message sender : ' + recentText.sender);
+              console.log('new message reciever : ' + recentText.reciever);
+              console.log('finalp : ' + finalP);
+              console.log('reciever : ' + this.reciever);
+              if (recentText.sender != this.generalService.getUser()) {
+                //this condition tells when someone who is not chatting with the user sent a message
+                //If the current user is a sender of a message then he needs to be in conversation with that reciver right now.thats why this
+                //case was not implemented here
+                if (this.reciever != finalP) {
+                  console.log('msg not seen');
+                  let thisUsersUnreadMessageNo: number[] =
+                    this.unreadMessagesNo.get(finalP);
+                  this.unreadMessagesNo.delete(finalP);
+                  if (thisUsersUnreadMessageNo == undefined) {
+                    thisUsersUnreadMessageNo = [];
+                  }
+                  thisUsersUnreadMessageNo.push(recentText.id);
+                  console.log('got increase by 1 #########################');
+                  this.unreadMessagesNo.set(finalP, thisUsersUnreadMessageNo);
+                  console.log(this.unreadMessagesNo.get(finalP).length);
+                } else {
+                  console.log('msg is seen');
+                  console.log(recentText.id);
+                  recentText.seen = true;
+                  //debugger;
+                  this.generalService
+                    .updateMsgSeen(recentText.id, true)
+                    .subscribe(
+                      (suc) => {
+                        console.log(suc);
+                      },
+                      (fail) => {
+                        console.log(fail);
+                      }
+                    );
+                }
+              }
+              //if the sender is the current user then seen attribute is irrelavant
+              // if (recentText.sender == this.generalService.getUser()) {
+              //   recentText.seen = true;
+              //   this.generalService.updateMsgSeen(recentText.id, true);
+              // }
+
+              temp.push(recentText);
+              console.log(temp);
+            } catch (error) {
+              console.log(error);
+              temp = [];
+              temp.push(recentText);
+              console.log(temp);
+            }
+
+            this.friends.set(finalP.toString(), temp);
+
+            tempfriends.delete(finalP);
+            tempfriends.forEach((data, key) => {
+              this.friends.set(key.toString(), data);
+            });
+            console.log(this.friends);
           } else {
-            this.subscriptionList.push(
-              this.generalService.getMesssages(s).subscribe((ml) => {
-                this.store.dispatch(
-                  action.updateCurrentChatHeads({
-                    currentChatHeads: ml,
-                  })
-                );
-              })
-            );
+            let temp: chatResponse[] = [];
+            temp.push(recentText);
+            this.friends.set(finalP.toString(), temp);
           }
         }
       })
     );
-    this.msgs$.subscribe((ms) => {
-      this.msgs = ms;
-      this.prepareChatHead(ms);
-    });
-    this.msgsSnglVw$.subscribe((recentText) => {
-      console.log('in chat component updating recent text');
-      if (this.friends.size > 0) {
-        let finalP = '';
-
-        if (
-          recentText.reciever == this.currentUser ||
-          recentText.sender == this.currentUser
-        ) {
-          if (recentText.reciever == this.currentUser) {
-            finalP = recentText.sender;
-          }
-          if (recentText.sender == this.currentUser) {
-            finalP = recentText.reciever;
-          }
-        }
-        //this.friends.get(finalP.toString()).push(recentText);
-
-        let tempfriends: Map<string, chatResponse[]> = new Map();
-        this.friends.forEach((d, k) => {
-          tempfriends.set(k.toString(), d);
-        });
-        this.friends.clear();
-        let temp: chatResponse[] = [];
-        try {
-          temp = tempfriends.get(finalP);
-          temp.push(recentText);
-          // checking if it is a reciever's side of a message sent by this user
-          console.log(recentText.sender != this.currentUser);
-          console.log(this.currentUser);
-          console.log(recentText.sender);
-          console.log(recentText.reciever);
-          if (recentText.sender != this.currentUser) {
-            let thisUsersUnreadMessageNo: number =
-              this.unreadMessagesNo.get(finalP);
-            this.unreadMessagesNo.delete(finalP);
-            if (thisUsersUnreadMessageNo == undefined) {
-              thisUsersUnreadMessageNo = 0;
-            }
-            thisUsersUnreadMessageNo = thisUsersUnreadMessageNo + 1;
-            this.unreadMessagesNo.set(finalP, thisUsersUnreadMessageNo);
-            this.generalService.saveInlocal(
-              'unreadMessagesNo',
-              this.unreadMessagesNo
-            );
-          }
-        } catch (error) {
-          console.log(error);
-          temp = [];
-          temp.push(recentText);
-        }
-
-        this.friends.set(finalP.toString(), temp);
-
-        tempfriends.delete(finalP);
-        tempfriends.forEach((data, key) => {
-          this.friends.set(key.toString(), data);
-        });
-      }
-    });
   }
   prepareChatHead(ml: chatResponse[]) {
+    console.log(ml);
     this.friends = new Map();
     this.generalService
-      .getUserSpokenTo(this.currentUser)
+      .getUserSpokenTo(this.generalService.getUser())
       .subscribe((spkNames) => {
         let patners: string[] = spkNames.spokento.split(' ');
-
+        console.log(patners);
         // let tempfriends: Map<string, chatResponse[]> = new Map();
         patners.forEach((name) => {
-          if (name.length > 0 && name != ' ' && name != this.currentUser) {
+          if (
+            name.length > 0 &&
+            name != ' ' &&
+            name != this.generalService.getUser()
+          ) {
             let msgsTemp: chatResponse[] = [];
+
+            let thisUsersUnreadMessageNo: number[] = [];
+            //   this.unreadMessagesNo.get(name);
+            // this.unreadMessagesNo.delete(name);
+            // if (thisUsersUnreadMessageNo == undefined) {
+            //   thisUsersUnreadMessageNo = 0;
+            // }
 
             ml.forEach((umsg) => {
               if (
-                (umsg.reciever == name && umsg.sender == this.currentUser) ||
-                (umsg.reciever == this.currentUser && umsg.sender == name)
+                (umsg.reciever == name &&
+                  umsg.sender == this.generalService.getUser()) ||
+                (umsg.reciever == this.generalService.getUser() &&
+                  umsg.sender == name)
               ) {
                 msgsTemp.push(umsg);
+                if (
+                  !umsg.seen &&
+                  umsg.sender != this.generalService.getUser()
+                ) {
+                  thisUsersUnreadMessageNo.push(umsg.id);
+                }
               }
             });
+            this.unreadMessagesNo.set(name, thisUsersUnreadMessageNo);
 
             if (msgsTemp.length > 0) {
               msgsTemp = this.sortMessages(msgsTemp, 'Time');
@@ -284,14 +365,42 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     //this.generalService.disConnect();
+    console.log('destroying chat component ----------------');
     this.subscriptionList.forEach((s) => {
       s.unsubscribe();
     });
   }
 
-  gotoChatDetail(key, vmsgs: chatResponse[]) {
-    this.unreadMessagesNo.delete(key);
-    this.generalService.saveInlocal(key, this.unreadMessagesNo);
+  gotoChatDetail(key) {
+    console.log('go to chat detail');
+
+    console.log(key);
+    let vmsgs: chatResponse[] = this.friends.get(key);
+    let vmsgsMap: Map<number, chatResponse> = new Map();
+
+    if (vmsgs == undefined || vmsgs == null || vmsgs.length < 1) {
+      vmsgs = [];
+    }
+    vmsgs.forEach((d) => {
+      vmsgsMap.set(d.id, d);
+    });
+
+    let unms: number[] = this.unreadMessagesNo.get(key);
+    console.log(vmsgsMap);
+    if (unms != undefined && unms != null && unms.length > 0) {
+      unms.forEach((i) => {
+        vmsgsMap.get(i).seen = true;
+        console.log(vmsgsMap.get(i));
+        this.generalService.updateMsgSeen(i, true).subscribe(
+          (suc) => {
+            console.log(suc);
+          },
+          (fail) => {
+            console.log(fail);
+          }
+        );
+      });
+    }
     this.store.dispatch(
       action.updateViewdMessage({
         msgs: vmsgs,

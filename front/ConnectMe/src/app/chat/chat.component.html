@@ -38,24 +38,36 @@
         ></ion-searchbar>
         <ion-list #cilist id="listid">
           <ion-item
-            *ngFor="let key of friends.keys()"
-            [routerLink]="['/message', key]"
-            (click)="gotoChatDetail(key, friends.get(key))"
+            *ngFor="let friend of friends | keyvalue : originalOrder"
+            [routerLink]="['/message', friend.key]"
+            (click)="gotoChatDetail(friend.key)"
           >
-            <ion-badge
-              color="danger"
-              *ngIf="
-                unreadMessagesNo.get(key) != undefined &&
-                unreadMessagesNo.get(key) != null &&
-                unreadMessagesNo.get(key) > 0
-              "
-              slot="end"
-              >{{ unreadMessagesNo.get(key) }}</ion-badge
-            >
             <ion-avatar slot="start">
               <img src="assets/avatar.png" />
             </ion-avatar>
             <ion-label>
+              <h2>
+                <b>{{ friend.key }}</b>
+              </h2>
+              <h3 *ngIf="friend.value[friend.value.length - 2]">
+                {{ friend.value[friend.value.length - 2].text }}
+              </h3>
+              <p *ngIf="friend.value[friend.value.length - 1]">
+                {{ friend.value[friend.value.length - 1].text }}
+              </p>
+            </ion-label>
+
+            <ion-badge
+              color="danger"
+              *ngIf="
+                unreadMessagesNo.get(friend.key) != undefined &&
+                unreadMessagesNo.get(friend.key) != null &&
+                unreadMessagesNo.get(friend.key).length > 0
+              "
+              slot="end"
+              >{{ unreadMessagesNo.get(friend.key).length }}</ion-badge
+            >
+            <!-- <ion-label>
               <h2>
                 <b>{{ key }}</b>
               </h2>
@@ -65,7 +77,7 @@
               <p *ngIf="friends.get(key)[friends.get(key).length - 1]">
                 {{ friends.get(key)[friends.get(key).length - 1].text }}
               </p>
-            </ion-label>
+            </ion-label> -->
           </ion-item>
         </ion-list>
         <!-- <div id="add">
