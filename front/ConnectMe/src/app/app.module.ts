@@ -15,7 +15,7 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from 'src/environments/environment';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
-import * as appReducer from './Store/reducer';
+import * as appReducer from './store/reducer';
 import { MessageComponent } from './message/message.component';
 import { TokenInterceptorService } from './token-interceptor.service';
 import { TextComponent } from './text/text.component';
@@ -23,12 +23,6 @@ import { NewFriendComponent } from './new-friend/new-friend.component';
 import { ProfileComponent } from './profile/profile.component';
 import { MenuComponent } from './menu/menu.component';
 import { WaitComponent } from './wait/wait.component';
-import { Camera } from '@ionic-native/camera/ngx';
-import { File } from '@ionic-native/file/ngx';
-import {
-  FileTransfer,
-  FileTransferObject,
-} from '@ionic-native/file-transfer/ngx';
 //import { FileUploadOptions } from '@ionic-native/file-transfer/__ivy_ngcc__/ngx';
 
 @NgModule({
@@ -75,10 +69,6 @@ import {
       useClass: TokenInterceptorService,
       multi: true,
     },
-    Camera,
-    File,
-    FileTransfer,
-    FileTransferObject,
   ],
   bootstrap: [AppComponent],
 })

@@ -1,5 +1,6 @@
 package com.shk.ConnectMe.Model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -21,6 +22,8 @@ public class Message {
     private String time;
     private String text;
     private boolean seen;
+    @Column(columnDefinition="TEXT")
+    private String data;
     
     @JsonIgnoreProperties({"sendMessageList","recievedMessageList"})
     @ManyToOne(fetch = FetchType.LAZY)
@@ -43,6 +46,7 @@ public class Message {
 		this.seen = seen;
 		this.sender = sender;
 		this.reciever = reciever;
+		this.data = "";
 	}
 
 	public int getId() {
@@ -91,6 +95,14 @@ public class Message {
 
 	public void setReciever(User reciever) {
 		this.reciever = reciever;
+	}
+
+	public String getData() {
+		return data;
+	}
+
+	public void setData(String data) {
+		this.data = data;
 	}
 	
 	

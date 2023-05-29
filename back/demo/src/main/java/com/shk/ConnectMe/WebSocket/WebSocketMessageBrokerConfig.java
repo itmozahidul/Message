@@ -8,6 +8,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -36,4 +37,12 @@ public class WebSocketMessageBrokerConfig implements WebSocketMessageBrokerConfi
 	 * @Autowired public void setMessageBrokerTaskScheduler(TaskScheduler
 	 * taskScheduler) { this.msgbrkSchdlr = taskScheduler; }
 	 */
+   
+   @Override
+   public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
+       registration.setMessageSizeLimit(2000000000); // default : 64 * 1024
+       registration.setSendTimeLimit(20 * 10000000); // default : 10 * 10000
+       registration.setSendBufferSizeLimit(10* 512 * 1024); // default : 512 * 1024
+
+   }
 }

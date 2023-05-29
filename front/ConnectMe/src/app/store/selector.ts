@@ -1,6 +1,6 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import * as appStore from '../store/reducer';
+import * as appStore from './reducer';
 
 export const selectAppState = createFeatureSelector<appStore.State>('app');
 // export const selectImgList = createSelector(selectgameState,(state)=>{

@@ -10,18 +10,16 @@ import { MaxLengthValidator } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { chatResponse } from '../DTO/chatResponse';
-import { Message } from '../Model/message';
+import { Message } from '../model/message';
 import { GeneralService } from '../service/general.service';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Store } from '@ngrx/store';
-import { State } from '../Store/reducer';
+import { State } from '../store/reducer';
 import * as selector from '../store/selector';
 import * as action from '../store/action';
-import {
-  FileTransfer,
-  FileTransferObject,
-} from '@ionic-native/file-transfer/ngx';
-import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Camera, CameraResultType } from '@capacitor/camera';
+import { Capacitor } from '@capacitor/core';
 import { LoadingController, ToastController } from '@ionic/angular';
 
 @Component({
@@ -42,11 +40,12 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   currentUser: string = '';
   currrentUser$: Observable<string>;
   subscriptionList = [];
-  dataProcess: boolean = true;
+  dataProcess: boolean = false;
   @ViewChild('cnt', { read: ElementRef }) cnt: ElementRef;
   @ViewChild('inputFile', { read: ElementRef }) inputFile: ElementRef;
   inptmode: number = 1;
   imageFileNameFinal: any;
+  imageData: string;
 
   constructor(
     private store: Store<State>,
@@ -54,8 +53,6 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     private router: Router,
     private generalService: GeneralService,
     private http: HttpClient,
-    private transfer: FileTransfer,
-    private camera: Camera,
     public loadingCtrl: LoadingController,
     public toastCtrl: ToastController
   ) {
@@ -116,6 +113,9 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     );
     this.subscriptionList.push(
       this.msgsSnglVw$.subscribe((data) => {
+        //here we can end the data process time, because new msg from backend was recieved.
+        debugger;
+        this.dataProcess = false;
         if (data != null) {
           console.log('data == ');
           console.log(data);
@@ -232,24 +232,36 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     data.value = '';
   }
 
-  getImage() {
-    const options: CameraOptions = {
-      quality: 100,
-      destinationType: this.camera.DestinationType.FILE_URI,
-      sourceType: this.camera.PictureSourceType.PHOTOLIBRARY,
-    };
+  async getImage() {
+    // const options: CameraOptions = {
+    //   quality: 100,
+    //   destinationType: this.camera.DestinationType.FILE_URI,
+    //   sourceType: this.camera.PictureSourceType.PHOTOLIBRARY,
+    // };
 
-    this.camera.getPicture(options).then(
-      (imageData) => {
-        this.imageURI = imageData;
-        this.imageFileName = this.imageURI;
-        console.log(imageData);
-      },
-      (err) => {
-        console.log(err);
-        this.presentToast(err);
-      }
-    );
+    // this.camera.getPicture(options).then(
+    //   (imageData) => {
+    //     this.imageURI = imageData;
+    //     this.imageFileName = this.imageURI;
+    //     console.log(imageData);
+    //   },
+    //   (err) => {
+    //     console.log(err);
+    //     this.presentToast(err);
+    //   }
+    // );
+    const image = await Camera.getPhoto({
+      quality: 90,
+      allowEditing: true,
+      resultType: CameraResultType.DataUrl,
+      //resultType: CameraResultType..Base64,
+    });
+
+    console.log(image);
+    const imageUrl = image.dataUrl;
+    this.imageFileName = imageUrl;
+    this.imageData = imageUrl;
+    this.dataProcess = true;
   }
 
   uploadFile() {
@@ -261,9 +273,9 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
         toast.present();
       });
 
-    const fileTransfer: FileTransferObject = this.transfer.create();
+    /*const fileTransfer: FileTransferObject = this.transfer.create();
 
-    /* fileTransfer.upload(this.imageURI, 'http://192.168.0.7:8080/api/uploadImage', options)
+     fileTransfer.upload(this.imageURI, 'http://192.168.0.7:8080/api/uploadImage', options)
       .then((data) => {
       console.log(data+" Uploaded Successfully");
       this.imageFileName = "http://192.168.0.7:8080/static/images/ionicfile.jpg"
@@ -328,18 +340,36 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.inptmode = v;
   }
 
-  setFinalImage() {
+  sendImage() {
+    this.generalService.showBusy();
     this.imageFileNameFinal = this.imageFileName;
     this.imageFileName = null;
+    this.inptmodeSet(1);
+    this.sendFileToback(this.imageData);
+  }
+
+  sendFileToback(data) {
+    this.inptmodeSet(1);
+    if (data != null) {
+      this.newMsg = new chatResponse(
+        -1111,
+        '00.00',
+        '',
+        false,
+        this.generalService.getUser(),
+        this.reciever
+      );
+      console.log(data);
+      this.newMsg.data = data;
+      this.generalService.sendMessage(this.newMsg);
+    }
   }
 
   sendFile(data) {
-    console.log(data.value);
     this.inptmodeSet(1);
-  }
-
-  sendImage(data) {
-    console.log(data);
-    this.inptmodeSet(1);
+    this.sendFileToback(
+      //this.generalService.getFileAsBlob(this.imageFileNameFinal)
+      this.imageData
+    );
   }
 }

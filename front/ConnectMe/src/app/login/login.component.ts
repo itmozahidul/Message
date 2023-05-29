@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { loginUser } from '../Model/loginUser';
-import { registerUser } from '../Model/registerUser';
+import { loginUser } from '../model/loginUser';
+import { registerUser } from '../model/registerUser';
 import { GeneralService } from '../service/general.service';
 import { Store } from '@ngrx/store';
-import { State } from '../Store/reducer';
+import { State } from '../store/reducer';
 import * as selector from '../store/selector';
 import * as action from '../store/action';
 

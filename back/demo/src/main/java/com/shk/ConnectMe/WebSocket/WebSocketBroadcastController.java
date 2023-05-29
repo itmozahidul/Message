@@ -36,31 +36,48 @@ public class WebSocketBroadcastController {
 	    public actionEvent send( actionEvent action) throws Exception {
 	    	//MessageResponse(String time, String text, boolean seen, String sender, String reciever)
 	    	// Message(String time, String text, boolean seen, User sender, User reciever)
-	    	User sender = this.user_rpt.getUsersByKey(action.getMsgr().getSender());
-	    	User reciever = this.user_rpt.getUsersByKey(action.getMsgr().getReciever());
-	    	
-	    	String sendersSpokenTo = sender.getSpokenTo();
-	    	if(!sendersSpokenTo.contains(reciever.getName())) {
-	    		sendersSpokenTo = (sendersSpokenTo.length()>0? sendersSpokenTo+" ":"")+reciever.getName();
-	    		this.user_rpt.UpdateUserSpokenToEntry(sendersSpokenTo, sender.getName());
-	    	}
-	    	
-	    	String recieversSpokenTo = reciever.getSpokenTo();
-	    	if(!recieversSpokenTo.contains(sender.getName())) {
-	    		recieversSpokenTo = (recieversSpokenTo.length()>0?recieversSpokenTo+" ":"")+sender.getName();
-	    		this.user_rpt.UpdateUserSpokenToEntry(recieversSpokenTo, reciever .getName());
-	    	}
-	    	
-	    	
-	    	Date date = new Date();
-	    	action.setTime(Long.toString(date.getTime()));
-	    	action.getMsgr().setTime(Long.toString(date.getTime()));
-	    	
-	    	Message m = new Message(action.getMsgr().getTime(),action.getMsgr().getText(),action.getMsgr().isSeen(),this.user_rpt.getUsersByKey(action.getMsgr().getSender()),this.user_rpt.getUsersByKey(action.getMsgr().getReciever()));
-	    	log.info("msg seved");
-	    	MessageResponse mr = action.getMsgr();
-	    	mr.setId(this.msg_rpt.save(m).getId());
-	    	action.setMsgr(mr);
+	    	try {
+				User sender = this.user_rpt.getUsersByKey(action.getMsgr().getSender());
+				User reciever = this.user_rpt.getUsersByKey(action.getMsgr().getReciever());
+				
+				String sendersSpokenTo = sender.getSpokenTo();
+				if(!sendersSpokenTo.contains(reciever.getName())) {
+					sendersSpokenTo = (sendersSpokenTo.length()>0? sendersSpokenTo+" ":"")+reciever.getName();
+					this.user_rpt.UpdateUserSpokenToEntry(sendersSpokenTo, sender.getName());
+				}
+				
+				String recieversSpokenTo = reciever.getSpokenTo();
+				if(!recieversSpokenTo.contains(sender.getName())) {
+					recieversSpokenTo = (recieversSpokenTo.length()>0?recieversSpokenTo+" ":"")+sender.getName();
+					this.user_rpt.UpdateUserSpokenToEntry(recieversSpokenTo, reciever .getName());
+				}
+				
+				
+				Date date = new Date();
+				action.setTime(Long.toString(date.getTime()));
+				action.getMsgr().setTime(Long.toString(date.getTime()));
+				
+				Message m = new Message(action.getMsgr().getTime(),action.getMsgr().getText(),action.getMsgr().isSeen(),this.user_rpt.getUsersByKey(action.getMsgr().getSender()),this.user_rpt.getUsersByKey(action.getMsgr().getReciever()));
+				try {
+					String blob_stringed_data = action.getMsgr().getData();
+					if(!blob_stringed_data.equals("null") && !blob_stringed_data.isEmpty()) {
+						m.setData(blob_stringed_data);
+						
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					m.setData("");
+				}
+				
+				log.info("msg seved");
+				MessageResponse mr = action.getMsgr();
+				mr.setId(this.msg_rpt.save(m).getId());
+				mr.setData(action.getMsgr().getData());
+				action.setMsgr(mr);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	        return action;
 	    }
 

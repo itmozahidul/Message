@@ -1,6 +1,6 @@
 import { Action, createReducer, on } from '@ngrx/store';
 import { chatResponse } from '../DTO/chatResponse';
-import * as action from '../Store/action';
+import * as action from './action';
 
 export interface State {
   //   imgList: any[];

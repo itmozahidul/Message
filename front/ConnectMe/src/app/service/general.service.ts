@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { Store } from '@ngrx/store';
 import jwt_decode from 'jwt-decode';
-import { State } from '../Store/reducer';
-import * as action from '../Store/action';
+import { State } from '../store/reducer';
+import * as action from '../store/action';
 import * as Stomp from 'stompjs';
 import { chatResponse } from '../DTO/chatResponse';
 import { Observable } from 'rxjs';
@@ -37,6 +37,7 @@ export class GeneralService {
   reciever: string = null;
   reciever$: Observable<string>;
   subscriptions = [];
+  connectTryNo = 0;
 
   constructor(private httpClient: HttpClient, private store: Store<State>) {
     this.msgs$ = this.store.select(selector.selectViewMessage);
@@ -107,6 +108,18 @@ export class GeneralService {
       this.httpHeader
     );
   }
+
+  /* uploadDataToServerAsBlob(file: Blob, filename: string) {
+    //const params = new HttpParams().set('id', id).set('ans', ans);
+    const formdata: FormData = new FormData();
+    formdata.append('file',file,filename);
+    console.log('msg seen rqst sent to backend');
+    return this.httpClient.post<any>(
+      this.endpoint + '/message/messageSeen',
+      formdata,
+      this.httpHeader
+    );
+  } */
 
   showBusy() {
     let p = document.createElement('div');
@@ -219,6 +232,7 @@ export class GeneralService {
   }
   connect() {
     return new Promise((resolve, reject) => {
+      console.log(this.connectTryNo);
       this.webSoket = new WebSocket(this.getWebsoketUrl());
       this.client = Stomp.over(this.webSoket);
       this.client.connect(
@@ -234,9 +248,20 @@ export class GeneralService {
           );
         },
         (err) => {
-          console.log(err);
           resolve(false);
           reject(true);
+          console.log(err);
+          if (this.connectTryNo < 30) {
+            this.connect().then((suc) => {
+              if (suc) {
+                this.connectTryNo = 0;
+              } else {
+                this.connectTryNo++;
+              }
+            });
+          } else {
+            this.logout();
+          }
         }
       );
     });
@@ -342,5 +367,17 @@ export class GeneralService {
         this.msgs = ml;
       })
     );
+  }
+
+  getFileAsBlob(rawData: string) {
+    //return this.httpClient.get(url.split('ob:')[1], { responseType: 'blob' });
+    // return new Blob([rawData], { type: 'image/png' });
+    const bytes = new Array(rawData.length);
+    for (var x = 0; x < rawData.length; x++) {
+      bytes[x] = rawData.charCodeAt(x);
+    }
+    const arr = new Uint8Array(bytes);
+    const blob = new Blob([arr], { type: 'image/png' });
+    return blob;
   }
 }

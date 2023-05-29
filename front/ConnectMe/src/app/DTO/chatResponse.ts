@@ -5,6 +5,7 @@ export class chatResponse {
   seen: boolean;
   sender: string;
   reciever: string;
+  data: FormData;
 
   constructor(
     id: number,
@@ -20,5 +21,6 @@ export class chatResponse {
     this.text = text;
     this.time = time;
     this.seen = seen;
+    this.data = null;
   }
 }

@@ -3,7 +3,7 @@ import { IonList } from '@ionic/angular';
 import { chatResponse } from '../DTO/chatResponse';
 import { GeneralService } from '../service/general.service';
 import { Store } from '@ngrx/store';
-import { State } from '../Store/reducer';
+import { State } from '../store/reducer';
 import { Router } from '@angular/router';
 import * as selector from '../store/selector';
 import * as action from '../store/action';

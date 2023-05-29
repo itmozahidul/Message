@@ -7,6 +7,7 @@ public class MessageResponse {
 	    private boolean seen;
 	    private String sender;
 	    private String reciever;
+	    private String data;
 	public MessageResponse() {
 		// TODO Auto-generated constructor stub
 	}
@@ -54,6 +55,12 @@ public class MessageResponse {
 	}
 	public void setId(long id) {
 		this.id = id;
+	}
+	public String getData() {
+		return data;
+	}
+	public void setData(String data) {
+		this.data = data;
 	}
 	
     

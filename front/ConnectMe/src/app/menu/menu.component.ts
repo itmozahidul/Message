@@ -27,6 +27,9 @@ export class MenuComponent implements OnInit {
     this.subscriptionList.push(
       this.currrentUser$.subscribe((s) => {
         this.currentUser = s;
+        if ((s = '')) {
+          this.router.navigate(['login']);
+        }
       })
     );
   }
