@@ -63,3 +63,13 @@ export const updateUnreadMessagesNo = createAction(
   '[app] updateUnreadMessagesNo',
   props<{ unreadMessagesNo: Map<string, number> }>()
 );
+
+export const updateUserImage = createAction(
+  '[app] updateUserImage',
+  props<{ image: string }>()
+);
+
+export const updateRecieverImage = createAction(
+  '[app] updateRecieverImage',
+  props<{ rimage: string }>()
+);

@@ -12,6 +12,7 @@ import * as selector from '../store/selector';
 import { actionEvent } from '../DTO/actionEvent';
 import { encode } from 'querystring';
 import { environment } from 'src/environments/environment.prod';
+import { updateUser } from '../model/updateUser';
 
 @Injectable({
   providedIn: 'root',
@@ -62,6 +63,27 @@ export class GeneralService {
       this.httpHeader
     );
   }
+  update(data) {
+    return this.httpClient.post<any>(
+      this.endpoint + '/user/update/',
+      JSON.stringify(data),
+      this.httpHeader
+    );
+  }
+  updateSingleProfileEntry(data) {
+    return this.httpClient.post<any>(
+      this.endpoint + '/user/profile/update/single',
+      JSON.stringify(data),
+      this.httpHeader
+    );
+  }
+  updateSingleUserEntry(data) {
+    return this.httpClient.post<any>(
+      this.endpoint + '/user/update/single',
+      JSON.stringify(data),
+      this.httpHeader
+    );
+  }
   login(data) {
     return this.httpClient.post<any>(
       this.endpoint + '/user/login',
@@ -94,6 +116,30 @@ export class GeneralService {
   getUserSpokenTo(key: string) {
     return this.httpClient.post<any>(
       this.endpoint + '/user/spokenTo',
+      key,
+      this.httpHeader
+    );
+  }
+
+  getUserbyName(key: string): Observable<updateUser> {
+    return this.httpClient.post<any>(
+      this.endpoint + '/user/get',
+      key,
+      this.httpHeader
+    );
+  }
+
+  getUserPhoto(key: string): Observable<string[]> {
+    return this.httpClient.post<any>(
+      this.endpoint + '/user/photo',
+      key,
+      this.httpHeader
+    );
+  }
+
+  getProfileByUserId(key: string) {
+    return this.httpClient.post<any>(
+      this.endpoint + '/user/profile',
       key,
       this.httpHeader
     );
@@ -232,7 +278,7 @@ export class GeneralService {
   }
   connect() {
     return new Promise((resolve, reject) => {
-      console.log(this.connectTryNo);
+      console.log('websoket connect try no :' + this.connectTryNo);
       this.webSoket = new WebSocket(this.getWebsoketUrl());
       this.client = Stomp.over(this.webSoket);
       this.client.connect(
@@ -273,12 +319,14 @@ export class GeneralService {
 
   disConnect(): Promise<boolean> {
     let _this = this;
+
     return new Promise((resolve, reject) => {
       if (_this.client != null) {
         _this.client.disconnect(function (frame) {
           console.log('STOMP client succesfully disconnected.');
           _this.subscriptions.forEach((s) => {
             s.unsubscribe();
+            _this.subscriptions.pop();
           });
           _this.destroySession();
           if (_this.webSoket != null && _this.webSoket.OPEN) {
@@ -302,6 +350,9 @@ export class GeneralService {
         );
         if (data.from == this.getUser() || data.to == this.getUser()) {
           //this.msgs.push(data.msgr);
+          if (data.to == this.getUser()) {
+            this.notify();
+          }
           this.store.dispatch(
             action.updateRecentSentText({
               sentText: data.msgr,
@@ -379,5 +430,22 @@ export class GeneralService {
     const arr = new Uint8Array(bytes);
     const blob = new Blob([arr], { type: 'image/png' });
     return blob;
+  }
+
+  notify() {
+    navigator.vibrate;
+    let audio = new Audio();
+    audio.src = 'assets/sound/notify.wav';
+    audio.load();
+    audio.play();
+  }
+
+  unit8ArrayDecode(data) {
+    let de = new TextDecoder();
+    return de.decode(data);
+  }
+  unit8ArrayEncode(data) {
+    let en = new TextEncoder();
+    return en.encode(data);
   }
 }

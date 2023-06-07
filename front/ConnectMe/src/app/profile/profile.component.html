@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
+      <ion-back-button [routerLink]="['/chat']"></ion-back-button>
     </ion-buttons>
     <ion-buttons slot="end">
       <ion-menu-button></ion-menu-button>
@@ -9,5 +9,981 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  
+  <section class="h-100 gradient-custom-2" *ngIf="!edit">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col col-lg-9 col-xl-7">
+          <div class="card">
+            <div
+              class="rounded-top text-white d-flex flex-row"
+              style="background-color: #998383; height: 200px"
+            >
+              <div class="ms-4 mt-5 d-flex flex-column" style="width: 150px">
+                <img
+                  src="{{ user.image }}"
+                  alt="Generic placeholder image"
+                  class="img-fluid img-thumbnail mt-4 mb-2"
+                  style="width: 150px; z-index: 1"
+                />
+                <button
+                  type="button"
+                  class="btn btn-dark"
+                  data-mdb-ripple-color="light"
+                  style="z-index: 1"
+                  (click)="editdata()"
+                >
+                  Edit profile
+                </button>
+              </div>
+              <div class="ms-3" style="margin-top: 130px">
+                <h5>{{ user.fname }} {{ user.lname }}</h5>
+                <p>{{ profile.city }}</p>
+              </div>
+            </div>
+            <div class="p-4 text-black" style="background-color: #f8f9fa">
+              <div class="d-flex justify-content-end text-center py-1">
+                <div>
+                  <p class="mb-1 h5">253</p>
+                  <p class="small text-muted mb-0">Photos</p>
+                </div>
+                <div class="px-3">
+                  <p class="mb-1 h5">1026</p>
+                  <p class="small text-muted mb-0">Followers</p>
+                </div>
+                <div>
+                  <p class="mb-1 h5">478</p>
+                  <p class="small text-muted mb-0">Following</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-body p-4 text-black">
+              <div class="mb-5">
+                <p class="lead fw-normal mb-1">About</p>
+                <div class="p-4" style="background-color: #f8f9fa">
+                  <p class="font-italic mb-1">{{ profile.about }}</p>
+                  <p class="font-italic mb-1">{{ profile.status }}</p>
+                </div>
+              </div>
+              <div class="mb-5">
+                <p class="lead fw-normal mb-1">Personal Contact</p>
+                <div class="p-4" style="background-color: #f8f9fa">
+                  <p class="font-italic mb-1">Email : {{ user.adress }}</p>
+                  <p class="font-italic mb-1">Phone : {{ user.mobile }}</p>
+                </div>
+              </div>
+              <div class="mb-5">
+                <p class="lead fw-normal mb-1">Location</p>
+                <div class="p-4" style="background-color: #f8f9fa">
+                  <p class="font-italic mb-1">{{ profile.country }}</p>
+                  <p class="font-italic mb-1">
+                    {{ profile.city }} {{ profile.plz }}
+                  </p>
+                  <p class="font-italic mb-1">
+                    {{ profile.street }} {{ profile.house }}
+                  </p>
+                </div>
+              </div>
+              <div class="mb-5">
+                <p class="lead fw-normal mb-1">Education</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="p-4" style="background-color: #f8f9fa">
+                      <p class="font-italic mb-1">
+                        Studied in {{ profile.school }}
+                      </p>
+                      <p class="font-italic mb-1">
+                        Graduated from {{ profile.university }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="p-4" style="background-color: #f8f9fa">
+                      <p class="text-decoration-underline">Detail</p>
+                      <p class="font-italic mb-1">{{ profile.education }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="mb-5">
+                <p class="lead fw-normal mb-1">Carrer</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="p-4" style="background-color: #f8f9fa">
+                      <p class="text-decoration-underline">Current Job</p>
+                      <p class="font-italic mb-1">{{ profile.job }}</p>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="p-4" style="background-color: #f8f9fa">
+                      <p class="text-decoration-underline">Experience</p>
+                      <p class="font-italic mb-1">{{ profile.experience }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="mb-5">
+                <p class="lead fw-normal mb-1">Hobby</p>
+                <div class="p-4" style="background-color: #f8f9fa">
+                  <p class="font-italic mb-1">{{ profile.hobby }}</p>
+                </div>
+              </div>
+              <div class="mb-5">
+                <p class="lead fw-normal mb-1">Favourite Movies</p>
+                <div class="p-4" style="background-color: #f8f9fa">
+                  <p class="font-italic mb-1">{{ profile.movies }}</p>
+                </div>
+              </div>
+              <div class="mb-5">
+                <p class="lead fw-normal mb-1">Favourite Musics</p>
+                <div class="p-4" style="background-color: #f8f9fa">
+                  <p class="font-italic mb-1">{{ profile.musics }}</p>
+                </div>
+              </div>
+              <div
+                class="d-flex justify-content-between align-items-center mb-4"
+              >
+                <p class="lead fw-normal mb-0">Recent photos</p>
+                <p class="mb-0"><a href="#!" class="text-muted">Show all</a></p>
+              </div>
+              <div class="row g-2">
+                <div class="col mb-2">
+                  <img
+                    src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(112).webp"
+                    alt="image 1"
+                    class="w-100 rounded-3"
+                  />
+                </div>
+                <div class="col mb-2">
+                  <img
+                    src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(107).webp"
+                    alt="image 1"
+                    class="w-100 rounded-3"
+                  />
+                </div>
+              </div>
+              <div class="row g-2">
+                <div class="col">
+                  <img
+                    src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(108).webp"
+                    alt="image 1"
+                    class="w-100 rounded-3"
+                  />
+                </div>
+                <div class="col">
+                  <img
+                    src="https://mdbcdn.b-cdn.net/img/Photos/Lightbox/Original/img%20(114).webp"
+                    alt="image 1"
+                    class="w-100 rounded-3"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container" *ngIf="edit">
+    <div class="row flex-lg-nowrap">
+      <!-- <div class="col-12 col-lg-auto mb-3" style="width: 200px">
+        <div class="card p-3">
+          <div class="e-navlist e-navlist--active-bg">
+            <ul class="nav">
+              <li class="nav-item">
+                <a class="nav-link px-2 active" href="#"
+                  ><i class="fa fa-fw fa-bar-chart mr-1"></i
+                  ><span>Overview</span></a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link px-2"
+                  href="https://www.bootdey.com/snippets/view/bs4-crud-users"
+                  target="__blank"
+                  ><i class="fa fa-fw fa-th mr-1"></i><span>CRUD</span></a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link px-2"
+                  href="https://www.bootdey.com/snippets/view/bs4-edit-profile-page"
+                  target="__blank"
+                  ><i class="fa fa-fw fa-cog mr-1"></i><span>Settings</span></a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div> -->
+
+      <div class="col">
+        <div class="row">
+          <div class="col mb-3">
+            <div class="card">
+              <div class="card-body">
+                <div class="e-profile">
+                  <div class="row">
+                    <div class="col-12 col-sm-auto mb-3">
+                      <div class="mx-auto" style="width: 140px">
+                        <div
+                          class="d-flex justify-content-center align-items-center rounded"
+                          style="
+                            height: 140px;
+                            background-color: rgb(233, 236, 239);
+                          "
+                        >
+                          <img
+                            style="
+                              color: rgb(166, 168, 170);
+                              font: bold 8pt Arial;
+                            "
+                            src="{{ user.image }}"
+                            alt="upload"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="col d-flex flex-column flex-sm-row justify-content-between mb-3"
+                    >
+                      <div class="text-center text-sm-left mb-2 mb-sm-0">
+                        <h4 class="pt-sm-2 pb-1 mb-0 text-nowrap">
+                          {{ user.firstName }} {{ user.lastName }}
+                        </h4>
+                        <p class="mb-0">{{ user.adress }}</p>
+                        <div class="text-muted">
+                          <!-- <small>Last seen 2 hours ago</small>TODO-->
+                        </div>
+                        <div class="mt-2">
+                          <button
+                            class="btn btn-primary"
+                            type="button"
+                            (click)="getPhoto()"
+                          >
+                            <i class="fa fa-fw fa-camera"></i>
+                            <span>Change Photo</span>
+                          </button>
+                        </div>
+                      </div>
+                      <div class="text-center text-sm-right">
+                        <span class="badge badge-secondary">{{
+                          profile.role
+                        }}</span>
+                        <div class="text-muted">
+                          <small>Joined</small>
+                          <small>{{ profile.joined }}</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                      <p>Edit</p>
+                    </li>
+                  </ul>
+                  <div class="tab-content pt-3">
+                    <div class="tab-pane active">
+                      <div class="form">
+                        <div class="row">
+                          <div class="col">
+                            <div class="row">
+                              <div class="col">
+                                <div class="form-group">
+                                  <label>First Name</label>
+                                  <ion-icon
+                                    name="pencil-outline"
+                                    *ngIf="!efname"
+                                    (click)="setEditMode('fname', true)"
+                                  ></ion-icon>
+                                  <ion-icon
+                                    name="close-circle-outline"
+                                    *ngIf="efname"
+                                    (click)="
+                                      fname = user.fname;
+                                      setEditMode('fname', false)
+                                    "
+                                  ></ion-icon>
+                                  <ion-icon
+                                    name="save-outline"
+                                    *ngIf="efname"
+                                    (click)="
+                                      setEditMode('fname', false);
+                                      update('fname')
+                                    "
+                                  ></ion-icon>
+                                  <input
+                                    class="form-control"
+                                    type="text"
+                                    name="fname"
+                                    [disabled]="!efname"
+                                    [(ngModel)]="fname"
+                                  />
+                                </div>
+                                <div class="form-group">
+                                  <label>Last Name</label>
+                                  <ion-icon
+                                    name="pencil-outline"
+                                    *ngIf="!elname"
+                                    (click)="setEditMode('lname', true)"
+                                  ></ion-icon>
+                                  <ion-icon
+                                    name="close-circle-outline"
+                                    *ngIf="elname"
+                                    (click)="
+                                      lname = user.lname;
+                                      setEditMode('lname', false)
+                                    "
+                                  ></ion-icon>
+                                  <ion-icon
+                                    name="save-outline"
+                                    *ngIf="elname"
+                                    (click)="
+                                      setEditMode('lname', false);
+                                      update('lname')
+                                    "
+                                  ></ion-icon>
+                                  <input
+                                    class="form-control"
+                                    type="text"
+                                    name="lname"
+                                    [disabled]="!elname"
+                                    [(ngModel)]="lname"
+                                  />
+                                </div>
+                              </div>
+                              <div class="col">
+                                <div class="form-group">
+                                  <label>Phone Number</label>
+                                  <ion-icon
+                                    name="pencil-outline"
+                                    *ngIf="!emobile"
+                                    (click)="setEditMode('mobile', true)"
+                                  ></ion-icon>
+                                  <ion-icon
+                                    name="close-circle-outline"
+                                    *ngIf="emobile"
+                                    (click)="
+                                      mobile = user.mobile;
+                                      setEditMode('mobile', false)
+                                    "
+                                  ></ion-icon>
+                                  <ion-icon
+                                    name="save-outline"
+                                    *ngIf="emobile"
+                                    (click)="
+                                      setEditMode('mobile', false);
+                                      update('mobile')
+                                    "
+                                  ></ion-icon>
+                                  <input
+                                    class="form-control"
+                                    type="text"
+                                    name="mobile"
+                                    [disabled]="!emobile"
+                                    [(ngModel)]="mobile"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col">
+                                <div class="form-group">
+                                  <label>Email</label>
+                                  <ion-icon
+                                    name="pencil-outline"
+                                    *ngIf="!eadress"
+                                    (click)="setEditMode('adress', true)"
+                                  ></ion-icon>
+                                  <ion-icon
+                                    name="close-circle-outline"
+                                    *ngIf="eadress"
+                                    (click)="
+                                      adress = user.adress;
+                                      setEditMode('adress', false)
+                                    "
+                                  ></ion-icon>
+                                  <ion-icon
+                                    name="save-outline"
+                                    *ngIf="eadress"
+                                    (click)="
+                                      setEditMode('adress', false);
+                                      update('adress')
+                                    "
+                                  ></ion-icon>
+                                  <input
+                                    class="form-control"
+                                    type="text"
+                                    name="adress"
+                                    [disabled]="!eadress"
+                                    [(ngModel)]="adress"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col mb-3">
+                                <div class="form-group">
+                                  <label>About</label>
+                                  <ion-icon
+                                    name="pencil-outline"
+                                    *ngIf="!eabout"
+                                    (click)="setEditMode('about', true)"
+                                  ></ion-icon>
+                                  <ion-icon
+                                    name="close-circle-outline"
+                                    *ngIf="eabout"
+                                    (click)="
+                                      about = profile.about;
+                                      setEditMode('about', false)
+                                    "
+                                  ></ion-icon>
+                                  <ion-icon
+                                    name="save-outline"
+                                    *ngIf="eabout"
+                                    (click)="
+                                      setEditMode('about', false);
+                                      update('about')
+                                    "
+                                  ></ion-icon>
+                                  <textarea
+                                    class="form-control"
+                                    rows="5"
+                                    [disabled]="!eabout"
+                                    [(ngModel)]="about"
+                                  ></textarea>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- <div class="row">
+                          <div class="col-12 col-sm-6 mb-3">
+                            <div class="mb-2"><b>Change Password</b></div>
+                            <div class="row">
+                              <div class="col">
+                                <div class="form-group">
+                                  <label>Current Password</label>
+                                  <input
+                                    class="form-control"
+                                    type="password"
+                                    placeholder="••••••"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col">
+                                <div class="form-group">
+                                  <label>New Password</label>
+                                  <input
+                                    class="form-control"
+                                    type="password"
+                                    placeholder="••••••"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col">
+                                <div class="form-group">
+                                  <label
+                                    >Confirm
+                                    <span class="d-none d-xl-inline"
+                                      >Password</span
+                                    ></label
+                                  >
+                                  <input
+                                    class="form-control"
+                                    type="password"
+                                    placeholder="••••••"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-12 col-sm-5 offset-sm-1 mb-3">
+                            <div class="mb-2"><b>Keeping in Touch</b></div>
+                            <div class="row">
+                              <div class="col">
+                                <label>Email Notifications</label>
+                                <div class="custom-controls-stacked px-2">
+                                  <div class="custom-control custom-checkbox">
+                                    <input
+                                      type="checkbox"
+                                      class="custom-control-input"
+                                      id="notifications-blog"
+                                      checked=""
+                                    />
+                                    <label
+                                      class="custom-control-label"
+                                      for="notifications-blog"
+                                      >Blog posts</label
+                                    >
+                                  </div>
+                                  <div class="custom-control custom-checkbox">
+                                    <input
+                                      type="checkbox"
+                                      class="custom-control-input"
+                                      id="notifications-news"
+                                      checked=""
+                                    />
+                                    <label
+                                      class="custom-control-label"
+                                      for="notifications-news"
+                                      >Newsletter</label
+                                    >
+                                  </div>
+                                  <div class="custom-control custom-checkbox">
+                                    <input
+                                      type="checkbox"
+                                      class="custom-control-input"
+                                      id="notifications-offers"
+                                      checked=""
+                                    />
+                                    <label
+                                      class="custom-control-label"
+                                      for="notifications-offers"
+                                      >Personal Offers</label
+                                    >
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div> -->
+                        <div class="row">
+                          <div class="col d-flex justify-content-start">
+                            <button class="btn btn-primary">Advance</button>
+                          </div>
+                          <div class="col d-flex justify-content-end">
+                            <button
+                              class="btn btn-primary"
+                              type="submit"
+                              (click)="cancelEdit()"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-3 mb-3">
+            <!-- <div class="card mb-3">
+              <div class="card-body">
+                <div class="px-xl-3">
+                  <button class="btn btn-block btn-secondary">
+                    <i class="fa fa-sign-out"></i>
+                    <span>Logout</span>
+                  </button>
+                </div>
+              </div>
+            </div> -->
+            <div class="card">
+              <div class="card-body">
+                <h6 class="card-title font-weight-bold">Adress Information</h6>
+
+                <div class="form-group">
+                  <label>Country Name</label>
+                  <ion-icon
+                    name="pencil-outline"
+                    *ngIf="!ecountry"
+                    (click)="setEditMode('country', true)"
+                  ></ion-icon>
+                  <ion-icon
+                    name="close-circle-outline"
+                    *ngIf="ecountry"
+                    (click)="
+                      country = profile.country; setEditMode('country', false)
+                    "
+                  ></ion-icon>
+                  <ion-icon
+                    name="save-outline"
+                    *ngIf="ecountry"
+                    (click)="setEditMode('country', false); update('country')"
+                  ></ion-icon>
+                  <input
+                    class="form-control"
+                    type="text"
+                    name="country"
+                    [disabled]="!ecountry"
+                    [(ngModel)]="country"
+                  />
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <label>City Name</label>
+                      <ion-icon
+                        name="pencil-outline"
+                        *ngIf="!ecity"
+                        (click)="setEditMode('city', true)"
+                      ></ion-icon>
+                      <ion-icon
+                        name="close-circle-outline"
+                        *ngIf="ecity"
+                        (click)="
+                          city = profile.city; setEditMode('city', false)
+                        "
+                      ></ion-icon>
+                      <ion-icon
+                        name="save-outline"
+                        *ngIf="ecity"
+                        (click)="setEditMode('city', false); update('city')"
+                      ></ion-icon>
+                      <input
+                        class="form-control"
+                        type="text"
+                        name="city"
+                        [disabled]="!ecity"
+                        [(ngModel)]="city"
+                      />
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="form-group">
+                      <label>Area Code</label>
+                      <ion-icon
+                        name="pencil-outline"
+                        *ngIf="!eplz"
+                        (click)="setEditMode('plz', true)"
+                      ></ion-icon>
+                      <ion-icon
+                        name="close-circle-outline"
+                        *ngIf="eplz"
+                        (click)="plz = profile.plz; setEditMode('plz', false)"
+                      ></ion-icon>
+                      <ion-icon
+                        name="save-outline"
+                        *ngIf="eplz"
+                        (click)="setEditMode('plz', false); update('plz')"
+                      ></ion-icon>
+                      <input
+                        class="form-control"
+                        type="text"
+                        name="plz"
+                        [disabled]="!eplz"
+                        [(ngModel)]="plz"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <label>Street Name</label>
+                      <ion-icon
+                        name="pencil-outline"
+                        *ngIf="!estreet"
+                        (click)="setEditMode('street', true)"
+                      ></ion-icon>
+                      <ion-icon
+                        name="close-circle-outline"
+                        *ngIf="estreet"
+                        (click)="
+                          street = profile.street; setEditMode('street', false)
+                        "
+                      ></ion-icon>
+                      <ion-icon
+                        name="save-outline"
+                        *ngIf="estreet"
+                        (click)="setEditMode('street', false); update('street')"
+                      ></ion-icon>
+                      <input
+                        class="form-control"
+                        type="text"
+                        name="street"
+                        [disabled]="!estreet"
+                        [(ngModel)]="street"
+                      />
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="form-group">
+                      <label>House No</label>
+                      <ion-icon
+                        name="pencil-outline"
+                        *ngIf="!ehouse"
+                        (click)="setEditMode('house', true)"
+                      ></ion-icon>
+                      <ion-icon
+                        name="close-circle-outline"
+                        *ngIf="ehouse"
+                        (click)="
+                          house = profile.house; setEditMode('house', false)
+                        "
+                      ></ion-icon>
+                      <ion-icon
+                        name="save-outline"
+                        *ngIf="ehouse"
+                        (click)="setEditMode('house', false); update('house')"
+                      ></ion-icon>
+                      <input
+                        class="form-control"
+                        type="text"
+                        name="house"
+                        [disabled]="!ehouse"
+                        [(ngModel)]="house"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-body">
+                <h6 class="card-title font-weight-bold">
+                  Academic Information
+                </h6>
+
+                <div class="form-group">
+                  <label>School Name</label>
+                  <ion-icon
+                    name="pencil-outline"
+                    *ngIf="!eschool"
+                    (click)="setEditMode('school', true)"
+                  ></ion-icon>
+                  <ion-icon
+                    name="close-circle-outline"
+                    *ngIf="eschool"
+                    (click)="
+                      school = profile.school; setEditMode('school', false)
+                    "
+                  ></ion-icon>
+                  <ion-icon
+                    name="save-outline"
+                    *ngIf="eschool"
+                    (click)="setEditMode('school', false); update('school')"
+                  ></ion-icon>
+                  <input
+                    class="form-control"
+                    type="text"
+                    name="school"
+                    [disabled]="!eschool"
+                    [(ngModel)]="school"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>University Name</label>
+                  <ion-icon
+                    name="pencil-outline"
+                    *ngIf="!euniversity"
+                    (click)="setEditMode('university', true)"
+                  ></ion-icon>
+                  <ion-icon
+                    name="close-circle-outline"
+                    *ngIf="euniversity"
+                    (click)="
+                      university = profile.university;
+                      setEditMode('university', false)
+                    "
+                  ></ion-icon>
+                  <ion-icon
+                    name="save-outline"
+                    *ngIf="euniversity"
+                    (click)="
+                      setEditMode('university', false); update('university')
+                    "
+                  ></ion-icon>
+                  <input
+                    class="form-control"
+                    type="text"
+                    name="university"
+                    [disabled]="!euniversity"
+                    [(ngModel)]="university"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Additional Education Ieducation</label>
+                  <ion-icon
+                    name="pencil-outline"
+                    *ngIf="!eeducation"
+                    (click)="setEditMode('education', true)"
+                  ></ion-icon>
+                  <ion-icon
+                    name="close-circle-outline"
+                    *ngIf="eeducation"
+                    (click)="
+                      education = profile.education;
+                      setEditMode('education', false)
+                    "
+                  ></ion-icon>
+                  <ion-icon
+                    name="save-outline"
+                    *ngIf="eeducation"
+                    (click)="
+                      setEditMode('education', false); update('education')
+                    "
+                  ></ion-icon>
+                  <input
+                    class="form-control"
+                    type="text"
+                    name="education"
+                    [disabled]="!eeducation"
+                    [(ngModel)]="education"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-body">
+                <h6 class="card-title font-weight-bold">Career Information</h6>
+
+                <div class="form-group">
+                  <label>Current Job</label>
+                  <ion-icon
+                    name="pencil-outline"
+                    *ngIf="!ejob"
+                    (click)="setEditMode('job', true)"
+                  ></ion-icon>
+                  <ion-icon
+                    name="close-circle-outline"
+                    *ngIf="ejob"
+                    (click)="job = profile.job; setEditMode('job', false)"
+                  ></ion-icon>
+                  <ion-icon
+                    name="save-outline"
+                    *ngIf="ejob"
+                    (click)="setEditMode('job', false); update('job')"
+                  ></ion-icon>
+                  <input
+                    class="form-control"
+                    type="text"
+                    name="job"
+                    [disabled]="!ejob"
+                    [(ngModel)]="job"
+                  />
+                </div>
+                <div class="form-group">
+                  <label
+                    >Previous Experiences<small
+                      >(**summarexperience)</small
+                    ></label
+                  >
+                  <ion-icon
+                    name="pencil-outline"
+                    *ngIf="!eexperience"
+                    (click)="setEditMode('experience', true)"
+                  ></ion-icon>
+                  <ion-icon
+                    name="close-circle-outline"
+                    *ngIf="eexperience"
+                    (click)="
+                      experience = profile.experience;
+                      setEditMode('experience', false)
+                    "
+                  ></ion-icon>
+                  <ion-icon
+                    name="save-outline"
+                    *ngIf="eexperience"
+                    (click)="
+                      setEditMode('experience', false); update('experience')
+                    "
+                  ></ion-icon>
+                  <input
+                    class="form-control"
+                    type="text"
+                    name="experience"
+                    [disabled]="!eexperience"
+                    [(ngModel)]="experience"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-body">
+                <h6 class="card-title font-weight-bold">More About you</h6>
+
+                <div class="form-group">
+                  <label>Favourite Movies</label>
+                  <ion-icon
+                    name="pencil-outline"
+                    *ngIf="!emovies"
+                    (click)="setEditMode('movies', true)"
+                  ></ion-icon>
+                  <ion-icon
+                    name="close-circle-outline"
+                    *ngIf="emovies"
+                    (click)="
+                      movies = profile.movies; setEditMode('movies', false)
+                    "
+                  ></ion-icon>
+                  <ion-icon
+                    name="save-outline"
+                    *ngIf="emovies"
+                    (click)="setEditMode('movies', false); update('movies')"
+                  ></ion-icon>
+                  <input
+                    class="form-control"
+                    type="text"
+                    name="movies"
+                    [disabled]="!emovies"
+                    [(ngModel)]="movies"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Favourite Musics</label>
+                  <ion-icon
+                    name="pencil-outline"
+                    *ngIf="!emusics"
+                    (click)="setEditMode('musics', true)"
+                  ></ion-icon>
+                  <ion-icon
+                    name="close-circle-outline"
+                    *ngIf="emusics"
+                    (click)="
+                      musics = profile.musics; setEditMode('musics', false)
+                    "
+                  ></ion-icon>
+                  <ion-icon
+                    name="save-outline"
+                    *ngIf="emusics"
+                    (click)="setEditMode('musics', false); update('musics')"
+                  ></ion-icon>
+                  <input
+                    class="form-control"
+                    type="text"
+                    name="musics"
+                    [disabled]="!emusics"
+                    [(ngModel)]="musics"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Let us know What is your hobby</label>
+                  <ion-icon
+                    name="pencil-outline"
+                    *ngIf="!ehobby"
+                    (click)="setEditMode('hobby', true)"
+                  ></ion-icon>
+                  <ion-icon
+                    name="close-circle-outline"
+                    *ngIf="ehobby"
+                    (click)="hobby = profile.hobby; setEditMode('hobby', false)"
+                  ></ion-icon>
+                  <ion-icon
+                    name="save-outline"
+                    *ngIf="ehobby"
+                    (click)="setEditMode('hobby', false); update('hobby')"
+                  ></ion-icon>
+                  <input
+                    class="form-control"
+                    type="text"
+                    name="hobby"
+                    [disabled]="!ehobby"
+                    [(ngModel)]="hobby"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </ion-content>

@@ -7,7 +7,7 @@
       <ion-title>{{ value }}</ion-title>
       <ion-item slot="end">
         <ion-avatar slot="end">
-          <img src="assets/images/user/avatar.png" />
+          <img src="{{ image }}" />
         </ion-avatar>
         <ion-label>{{ currentUser }}</ion-label>
       </ion-item>
@@ -15,8 +15,9 @@
   </ion-header>
   <ion-content>
     <ion-list>
-      <ion-item>Settings</ion-item>
-      <ion-item>Profile</ion-item>
+      <ion-item (click)="gotoSetting()">Settings</ion-item>
+      <ion-item (click)="gotoProfile()">Profile</ion-item>
+      <ion-item (click)="gotoChat()">Chat</ion-item>
     </ion-list>
   </ion-content>
   <ion-footer>

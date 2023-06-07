@@ -69,13 +69,14 @@ export class RegisterComponent implements OnInit {
         },
         (err) => {
           console.log(err);
-          this.errommsg = JSON.stringify(err);
+          //this.errommsg = JSON.stringify(err); //ToDo
+          this.errommsg = 'Registration Failed !';
           this.hasError = true;
         }
       );
     } else {
       this.hasError = true;
-      this.errommsg = 'password mis matched';
+      this.errommsg = 'password does not match !';
     }
   }
 }

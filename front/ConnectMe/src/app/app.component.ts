@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { State } from './store/reducer';
 import * as selector from './store/selector';
 import { GeneralService } from './service/general.service';
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +22,7 @@ export class AppComponent {
     private generalService: GeneralService
   ) {
     this.currrentUser$ = this.store.select(selector.selectCurrentUser);
+    defineCustomElements(window);
   }
 
   ngOnInit() {

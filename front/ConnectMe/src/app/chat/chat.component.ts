@@ -39,11 +39,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     return 0;
   }
   originalOrder = (a: KeyValue<string, any>, b: KeyValue<string, any>) => {
-    console.log(a.key);
-    console.log(b.key);
-    console.log(
-      a.value[a.value.length - 1].time > b.value[b.value.length - 1].time
-    );
     return 0;
   };
   unreadMessagesNo: Map<string, number[]> = new Map();
@@ -88,7 +83,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.subscriptionList.push(
       this.activatedroute.paramMap.subscribe((params) => {
         console.log('in chat and param url is');
-        console.log(params);
         let name = params.get('friend');
         if (
           name != undefined &&
@@ -120,7 +114,6 @@ export class ChatComponent implements OnInit, OnDestroy {
                 (suc) => {
                   this.subscriptionList.push(
                     this.generalService.getMesssages(s).subscribe((ml) => {
-                      console.log(ml);
                       this.prepareChatHead(ml);
                     })
                   );
@@ -145,7 +138,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.subscriptionList.push(
       this.currrentUser$.subscribe((s) => {
         console.log('current user in chat ');
-        console.log(s);
       })
     );
 
@@ -235,12 +227,10 @@ export class ChatComponent implements OnInit, OnDestroy {
               // }
 
               temp.push(recentText);
-              console.log(temp);
             } catch (error) {
               console.log(error);
               temp = [];
               temp.push(recentText);
-              console.log(temp);
             }
 
             this.friends.set(finalP.toString(), temp);
@@ -249,7 +239,6 @@ export class ChatComponent implements OnInit, OnDestroy {
             tempfriends.forEach((data, key) => {
               this.friends.set(key.toString(), data);
             });
-            console.log(this.friends);
           } else {
             let temp: chatResponse[] = [];
             temp.push(recentText);
@@ -260,13 +249,12 @@ export class ChatComponent implements OnInit, OnDestroy {
     );
   }
   prepareChatHead(ml: chatResponse[]) {
-    console.log(ml);
     this.friends = new Map();
     this.generalService
       .getUserSpokenTo(this.generalService.getUser())
       .subscribe((spkNames) => {
         let patners: string[] = spkNames.spokento.split(' ');
-        console.log(patners);
+
         // let tempfriends: Map<string, chatResponse[]> = new Map();
         patners.forEach((name) => {
           if (
@@ -344,19 +332,13 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   search(event, v: string) {
     const query = v.toLowerCase();
-    console.log('input happened');
-    console.log(v);
-    console.log(Array.from(document.getElementById('listid').children));
     requestAnimationFrame(() => {
       Array.from(document.getElementById('listid').children).forEach(
         (item: any) => {
-          console.log(item);
-          console.log(item.children[1].children[0].textContent.toLowerCase());
           const shouldShow =
             item.children[1].children[0].textContent
               .toLowerCase()
               .indexOf(query) > -1;
-          console.log(shouldShow);
           item.style.display = shouldShow ? 'block' : 'none';
         }
       );
@@ -386,11 +368,11 @@ export class ChatComponent implements OnInit, OnDestroy {
     });
 
     let unms: number[] = this.unreadMessagesNo.get(key);
-    console.log(vmsgsMap);
+
     if (unms != undefined && unms != null && unms.length > 0) {
       unms.forEach((i) => {
         vmsgsMap.get(i).seen = true;
-        console.log(vmsgsMap.get(i));
+
         this.generalService.updateMsgSeen(i, true).subscribe(
           (suc) => {
             console.log(suc);

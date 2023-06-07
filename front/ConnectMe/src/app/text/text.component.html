@@ -1,11 +1,11 @@
 <ion-grid>
   <ion-row size="12" *ngIf="leftSide()">
-    <ion-col size="8">
+    <ion-col size="8" *ngIf="type == 'text'">
       <ion-row size="12">
         <ion-col size="1">
           <div>
             <ion-avatar slot="start" style="height: 5vw; width: 5vw">
-              <img src="assets/avatar.png" />
+              <img src="{{ rimage }}" />
             </ion-avatar>
           </div>
         </ion-col>
@@ -14,11 +14,44 @@
         </ion-col>
       </ion-row>
     </ion-col>
+    <ion-col size="8" *ngIf="type == 'image'">
+      <ion-row size="12">
+        <ion-col size="1">
+          <div>
+            <ion-avatar slot="start" style="height: 5vw; width: 5vw">
+              <img src="{{ rimage }}" />
+            </ion-avatar>
+          </div>
+        </ion-col>
+        <ion-col size="11">
+          <ion-card>
+            <ion-img src="{{ data }}"></ion-img>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <ion-col size="8" *ngIf="type == 'file'">
+      <ion-row size="12">
+        <ion-col size="1">
+          <div>
+            <ion-avatar slot="start" style="height: 5vw; width: 5vw">
+              <img src="{{ rimage }}" />
+            </ion-avatar>
+          </div>
+        </ion-col>
+        <ion-col size="11">
+          <ion-card>
+            <img src="assets/icon/file.png" style="max-width: 30%" />
+            <a href="{{ data }}">{{ text }}</a>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-col>
     <ion-col size="4"> </ion-col>
   </ion-row>
   <ion-row size="12" *ngIf="!leftSide()" style="text-align: right">
     <ion-col size="4"> </ion-col>
-    <ion-col size="8">
+    <ion-col size="8" *ngIf="type == 'text'">
       <ion-row size="12">
         <ion-col size="11" style="text-align: -webkit-right">
           <ion-card> {{ text }} </ion-card>
@@ -26,7 +59,40 @@
         <ion-col size="1">
           <div>
             <ion-avatar slot="start" style="height: 5vw; width: 5vw">
-              <img src="assets/avatar.png" />
+              <img src="{{ image }}" />
+            </ion-avatar>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <ion-col size="8" *ngIf="type == 'image'">
+      <ion-row size="12">
+        <ion-col size="11">
+          <ion-card>
+            <ion-img src="{{ data }}"></ion-img>
+          </ion-card>
+        </ion-col>
+        <ion-col size="1">
+          <div>
+            <ion-avatar slot="start" style="height: 5vw; width: 5vw">
+              <img src="{{ image }}" />
+            </ion-avatar>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <ion-col size="8" *ngIf="type == 'file'">
+      <ion-row size="12">
+        <ion-col size="11">
+          <ion-card>
+            <img src="assets/icon/file.png" style="max-width: 30%" />
+            <a href="{{ data }}">{{ text }}</a>
+          </ion-card>
+        </ion-col>
+        <ion-col size="1">
+          <div>
+            <ion-avatar slot="start" style="height: 5vw; width: 5vw">
+              <img src="{{ image }}" />
             </ion-avatar>
           </div>
         </ion-col>

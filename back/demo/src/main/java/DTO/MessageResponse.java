@@ -8,6 +8,7 @@ public class MessageResponse {
 	    private String sender;
 	    private String reciever;
 	    private String data;
+	    private String type;
 	public MessageResponse() {
 		// TODO Auto-generated constructor stub
 	}
@@ -20,6 +21,19 @@ public class MessageResponse {
 		this.sender = sender;
 		this.reciever = reciever;
 	}
+	
+	public MessageResponse(long id, String time, String text, boolean seen, String sender, String reciever, String type, String data) {
+		super();
+		this.id = id;
+		this.time = time;
+		this.text = text;
+		this.seen = seen;
+		this.sender = sender;
+		this.reciever = reciever;
+		this.type = type;
+		this.data = data;
+	}
+	
 	public String getTime() {
 		return time;
 	}
@@ -61,6 +75,12 @@ public class MessageResponse {
 	}
 	public void setData(String data) {
 		this.data = data;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
 	}
 	
     

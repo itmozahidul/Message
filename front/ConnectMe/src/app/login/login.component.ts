@@ -54,17 +54,36 @@ export class LoginComponent implements OnInit {
         adress: this.loginForm.get('adress').value,
         imp: this.loginForm.get('imp').value,
       };
-      console.log(data);
       this.general.login(data).subscribe(
         (suc) => {
           this.general.endBusy();
           if (suc.jwt != '') {
-            console.log(suc);
             if (this.general.prepareSession(suc.jwt)) {
               //this.router.navigate(['chat']);
               this.store.dispatch(
                 action.updateurrentUser({ currentUser: this.general.getUser() })
               );
+              let nimage: string = '';
+              try {
+                let temp_user = this.general.getUser();
+                this.general.getUserPhoto(temp_user).subscribe(
+                  (succ) => {
+                    if (succ[0].length > 0) {
+                      nimage = succ[0];
+                    } else {
+                      nimage = 'assets/avatar.png';
+                    }
+                  },
+                  (errr) => {
+                    console.log(errr);
+                    nimage = 'assets/avatar.png';
+                  }
+                );
+              } catch (error) {
+                console.log(error);
+                nimage = 'assets/avatar.png';
+              }
+              this.store.dispatch(action.updateUserImage({ image: nimage }));
               this.general.connect().then(
                 (suc) => {
                   this.router.navigate(['/chat', '']);

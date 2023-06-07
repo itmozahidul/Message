@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button [routerLink]="['/chat']"></ion-back-button>
+      <ion-back-button [routerLink]="['/chat']">back</ion-back-button>
     </ion-buttons>
     <ion-buttons slot="end">
       <ion-menu-button></ion-menu-button>
@@ -33,16 +33,19 @@
     </ion-row>
   </ion-grid>
   <ion-grid>
-    <ion-row class="messageBox" *ngIf="!dataProcess">
-      <ion-col>
+    <ion-row class="messageBox" *ngIf="!dataProcess" id="chatAreaOuterBox">
+      <ion-col id="chatArea">
         <app-text
+          class="chatTest"
           *ngFor="let msg of msgs"
           [text]="msg.text"
+          [type]="msg.type"
           [sender]="msg.sender"
           [reciever]="msg.reciever"
           [time]="msg.time"
           [seen]="msg.seen"
           [user]="this.generalService.getUser()"
+          [data]="msg.data"
         >
         </app-text>
       </ion-col>
@@ -63,7 +66,7 @@
           <ion-col size="2"
             ><ion-icon name="camera" (click)="inptmodeSet(3)"></ion-icon
           ></ion-col>
-          <ion-col size="2">
+          <ion-col size="2" *ngIf="isNativePlatform">
             <ion-icon name="mic" (click)="inptmodeSet(4)"></ion-icon>
           </ion-col>
           <ion-col size="2" id="gif" (click)="inptmodeSet(5)">
@@ -86,9 +89,14 @@
       </ion-col>
     </ion-row>
 
-    <ion-row size="12" [style.display]="inptmode == 2 ? 'block' : 'none'">
+    <ion-row size="12" *ngIf="inptmode == 2">
       <ion-col size="11">
-        <input class="fileInput" #inputFile type="file" />
+        <input
+          class="fileInput"
+          #inputFile
+          type="file"
+          (change)="handelfile($event)"
+        />
       </ion-col>
       <ion-col size="1">
         <ion-icon name="send" (click)="sendFile(inputFile)"></ion-icon>

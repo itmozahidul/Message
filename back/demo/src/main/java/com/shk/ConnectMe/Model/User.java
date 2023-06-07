@@ -6,6 +6,7 @@ package com.shk.ConnectMe.Model;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -34,8 +35,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
 	private int id;
 	private String name;
-	private String firstName;
-	private String lastName;
+	private String fname;
+	private String lname;
 	private String spokento;
 	
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "sender")
@@ -51,9 +52,17 @@ public class User {
 	  @JsonIgnoreProperties("user")
 	  private Geheim card;
 	 
-	private String Mobile;
-	private String Adress;
+	private String mobile;
+	private String adress;
+	
+	 @Column(columnDefinition="TEXT")
 	private String image;
+	private String role;
+	
+	 @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy =
+			  "user") 
+			  @JsonIgnoreProperties("user")
+			  private Profile profile;
 
 	public User() {
 		super();
@@ -61,27 +70,27 @@ public class User {
 		// TODO Auto-generated constructor stub
 	}
 
-	public User(String name, String firstName, String lastName, List<Message> sendMessageList,
+	public User(String name, String fname, String lname, List<Message> sendMessageList,
 			List<Message> recievedMessageList, Geheim card, String mobile, String adress, String image) {
 		super();
 		this.name = name;
-		this.firstName = firstName;
-		this.lastName = lastName;
+		this.fname = fname;
+		this.lname = lname;
 		this.sendMessageList = sendMessageList;
 		this.recievedMessageList = recievedMessageList;
 		this.spokento="";
 		this.card = card;
-		Mobile = mobile;
-		Adress = adress;
+		this.mobile = mobile;
+		this.adress = adress;
 		this.image = image;
 	}
-	public User(String name, String firstName, String lastName, String mobile, String adress, String image) {
+	public User(String name, String fname, String lname, String mobile, String adress, String image) {
 		super();
 		this.name = name;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		Mobile = mobile;
-		Adress = adress;
+		this.fname = fname;
+		this.lname = lname;
+		this.mobile = mobile;
+		this.adress = adress;
 		this.image = image;
 		this.spokento="";
 	}
@@ -102,20 +111,24 @@ public class User {
 		this.name = name;
 	}
 
-	public String getFirstName() {
-		return firstName;
+	
+
+
+
+	public String getFname() {
+		return fname;
 	}
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
+	public void setFname(String fname) {
+		this.fname = fname;
 	}
 
-	public String getLastName() {
-		return lastName;
+	public String getLname() {
+		return lname;
 	}
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
+	public void setLname(String lname) {
+		this.lname = lname;
 	}
 
 	public List<Message> getSendMessageList() {
@@ -143,19 +156,19 @@ public class User {
 	}
 
 	public String getMobile() {
-		return Mobile;
+		return mobile;
 	}
 
 	public void setMobile(String mobile) {
-		Mobile = mobile;
+		this.mobile = mobile;
 	}
 
 	public String getAdress() {
-		return Adress;
+		return adress;
 	}
 
 	public void setAdress(String adress) {
-		Adress = adress;
+		this.adress = adress;
 	}
 
 	public String getImage() {
@@ -172,6 +185,30 @@ public class User {
 
 	public void setSpokenTo(String spokenTo) {
 		this.spokento = spokenTo;
+	}
+
+	public String getSpokento() {
+		return spokento;
+	}
+
+	public void setSpokento(String spokento) {
+		this.spokento = spokento;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+	public Profile getProfile() {
+		return profile;
+	}
+
+	public void setProfile(Profile profile) {
+		this.profile = profile;
 	}
 
 	

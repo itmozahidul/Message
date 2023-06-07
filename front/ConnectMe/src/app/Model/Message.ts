@@ -4,7 +4,8 @@ export class Message {
   reciever: string;
   time: string;
   seen: boolean;
-  data: FormData;
+  data: string;
+  type: string;
 
   constructor(
     text: string,
@@ -19,5 +20,6 @@ export class Message {
     this.time = time;
     this.seen = seen;
     this.data = null;
+    this.type = 'text';
   }
 }

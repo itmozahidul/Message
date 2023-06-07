@@ -18,6 +18,8 @@ export interface State {
   sentText: chatResponse;
   sentTextChat: chatResponse;
   unreadMessagesNo: Map<string, number>;
+  image: string;
+  rimage: string;
 }
 
 export const initialState: State = {
@@ -36,6 +38,8 @@ export const initialState: State = {
   sentText: null,
   sentTextChat: null,
   unreadMessagesNo: new Map(),
+  image: '',
+  rimage: '',
 };
 
 export const appReducer = createReducer(
@@ -161,6 +165,22 @@ return {
     return {
       ...state,
       sentTextChat: sentTextChat,
+    };
+  }),
+  on(action.updateUserImage, (state, { image }) => {
+    var newImage: string = image;
+    console.log('in reducer updateuserImage');
+    return {
+      ...state,
+      image: newImage,
+    };
+  }),
+  on(action.updateRecieverImage, (state, { rimage }) => {
+    var newrImage: string = rimage;
+    console.log('in reducer updateRecieverImage');
+    return {
+      ...state,
+      rimage: newrImage,
     };
   })
 );

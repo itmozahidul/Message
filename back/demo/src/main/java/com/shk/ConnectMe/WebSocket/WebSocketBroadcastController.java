@@ -57,7 +57,7 @@ public class WebSocketBroadcastController {
 				action.setTime(Long.toString(date.getTime()));
 				action.getMsgr().setTime(Long.toString(date.getTime()));
 				
-				Message m = new Message(action.getMsgr().getTime(),action.getMsgr().getText(),action.getMsgr().isSeen(),this.user_rpt.getUsersByKey(action.getMsgr().getSender()),this.user_rpt.getUsersByKey(action.getMsgr().getReciever()));
+				Message m = new Message(action.getMsgr().getTime(),action.getMsgr().getText(),action.getMsgr().isSeen(),this.user_rpt.getUsersByKey(action.getMsgr().getSender()),this.user_rpt.getUsersByKey(action.getMsgr().getReciever()),action.getMsgr().getType());
 				try {
 					String blob_stringed_data = action.getMsgr().getData();
 					if(!blob_stringed_data.equals("null") && !blob_stringed_data.isEmpty()) {
@@ -69,7 +69,7 @@ public class WebSocketBroadcastController {
 					m.setData("");
 				}
 				
-				log.info("msg seved");
+				log.info("msg saved");
 				MessageResponse mr = action.getMsgr();
 				mr.setId(this.msg_rpt.save(m).getId());
 				mr.setData(action.getMsgr().getData());

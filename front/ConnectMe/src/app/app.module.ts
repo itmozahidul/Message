@@ -23,6 +23,10 @@ import { NewFriendComponent } from './new-friend/new-friend.component';
 import { ProfileComponent } from './profile/profile.component';
 import { MenuComponent } from './menu/menu.component';
 import { WaitComponent } from './wait/wait.component';
+import { SelectImageComponent } from './select-image/select-image.component';
+import { RecordAudioComponent } from './record-audio/record-audio.component';
+import { Media } from '@awesome-cordova-plugins/media/ngx';
+import { LocationComponent } from './location/location.component';
 //import { FileUploadOptions } from '@ionic-native/file-transfer/__ivy_ngcc__/ngx';
 
 @NgModule({
@@ -37,6 +41,9 @@ import { WaitComponent } from './wait/wait.component';
     ProfileComponent,
     MenuComponent,
     WaitComponent,
+    SelectImageComponent,
+    RecordAudioComponent,
+    LocationComponent,
   ],
   entryComponents: [],
   imports: [
@@ -64,6 +71,7 @@ import { WaitComponent } from './wait/wait.component';
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     GeneralService,
+    Media,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptorService,

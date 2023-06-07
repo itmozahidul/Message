@@ -9,6 +9,9 @@ import { ProfileComponent } from './profile/profile.component';
 import { RegisterComponent } from './register/register.component';
 import { TextComponent } from './text/text.component';
 import { WaitComponent } from './wait/wait.component';
+import { SelectImageComponent } from './select-image/select-image.component';
+import { SettingsComponent } from './settings/settings.component';
+import { LocationComponent } from './location/location.component';
 
 const routes: Routes = [
   {
@@ -60,8 +63,21 @@ const routes: Routes = [
     canActivate: [AuthenticationGuard],
   },
   {
+    path: 'setting',
+    component: SettingsComponent,
+    canActivate: [AuthenticationGuard],
+  },
+  {
     path: 'wait',
     component: WaitComponent,
+  },
+  {
+    path: 'selectImage',
+    component: SelectImageComponent,
+  },
+  {
+    path: 'location',
+    component: LocationComponent,
   },
 ];
 

@@ -59,3 +59,11 @@ export const selectUnreadMessagesNo = createSelector(
     return state.unreadMessagesNo;
   }
 );
+
+export const selectUserImage = createSelector(selectAppState, (state) => {
+  return state.image;
+});
+
+export const selectRecieverImage = createSelector(selectAppState, (state) => {
+  return state.rimage;
+});

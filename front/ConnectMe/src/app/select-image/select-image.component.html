@@ -1,0 +1,31 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button [routerLink]="['/chat']"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-grid
+    *ngIf="
+      imageFileName != undefined && imageFileName != null && imageFileName != ''
+    "
+  >
+    <ion-row>
+      <ion-img
+        src="{{ imageFileName }}"
+        *ngIf="imageFileName"
+        alt="Ionic File"
+      ></ion-img>
+      <ion-col size="6">
+        <ion-button (click)="sendImage()" expand="block">Send</ion-button>
+      </ion-col>
+      <ion-col size="6">
+        <ion-button (click)="getImage()" expand="block">New</ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

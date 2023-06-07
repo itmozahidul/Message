@@ -60,7 +60,7 @@ public class MessageController {
 			
 			messagesTemp.forEach((msg)->{log.info(msg.getText());
 				if(msg.getSender().getName().equals(string_info) || msg.getReciever().getName().equals(string_info)) {
-					this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName()));
+					this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData()));
 				}
 			});
 			
@@ -82,7 +82,7 @@ public class MessageController {
 			this.messagesResponse = new ArrayList<>();
 			this.messages = this.msg_rpt.getMessagesByUser(user1.getId(),user2.getId());
 			messages.forEach((msg)->{log.info(msg.getText());
-			   this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName()));
+			   this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData()));
 			});
 			
 			

@@ -21,6 +21,7 @@ public class Message {
 	private int id;
     private String time;
     private String text;
+    private String type;
     private boolean seen;
     @Column(columnDefinition="TEXT")
     private String data;
@@ -47,6 +48,17 @@ public class Message {
 		this.sender = sender;
 		this.reciever = reciever;
 		this.data = "";
+	}
+	
+	public Message(String time, String text, boolean seen, User sender, User reciever, String type) {
+		super();
+		this.time = time;
+		this.text = text;
+		this.seen = seen;
+		this.sender = sender;
+		this.reciever = reciever;
+		this.data = "";
+		this.type= type;
 	}
 
 	public int getId() {
@@ -103,6 +115,14 @@ public class Message {
 
 	public void setData(String data) {
 		this.data = data;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 	
