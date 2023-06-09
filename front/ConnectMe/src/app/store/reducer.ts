@@ -20,6 +20,8 @@ export interface State {
   unreadMessagesNo: Map<string, number>;
   image: string;
   rimage: string;
+  friends: string[];
+  others_locations: string[];
 }
 
 export const initialState: State = {
@@ -40,6 +42,8 @@ export const initialState: State = {
   unreadMessagesNo: new Map(),
   image: '',
   rimage: '',
+  friends: [],
+  others_locations: [],
 };
 
 export const appReducer = createReducer(
@@ -181,6 +185,23 @@ return {
     return {
       ...state,
       rimage: newrImage,
+    };
+  }),
+  on(action.updatFriendsNames, (state, { friends }) => {
+    var newFriends: string[] = friends;
+    console.log('in reducer updatFriendsNames');
+    return {
+      ...state,
+      friends: newFriends,
+    };
+  }),
+  on(action.updateOthersLocation, (state, { others_locations }) => {
+    var newOthers_locations: string[] = others_locations;
+
+    console.log('in reducer updatOthers_locations');
+    return {
+      ...state,
+      others_locations: newOthers_locations,
     };
   })
 );

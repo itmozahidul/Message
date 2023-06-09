@@ -16,6 +16,13 @@ import { State } from '../store/reducer';
 import * as selector from '../store/selector';
 import * as action from '../store/action';
 import { KeyValue } from '@angular/common';
+import {
+  IonContent,
+  LoadingController,
+  ModalController,
+  ToastController,
+} from '@ionic/angular';
+import { LocationComponent } from '../location/location.component';
 
 @Component({
   selector: 'app-chat',
@@ -34,6 +41,8 @@ export class ChatComponent implements OnInit, OnDestroy {
   currentChatHeads$: Observable<chatResponse[]>;
   msgsSnglVw: chatResponse = null;
   msgsSnglVw$: Observable<chatResponse>;
+  friendsnames: string[] = [];
+  friendsnames$: Observable<string[]>;
   //@ViewChild('cilist') cilist:IonList;
   originalOrder2() {
     return 0;
@@ -48,12 +57,16 @@ export class ChatComponent implements OnInit, OnDestroy {
     private store: Store<State>,
     private router: Router,
     private generalService: GeneralService,
-    private activatedroute: ActivatedRoute
+    private activatedroute: ActivatedRoute,
+    public loadingCtrl: LoadingController,
+    public toastCtrl: ToastController,
+    public modalController: ModalController
   ) {
     this.currrentUser$ = this.store.select(selector.selectCurrentUser);
     this.currentChatHeads$ = this.store.select(selector.selectCurrentChatHeads);
     this.msgsSnglVw$ = this.store.select(selector.selectRecentSentTextChat);
     this.reciever$ = this.store.select(selector.selectCurrentReciever);
+    this.friendsnames$ = this.store.select(selector.selectFriendsNames);
   }
 
   ngOnInit() {
@@ -450,5 +463,13 @@ export class ChatComponent implements OnInit, OnDestroy {
     } else{
       this.items= [];
     } */
+  }
+
+  async presentMapModal() {
+    const modal = await this.modalController.create({
+      component: LocationComponent,
+      cssClass: 'my-custom-class',
+    });
+    return await modal.present();
   }
 }

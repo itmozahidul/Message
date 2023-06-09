@@ -1,3 +1,116 @@
-<p>
-  location works!
-</p>
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goToChat()">back</ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      <ion-col size="12">
+        <div id="map"></div>
+      </ion-col>
+
+      <ion-col size="2" *ngIf="false">
+        <ion-item>
+          <ion-icon slot="start" name="locate"></ion-icon>
+          <ion-label position="stacked">Address</ion-label>
+          <ion-textarea
+            [(ngModel)]="address"
+            type="text"
+            style="margin-top: 20px"
+          ></ion-textarea>
+        </ion-item>
+        <ion-button
+          shape="round"
+          expand="block"
+          (click)="confirmPickupLocation()"
+          >Confirm Pickup Location</ion-button
+        >
+      </ion-col>
+    </ion-row>
+
+    <ion-row *ngIf="false">
+      <ion-col size="12">
+        <ion-row>
+          <ion-col size="6">position accuracy : </ion-col>
+          <ion-col size="6">{{ accuracy }}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">altitude : </ion-col>
+          <ion-col size="6">{{ altitude }}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">altitude accuracy : </ion-col>
+          <ion-col size="6">{{ altitudeAccuracy }}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">heading : </ion-col>
+          <ion-col size="6">{{ heading }}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="6">speed : </ion-col>
+          <ion-col size="6">{{ speed }}</ion-col>
+        </ion-row>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="4">
+        <ion-button (click)="locatePosition()" expand="block"
+          >locate</ion-button
+        >
+      </ion-col>
+      <ion-col size="4">
+        <ion-button
+          (click)="advance = true; scrollBottom()"
+          expand="block"
+          *ngIf="!advance"
+          >More</ion-button
+        >
+      </ion-col>
+      <ion-col size="4">
+        <ion-button (click)="advance = false" expand="block" *ngIf="advance"
+          >Hide</ion-button
+        >
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  <ion-card *ngIf="advance">
+    <ion-grid>
+      <ion-row>
+        <ion-col size="12">
+          <ion-button
+            (click)="get_all_locations(); location_finding_progress = true"
+            expand="block"
+            [disabled]="location_finding_progress"
+          >
+            Show Others Location
+          </ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row *ngIf="false">
+        <ion-col size="12">
+          <ion-item>
+            <ion-icon slot="start" name="locate"></ion-icon>
+            <ion-label position="stacked">Address</ion-label>
+            <ion-textarea
+              [(ngModel)]="address"
+              type="text"
+              style="margin-top: 20px"
+            ></ion-textarea>
+          </ion-item>
+          <ion-button
+            shape="round"
+            expand="block"
+            (click)="confirmPickupLocation()"
+            >Confirm Pickup Location</ion-button
+          >
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card>
+</ion-content>

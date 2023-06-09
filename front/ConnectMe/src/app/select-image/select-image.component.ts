@@ -53,8 +53,8 @@ export class SelectImageComponent implements OnInit {
       quality: 10,
       allowEditing: false,
       resultType: CameraResultType.DataUrl,
-      width: 10,
-      height: 10,
+      width: 100,
+      height: 100,
       //resultType: CameraResultType..Base64,
     }).then(
       (image) => {

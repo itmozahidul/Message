@@ -116,7 +116,7 @@ public class UserController {
 	}
 
 	@PostMapping("/spokenTo")
-	ResponseEntity<?> getSpokenTo(@RequestBody String key) {
+	public ResponseEntity<?> getSpokenTo(@RequestBody String key) {
 		String spokenTo = "";
 		try { // this.user_rpt.getUsersByKey("shakil");
 			User u = this.user_rpt.getUsersByKey(key);// key means username

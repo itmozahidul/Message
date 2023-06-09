@@ -27,9 +27,11 @@ import { SelectImageComponent } from './select-image/select-image.component';
 import { RecordAudioComponent } from './record-audio/record-audio.component';
 import { Media } from '@awesome-cordova-plugins/media/ngx';
 import { LocationComponent } from './location/location.component';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 //import { FileUploadOptions } from '@ionic-native/file-transfer/__ivy_ngcc__/ngx';
 
 @NgModule({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   declarations: [
     AppComponent,
     RegisterComponent,

@@ -1,6 +1,7 @@
 package com.shk.ConnectMe.WebSocket;
 
 
+import DTO.Location;
 import DTO.MessageResponse;
 import DTO.actionEvent;
 
@@ -17,9 +18,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.shk.ConnectMe.Controller.MessageController;
+import com.shk.ConnectMe.Controller.UserController;
 import com.shk.ConnectMe.Model.Message;
+import com.shk.ConnectMe.Model.Profile;
 import com.shk.ConnectMe.Model.User;
 import com.shk.ConnectMe.Repository.MessageRepository;
+import com.shk.ConnectMe.Repository.ProfileRepository;
 import com.shk.ConnectMe.Repository.UserRepository;
 
 @Controller
@@ -29,6 +33,8 @@ public class WebSocketBroadcastController {
 	private UserRepository user_rpt; 
 	@Autowired
 	private MessageRepository msg_rpt;
+	@Autowired
+	private ProfileRepository prf_rpt;
 	    
 	    @Transactional
 	    @MessageMapping("/broadcast")
@@ -37,6 +43,15 @@ public class WebSocketBroadcastController {
 	    	//MessageResponse(String time, String text, boolean seen, String sender, String reciever)
 	    	// Message(String time, String text, boolean seen, User sender, User reciever)
 	    	try {
+	    		if(action.getType().equals("location")) {
+	    			
+	    			String users_string = this.getUserSpokenTo(action.getFrom());
+	    			action.setTo(users_string);
+	    			
+	    		}else if(action.getType().equals("location_share")) {
+	    			// nothing just pass the same data to reciever
+	    		}
+	    		else {
 				User sender = this.user_rpt.getUsersByKey(action.getMsgr().getSender());
 				User reciever = this.user_rpt.getUsersByKey(action.getMsgr().getReciever());
 				
@@ -74,11 +89,30 @@ public class WebSocketBroadcastController {
 				mr.setId(this.msg_rpt.save(m).getId());
 				mr.setData(action.getMsgr().getData());
 				action.setMsgr(mr);
+	    	}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 	        return action;
+	    }
+	    
+	    private String getUserSpokenTo(String key) {
+	    	try { // this.user_rpt.getUsersByKey("shakil");
+				User u = this.user_rpt.getUsersByKey(key);// key means username
+				String spokenTo = u.getSpokenTo();
+//				List<User> users = this.user_rpt.getUsersByKey(key);
+//				for(User u:users) {
+//					this.userNames.add(new SearchedUser(u.getName(),u.getImage()));
+//				}
+				return spokenTo ;
+				
+
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return "";
+			}
 	    }
 
 }

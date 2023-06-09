@@ -10,4 +10,9 @@ export class SettingsComponent implements OnInit {
   constructor(private activatedroute: ActivatedRoute, private router: Router) {}
 
   ngOnInit() {}
+
+  updateLocationsettings(event) {
+    console.log(event);
+    console.log(event.target.checked);
+  }
 }

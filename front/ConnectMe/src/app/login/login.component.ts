@@ -30,7 +30,20 @@ export class LoginComponent implements OnInit {
     private store: Store<State>
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    console.log('in login ngoninit');
+    console.log(this.general.isTokenExpired());
+
+    try {
+      if (!this.general.isTokenExpired()) {
+        if (this.general.getUser().length > 0) {
+          this.router.navigate(['chat']);
+        }
+      }
+    } catch (error) {
+      this.general.logout();
+    }
+  }
 
   onFormSubmit() {
     this.general.showBusy();

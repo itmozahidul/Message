@@ -13,6 +13,7 @@ import { actionEvent } from '../DTO/actionEvent';
 import { encode } from 'querystring';
 import { environment } from 'src/environments/environment.prod';
 import { updateUser } from '../model/updateUser';
+import { Geolocation } from '@capacitor/geolocation';
 
 @Injectable({
   providedIn: 'root',
@@ -248,7 +249,7 @@ export class GeneralService {
     if (expiryTime) {
       return 1000 * expiryTime - new Date().getTime() < 5000;
     } else {
-      return false;
+      return true;
     }
   }
 
@@ -276,6 +277,42 @@ export class GeneralService {
       );
     }
   }
+
+  get_locations() {
+    if (this.client != null) {
+      let data = new actionEvent(
+        new Date().getUTCDate().toString(),
+        'location',
+        this.getUser(),
+        '',
+        new chatResponse(-1, '', '', true, '', '')
+      );
+
+      this.client.send(
+        '/app/broadcast',
+        { Authorization: this.getBearerToken() },
+        JSON.stringify(data)
+      );
+    }
+  }
+
+  share_locations(loc: string, share: string) {
+    if (this.client != null) {
+      let data = new actionEvent(
+        new Date().getUTCDate().toString(),
+        'location_share',
+        this.getUser(),
+        share,
+        new chatResponse(-1, '', loc, true, '', '')
+      );
+      this.client.send(
+        '/app/broadcast',
+        { Authorization: this.getBearerToken() },
+        JSON.stringify(data)
+      );
+    }
+  }
+
   connect() {
     return new Promise((resolve, reject) => {
       console.log('websoket connect try no :' + this.connectTryNo);
@@ -391,7 +428,31 @@ export class GeneralService {
           }
         } */
         break;
-
+      case 'location':
+        let names = data.to.split(' ');
+        console.log(names.includes(this.getUser()));
+        console.log(names);
+        console.log(this.getUser());
+        if (names.includes(this.getUser())) {
+          // if (this.has_permission_to_share_loaction()) {
+          Geolocation.getCurrentPosition({}).then((loc) => {
+            let l: string = loc.coords.latitude.toString();
+            let ln: string = loc.coords.longitude.toString();
+            let location: string = l + '_' + ln + '_' + this.getUser();
+            this.share_locations(location, data.from);
+          });
+          //}
+        }
+        break;
+      case 'location_share':
+        if (data.to == this.getUser()) {
+          this.store.dispatch(
+            action.updateOthersLocation({
+              others_locations: [data.msgr.text],
+            })
+          );
+        }
+        break;
       default:
         break;
     }
@@ -447,5 +508,9 @@ export class GeneralService {
   unit8ArrayEncode(data) {
     let en = new TextEncoder();
     return en.encode(data);
+  }
+
+  has_permission_to_share_loaction(): boolean {
+    return true; //TOdo
   }
 }

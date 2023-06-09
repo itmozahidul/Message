@@ -67,3 +67,11 @@ export const selectUserImage = createSelector(selectAppState, (state) => {
 export const selectRecieverImage = createSelector(selectAppState, (state) => {
   return state.rimage;
 });
+
+export const selectFriendsNames = createSelector(selectAppState, (state) => {
+  return state.friends;
+});
+
+export const selectOthersLocation = createSelector(selectAppState, (state) => {
+  return state.others_locations;
+});

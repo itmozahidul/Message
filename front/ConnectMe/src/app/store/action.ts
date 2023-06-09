@@ -73,3 +73,13 @@ export const updateRecieverImage = createAction(
   '[app] updateRecieverImage',
   props<{ rimage: string }>()
 );
+
+export const updatFriendsNames = createAction(
+  '[app] updatFriendsNames',
+  props<{ friends: string[] }>()
+);
+
+export const updateOthersLocation = createAction(
+  '[app] updateOthersLocation',
+  props<{ others_locations: string[] }>()
+);

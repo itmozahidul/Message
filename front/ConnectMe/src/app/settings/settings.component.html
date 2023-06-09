@@ -37,10 +37,10 @@
             <div class="list-group-item">
               <div class="row align-items-center">
                 <div class="col">
-                  <strong class="mb-0">Unusual activity notifications</strong>
+                  <strong class="mb-0">Share Location</strong>
                   <p class="text-muted mb-0">
-                    Donec in quam sed urna bibendum tincidunt quis mollis
-                    mauris.
+                    Allow other users to see your current location. Only people
+                    with whom you had once Conversations.
                   </p>
                 </div>
                 <div class="col-auto">
@@ -49,6 +49,7 @@
                       type="checkbox"
                       class="custom-control-input"
                       id="alert1"
+                      (change)="updateLocationsettings($event)"
                       checked=""
                     />
                     <span class="custom-control-label"></span>
