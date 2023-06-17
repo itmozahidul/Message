@@ -72,16 +72,21 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     console.log('in chat ngoninit');
-    //this updating current user will be helpfull if user refreshes the page unless it wont have any impact because login is doing it
-    // this.store.dispatch(
-    //   action.updateurrentUser({ currentUser: this.generalService.getUser() })
-    // );
-    //in chat list there is no reciever
-    // this.store.dispatch(
-    //   action.updateCurrentReciever({
-    //     currentReciever: '',
-    //   })
-    // );
+    this.loadingStart('Loading Messages');
+  }
+
+  loadingStart(msg) {
+    console.log('loading started');
+    this.loadingCtrl
+      .create({
+        message: msg,
+      })
+      .then((toast) => {
+        toast.present();
+        this.init_observable_data();
+      });
+  }
+  init_observable_data() {
     this.store.dispatch(
       action.updateCurrentReciever({
         currentReciever: '',
@@ -108,44 +113,39 @@ export class ChatComponent implements OnInit, OnDestroy {
             this.generalService
               .getMesssages(this.generalService.getUser())
               .subscribe((ml) => {
-                this.prepareChatHead(ml);
-                //this.router.navigate(['wait']);
-                setTimeout(() => {
+                this.prepareChatHead(ml).then((s) => {
                   this.gotoChatDetail(name);
                   this.router.navigate(['/message', name]);
-                }, 500);
+                  this.loadingEnd();
+                });
+                //this.router.navigate(['wait']);
+                /* setTimeout(() => {
+                  this.gotoChatDetail(name);
+                  this.router.navigate(['/message', name]);
+                }, 500); */
               })
           );
         } else {
-          let s = this.generalService.getUser();
-
-          if (s != '') {
-            if (
-              this.generalService.client == null ||
-              this.generalService.client.connected == false
-            ) {
-              this.generalService.connect().then(
-                (suc) => {
-                  this.subscriptionList.push(
-                    this.generalService.getMesssages(s).subscribe((ml) => {
-                      this.prepareChatHead(ml);
-                    })
-                  );
-                },
-                (err) => {
-                  this.hasError = true;
-                  console.log(err);
-                  this.errommsg = 'can not connect';
-                }
-              );
+          debugger;
+          //check if the messages are already saved in local storage
+          let saved_data: Map<string, chatResponse[]> =
+            this.generalService.getFromLocal('friends');
+          try {
+            if (saved_data.size > 0) {
+              console.log('data from LocalStorage');
+              debugger;
+              this.friends = saved_data;
+              debugger;
             } else {
-              this.subscriptionList.push(
-                this.generalService.getMesssages(s).subscribe((ml) => {
-                  this.prepareChatHead(ml);
-                })
-              );
+              this.get_Data_From_the_backend();
             }
+          } catch (error) {
+            console.error(error);
+            console.log('data from backend');
+            this.get_Data_From_the_backend();
           }
+
+          //if the messages are not saved in local storage then get them from the backend
         }
       })
     );
@@ -164,8 +164,9 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.subscriptionList.push(
       this.msgsSnglVw$.subscribe((recentText) => {
         //debugger;
-        console.log('in chat component updating recent text');
+
         if (recentText != null) {
+          console.log('in chat component updating recent text');
           let finalP = '';
 
           if (
@@ -262,9 +263,85 @@ export class ChatComponent implements OnInit, OnDestroy {
       })
     );
   }
-  prepareChatHead(ml: chatResponse[]) {
+  loadingEnd() {
+    console.log('loading ended');
+
+    /* setTimeout(() => {
+      
+    }, 3000); */
+    try {
+      this.loadingCtrl.dismiss().then(
+        (suc) => {
+          console.log(suc);
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  get_Data_From_the_backend() {
+    let s = this.generalService.getUser();
+
+    if (s != '') {
+      // if websoket got disconnected the renew it
+      if (
+        this.generalService.client == null ||
+        this.generalService.client.connected == false
+      ) {
+        this.generalService.connect().then(
+          (suc) => {
+            this.subscriptionList.push(
+              this.generalService.getMesssages(s).subscribe((ml) => {
+                this.prepareChatHead(ml).then(
+                  (s) => {
+                    this.loadingEnd();
+                  },
+                  (err) => {
+                    console.log(err);
+                    this.loadingEnd();
+                  }
+                );
+              })
+            );
+          },
+          (err) => {
+            this.hasError = true;
+            console.log(err);
+            this.errommsg = 'can not connect';
+          }
+        );
+      } else {
+        // if websoket connection is there then as usual prosess
+        this.subscriptionList.push(
+          this.generalService.getMesssages(s).subscribe((ml) => {
+            this.prepareChatHead(ml).then(
+              (s) => {
+                this.loadingEnd();
+              },
+              (err) => {
+                console.log(err);
+                this.loadingEnd();
+              }
+            );
+          })
+        );
+      }
+    } else {
+      //TODO when no user is in local storage?
+      this.generalService.loading_notification_short_hoover(
+        'Session is expeired. Trying to reconnect.'
+      );
+      this.router.navigate(['/login']);
+    }
+  }
+
+  async prepareChatHead(ml: chatResponse[]) {
     this.friends = new Map();
-    this.generalService
+    return await this.generalService
       .getUserSpokenTo(this.generalService.getUser())
       .subscribe((spkNames) => {
         let patners: string[] = spkNames.spokento.split(' ');
@@ -309,39 +386,10 @@ export class ChatComponent implements OnInit, OnDestroy {
             }
           }
         });
-        /*let finalP = '';
-         if (
-          ml[ml.length - 1].reciever == this.currentUser ||
-          ml[ml.length - 1].sender == this.currentUser
-        ) {
-          if (ml[ml.length - 1].reciever == this.currentUser) {
-            this.friends.set(
-              ml[ml.length - 1].sender.toString(),
-              tempfriends.get(ml[ml.length - 1].sender)
-            );
-            finalP = ml[ml.length - 1].sender;
-            console.log(finalP);
-          }
-          if (ml[ml.length - 1].sender == this.currentUser) {
-            this.friends.set(
-              ml[ml.length - 1].reciever.toString(),
-              tempfriends.get(ml[ml.length - 1].reciever)
-            );
-            finalP = ml[ml.length - 1].reciever;
-            console.log(finalP);
-          }
-        } 
-
-        patners.forEach((p) => {
-          if (p != finalP) {
-            this.friends.set(p.toString(), tempfriends.get(p));
-          }
-        });*/
-        //commented out is replaced by following
+        console.log('data is saved in localstorage');
+        this.generalService.saveInlocal('friends', this.friends);
+        console.log(this.generalService.getFromLocal('friends'));
       });
-
-    //this.friends = this.sortChatHeads(this.friends,'time');
-    this.generalService.saveInlocal('friends', this.friends);
   }
 
   search(event, v: string) {

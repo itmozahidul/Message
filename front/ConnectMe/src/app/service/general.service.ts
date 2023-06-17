@@ -14,6 +14,7 @@ import { encode } from 'querystring';
 import { environment } from 'src/environments/environment.prod';
 import { updateUser } from '../model/updateUser';
 import { Geolocation } from '@capacitor/geolocation';
+import { LoadingController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root',
@@ -28,6 +29,7 @@ export class GeneralService {
       'Content-Type': 'application/json',
     }),
   };
+  notificationDuration = 3000;
   jwtToken: string;
   decodedToken: { [key: string]: string };
   topic: string = '/topic/messages';
@@ -41,7 +43,11 @@ export class GeneralService {
   subscriptions = [];
   connectTryNo = 0;
 
-  constructor(private httpClient: HttpClient, private store: Store<State>) {
+  constructor(
+    private httpClient: HttpClient,
+    private store: Store<State>,
+    public loadingCtrl: LoadingController
+  ) {
     this.msgs$ = this.store.select(selector.selectViewMessage);
 
     this.msgs$.subscribe((m) => {
@@ -461,9 +467,14 @@ export class GeneralService {
   saveInlocal(key, data) {
     localStorage.removeItem(key);
     localStorage.setItem(key, JSON.stringify(data));
+    console.log('saving in local');
+    console.log(data);
+    console.log(JSON.stringify(data));
   }
+
   getFromLocal(key) {
     try {
+      console.log('getting from local');
       console.log(localStorage.getItem(key));
       return JSON.parse(localStorage.getItem(key));
     } catch (error) {
@@ -512,5 +523,17 @@ export class GeneralService {
 
   has_permission_to_share_loaction(): boolean {
     return true; //TOdo
+  }
+
+  loading_notification_short_hoover(msg) {
+    console.log('loading started');
+    this.loadingCtrl
+      .create({
+        message: msg,
+        duration: this.notificationDuration,
+      })
+      .then((toast) => {
+        toast.present();
+      });
   }
 }
