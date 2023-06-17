@@ -1,9 +1,9 @@
-import { chatResponse } from "../DTO/chatResponse";
+import { chatResponse } from '../DTO/chatResponse';
 export class Friend {
   key: string;
-  value: chatResponse;
+  value: chatResponse[];
 
-  constructor(key: string, value: chatResponse) {
+  constructor(key: string, value: chatResponse[]) {
     this.key = key;
     this.value = value;
   }
@@ -13,5 +13,12 @@ export class Friend {
   }
   getValue() {
     return this.value;
+  }
+  insertValue(v: chatResponse) {
+    this.value.push(v);
+  }
+  replaceKeyValue(key, val) {
+    this.key = key;
+    this.value = val;
   }
 }

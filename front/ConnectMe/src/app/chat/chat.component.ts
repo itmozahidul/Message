@@ -126,16 +126,14 @@ export class ChatComponent implements OnInit, OnDestroy {
               })
           );
         } else {
-          debugger;
           //check if the messages are already saved in local storage
           let saved_data: Map<string, chatResponse[]> =
             this.generalService.getFromLocal('friends');
           try {
             if (saved_data.size > 0) {
               console.log('data from LocalStorage');
-              debugger;
+
               this.friends = saved_data;
-              debugger;
             } else {
               this.get_Data_From_the_backend();
             }
@@ -181,20 +179,7 @@ export class ChatComponent implements OnInit, OnDestroy {
             }
           }
           if (this.friends.size > 0) {
-            //this.friends.get(finalP.toString()).push(recentText);
-
-            let tempfriends: Map<string, chatResponse[]> = new Map();
-            this.friends.forEach((d, k) => {
-              tempfriends.set(k.toString(), d);
-            });
-            this.friends.clear();
-            let temp: chatResponse[] = [];
             try {
-              temp = tempfriends.get(finalP);
-              if (temp == undefined || temp == null || temp.length < 0) {
-                temp = [];
-              }
-
               // checking if it is a reciever's side of a message sent by this user
               console.log(recentText.sender != this.generalService.getUser());
               console.log('current user : ' + this.generalService.getUser());
@@ -240,20 +225,17 @@ export class ChatComponent implements OnInit, OnDestroy {
               //   recentText.seen = true;
               //   this.generalService.updateMsgSeen(recentText.id, true);
               // }
-
-              temp.push(recentText);
             } catch (error) {
               console.log(error);
-              temp = [];
-              temp.push(recentText);
             }
 
-            this.friends.set(finalP.toString(), temp);
+            //this.friends.set(finalP.toString(), temp);
+            this.friends.get(finalP.toString()).push(recentText);
 
-            tempfriends.delete(finalP);
+            /* tempfriends.delete(finalP);
             tempfriends.forEach((data, key) => {
               this.friends.set(key.toString(), data);
-            });
+            }); */
           } else {
             let temp: chatResponse[] = [];
             temp.push(recentText);
