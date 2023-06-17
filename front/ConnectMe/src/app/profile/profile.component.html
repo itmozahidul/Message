@@ -554,15 +554,31 @@
                         </div> -->
                         <div class="row">
                           <div class="col d-flex justify-content-start">
-                            <button class="btn btn-primary">Advance</button>
+                            <button
+                              *ngIf="!showAdvance"
+                              class="btn btn-primary"
+                              (click)="showAdvance = true"
+                            >
+                              Show Advance
+                            </button>
+                            <button
+                              *ngIf="showAdvance"
+                              class="btn btn-primary"
+                              (click)="showAdvance = false"
+                            >
+                              Hide Advance
+                            </button>
                           </div>
-                          <div class="col d-flex justify-content-end">
+                          <div
+                            *ngIf="!showAdvance"
+                            class="col d-flex justify-content-end"
+                          >
                             <button
                               class="btn btn-primary"
                               type="submit"
                               (click)="cancelEdit()"
                             >
-                              Cancel
+                              Done
                             </button>
                           </div>
                         </div>
@@ -574,7 +590,7 @@
             </div>
           </div>
 
-          <div class="col-12 col-md-3 mb-3">
+          <div class="col-12 col-md-3 mb-3" *ngIf="showAdvance">
             <!-- <div class="card mb-3">
               <div class="card-body">
                 <div class="px-xl-3">
@@ -979,6 +995,17 @@
                     [(ngModel)]="hobby"
                   />
                 </div>
+              </div>
+            </div>
+            <div class="row">
+              <div *ngIf="showAdvance" class="col d-flex justify-content-end">
+                <button
+                  class="btn btn-primary"
+                  type="submit"
+                  (click)="cancelEdit()"
+                >
+                  Done
+                </button>
               </div>
             </div>
           </div>

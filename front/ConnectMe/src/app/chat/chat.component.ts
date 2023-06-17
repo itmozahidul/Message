@@ -23,6 +23,7 @@ import {
   ToastController,
 } from '@ionic/angular';
 import { LocationComponent } from '../location/location.component';
+import { NewFriendComponent } from '../new-friend/new-friend.component';
 
 @Component({
   selector: 'app-chat',
@@ -452,7 +453,8 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   gotoNewFriend() {
-    this.router.navigate(['newFriend']);
+    //this.router.navigate(['newFriend']);
+    this.presentNewFriendModal();
   }
 
   srch(key: string) {
@@ -468,6 +470,14 @@ export class ChatComponent implements OnInit, OnDestroy {
   async presentMapModal() {
     const modal = await this.modalController.create({
       component: LocationComponent,
+      cssClass: 'my-custom-class',
+    });
+    return await modal.present();
+  }
+
+  async presentNewFriendModal() {
+    const modal = await this.modalController.create({
+      component: NewFriendComponent,
       cssClass: 'my-custom-class',
     });
     return await modal.present();

@@ -31,6 +31,7 @@ import {
 import { SelectImageComponent } from '../select-image/select-image.component';
 
 import { RecordAudioComponent } from '../record-audio/record-audio.component';
+import { NewFriendComponent } from '../new-friend/new-friend.component';
 
 @Component({
   selector: 'app-message',
@@ -80,6 +81,7 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
   ngAfterViewInit(): void {
     console.log('go to bottom page part');
+    this.modalController.dismiss();
 
     setTimeout(() => {
       this.scrollBottom(1000);

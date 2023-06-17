@@ -50,7 +50,7 @@ export class SelectImageComponent implements OnInit {
 
   getImage() {
     Camera.getPhoto({
-      quality: 10,
+      quality: 50,
       allowEditing: false,
       resultType: CameraResultType.DataUrl,
       width: 100,

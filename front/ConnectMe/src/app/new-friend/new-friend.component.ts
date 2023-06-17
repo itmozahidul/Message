@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import { IonList } from '@ionic/angular';
+import { IonList, ModalController } from '@ionic/angular';
 import { chatResponse } from '../DTO/chatResponse';
 import { GeneralService } from '../service/general.service';
 import { Store } from '@ngrx/store';
@@ -21,7 +21,8 @@ export class NewFriendComponent implements OnInit, AfterViewInit {
   constructor(
     private router: Router,
     private store: Store<State>,
-    private generalService: GeneralService
+    private generalService: GeneralService,
+    public modalController: ModalController
   ) {}
 
   ngOnInit() {}
@@ -44,6 +45,10 @@ export class NewFriendComponent implements OnInit, AfterViewInit {
     } else {
       this.items = [];
     }
+  }
+
+  endModal() {
+    this.modalController.dismiss();
   }
 
   gotoChatDetail(newPerson) {

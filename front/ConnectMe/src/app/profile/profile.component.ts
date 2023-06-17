@@ -25,6 +25,7 @@ import { Profile } from '../model/profile';
   styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
+  showAdvance: boolean = false;
   edit: boolean;
   currentUser = '';
   currrentUser$: Observable<string>;
@@ -128,6 +129,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadingStart('');
+  }
+  init_observable_data() {
     this.image$.subscribe(
       (s) => {
         console.log(s);
@@ -234,6 +237,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.lname = this.user.lname;
     this.adress = this.user.adress;
     this.image = this.user.image;
+    this.tempImageStore = this.user.image;
     this.mobile = this.user.mobile;
     this.role = this.user.role;
   }
@@ -273,25 +277,27 @@ export class ProfileComponent implements OnInit, OnDestroy {
       })
       .then((toast) => {
         toast.present();
+        this.init_observable_data();
       });
   }
   loadingEnd() {
     console.log('loading ended');
 
-    setTimeout(() => {
-      try {
-        this.loadingCtrl.dismiss().then(
-          (suc) => {
-            console.log(suc);
-          },
-          (err) => {
-            console.log(err);
-          }
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    }, 3000);
+    /* setTimeout(() => {
+      
+    }, 3000); */
+    try {
+      this.loadingCtrl.dismiss().then(
+        (suc) => {
+          console.log(suc);
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   update(key) {
