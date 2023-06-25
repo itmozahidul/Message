@@ -19,20 +19,20 @@
   padding: 3px;
 }
 
-#ionAvaterRight {
-  position: absolute;
-  width: 6vw;
-  height: 6vw;
-  right: 0;
-  bottom: 0;
+ion-avatar {
+  width: 15px;
+  height: 15px;
 }
 
-#ionAvaterLeft {
-  position: absolute;
-  width: 6vw;
-  height: 6vw;
-  left: 0;
-  bottom: 0;
+.ionavatarleft {
+  width: 15px;
+  height: 15px;
+  margin-right: 2px;
+}
+.ionavatarright {
+  width: 15px;
+  height: 15px;
+  margin-left: 2px;
 }
 
 ion-card {
@@ -43,4 +43,14 @@ ion-card {
   font-size: 23px;
   background-color: lavender;
   color: currentColor;
+}
+
+.chat_image {
+  width: 99% !important;
+}
+
+.time {
+  font-size: 10px;
+  color: black;
+  font-weight: bold;
 }

@@ -37,10 +37,41 @@
           (input)="search($event, inpt.value)"
         ></ion-searchbar>
         <ion-list #cilist id="listid">
+          <!--this part is only for the first chat head-->
+          <!-- <ion-item
+            *ngFor="let latest of latestss | keyvalue : originalOrder"
+            (click)="gotoChatDetail(latest.key)"
+          >
+            <ion-avatar slot="start">
+              <img src="assets/avatar.png" />
+            </ion-avatar>
+            <ion-label>
+              <h2>
+                <b>{{ latest.key }}</b>
+              </h2>
+              <h3 *ngIf="friend.value[friend.value.length - 2]">
+                {{ latest.value[latest.value.length - 2].text }}
+              </h3>
+              <p *ngIf="friend.value[friend.value.length - 1]">
+                {{ latest.value[latest.value.length - 1].text }}
+              </p>
+            </ion-label>
+
+            <ion-badge
+              color="danger"
+              *ngIf="
+                unreadMessagesNo.get(latest.key) != undefined &&
+                unreadMessagesNo.get(latest.key) != null &&
+                unreadMessagesNo.get(latest.key).length > 0
+              "
+              slot="end"
+              >{{ unreadMessagesNo.get(latest.key).length }}</ion-badge
+            >
+          </ion-item> -->
           <ion-item
             *ngFor="let friend of friends | keyvalue : originalOrder"
-            [routerLink]="['/message', friend.key]"
-            (click)="gotoChatDetail(friend.key)"
+            (click)="gotoChatDetail(friend.key); disable = true"
+            [disabled]="disable"
           >
             <ion-avatar slot="start">
               <img src="assets/avatar.png" />
@@ -67,23 +98,9 @@
               slot="end"
               >{{ unreadMessagesNo.get(friend.key).length }}</ion-badge
             >
-            <!-- <ion-label>
-              <h2>
-                <b>{{ key }}</b>
-              </h2>
-              <h3 *ngIf="friends.get(key)[friends.get(key).length - 2]">
-                {{ friends.get(key)[friends.get(key).length - 2].text }}
-              </h3>
-              <p *ngIf="friends.get(key)[friends.get(key).length - 1]">
-                {{ friends.get(key)[friends.get(key).length - 1].text }}
-              </p>
-            </ion-label> -->
           </ion-item>
         </ion-list>
-        <!-- <div id="add">
-          <ion-icon name="add-circle" size="small"></ion-icon>
-          
-        </div> -->
+
         <ion-fab vertical="bottom" horizontal="start" edge slot="fixed">
           <ion-fab-button>
             <ion-icon name="settings"></ion-icon>

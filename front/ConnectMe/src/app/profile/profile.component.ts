@@ -266,7 +266,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.answer2 = this.profile.answer2;
     this.answer3 = this.profile.answer3;
     this.gps_location = this.profile.gps_location;
-    this.joined = this.profile.joined;
+    this.joined = this.profile.joined.split(' ')[0];
   }
 
   loadingStart(msg) {

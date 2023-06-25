@@ -15,6 +15,11 @@ import { environment } from 'src/environments/environment.prod';
 import { updateUser } from '../model/updateUser';
 import { Geolocation } from '@capacitor/geolocation';
 import { LoadingController } from '@ionic/angular';
+import {
+  DomSanitizer,
+  SafeHtml,
+  SafeResourceUrl,
+} from '@angular/platform-browser';
 
 @Injectable({
   providedIn: 'root',
@@ -46,7 +51,8 @@ export class GeneralService {
   constructor(
     private httpClient: HttpClient,
     private store: Store<State>,
-    public loadingCtrl: LoadingController
+    public loadingCtrl: LoadingController,
+    private sanitizer: DomSanitizer
   ) {
     this.msgs$ = this.store.select(selector.selectViewMessage);
 
@@ -125,6 +131,17 @@ export class GeneralService {
       this.endpoint + '/user/spokenTo',
       key,
       this.httpHeader
+    );
+  }
+
+  sendFileWithoutWebSocket(file: FormData) {
+    return this.httpClient.post<any>(
+      this.endpoint + '/message/uploadFile',
+      file,
+      {
+        reportProgress: true,
+        responseType: 'json',
+      }
     );
   }
 
@@ -344,12 +361,22 @@ export class GeneralService {
             this.connect().then((suc) => {
               if (suc) {
                 this.connectTryNo = 0;
+                this.loadingCtrl.dismiss().then(
+                  (s) => {
+                    console.log(s);
+                  },
+                  (f) => {
+                    console.log(f);
+                  }
+                );
               } else {
                 this.connectTryNo++;
               }
             });
           } else {
-            this.logout();
+            this.loading_notification_short_hoover(
+              'App lost backend Connection'
+            );
           }
         }
       );
@@ -396,6 +423,7 @@ export class GeneralService {
           if (data.to == this.getUser()) {
             this.notify();
           }
+
           this.store.dispatch(
             action.updateRecentSentText({
               sentText: data.msgr,
@@ -535,5 +563,34 @@ export class GeneralService {
       .then((toast) => {
         toast.present();
       });
+  }
+
+  bypassUrlSecurity(data: string): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(data);
+  }
+
+  blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = () => {
+        resolve(reader.result);
+      };
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  blobToBase64_cap(blob: Blob) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const recordingResult = String(reader.result);
+        const splitResult = recordingResult.split('base64,');
+        const toResolve =
+          splitResult.length > 1 ? splitResult[1] : recordingResult;
+        resolve(toResolve.trim());
+      };
+      reader.readAsDataURL(blob);
+    });
   }
 }

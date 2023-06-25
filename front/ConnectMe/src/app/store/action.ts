@@ -83,3 +83,8 @@ export const updateOthersLocation = createAction(
   '[app] updateOthersLocation',
   props<{ others_locations: string[] }>()
 );
+
+export const updateDisplayPic = createAction(
+  '[app] updateDisplayPic',
+  props<{ displayPic: string }>()
+);

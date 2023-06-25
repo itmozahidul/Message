@@ -25,6 +25,7 @@ import com.shk.ConnectMe.Model.User;
 import com.shk.ConnectMe.Repository.MessageRepository;
 import com.shk.ConnectMe.Repository.ProfileRepository;
 import com.shk.ConnectMe.Repository.UserRepository;
+import com.shk.ConnectMe.service.UtilService;
 
 @Controller
 public class WebSocketBroadcastController {
@@ -35,6 +36,8 @@ public class WebSocketBroadcastController {
 	private MessageRepository msg_rpt;
 	@Autowired
 	private ProfileRepository prf_rpt;
+	@Autowired
+	private UtilService uts;
 	    
 	    @Transactional
 	    @MessageMapping("/broadcast")
@@ -69,8 +72,8 @@ public class WebSocketBroadcastController {
 				
 				
 				Date date = new Date();
-				action.setTime(Long.toString(date.getTime()));
-				action.getMsgr().setTime(Long.toString(date.getTime()));
+				action.setTime(this.uts.now());
+				action.getMsgr().setTime(this.uts.now());
 				
 				Message m = new Message(action.getMsgr().getTime(),action.getMsgr().getText(),action.getMsgr().isSeen(),this.user_rpt.getUsersByKey(action.getMsgr().getSender()),this.user_rpt.getUsersByKey(action.getMsgr().getReciever()),action.getMsgr().getType());
 				try {

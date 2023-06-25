@@ -15,11 +15,15 @@
     "
   >
     <ion-row>
-      <ion-img
-        src="{{ imageFileName }}"
-        *ngIf="imageFileName"
-        alt="Ionic File"
-      ></ion-img>
+      <ion-col size="12">
+        <ion-img
+          src="{{ imageFileName }}"
+          *ngIf="imageFileName"
+          alt="Ionic File"
+        ></ion-img>
+      </ion-col>
+    </ion-row>
+    <ion-row id="pic_send_cancel_btn_s">
       <ion-col size="6">
         <ion-button (click)="sendImage()" expand="block">Send</ion-button>
       </ion-col>

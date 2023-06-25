@@ -1,0 +1,17 @@
+<ion-header>
+  <ion-toolbar>
+    <!-- <ion-buttons slot="start">
+      <ion-button [routerLink]="['/chat']" (click)="modalController.dismiss()"
+        >back</ion-button
+      >
+    </ion-buttons> -->
+    <ion-buttons slot="end">
+      <ion-button (click)="close()">close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-card>
+    <ion-img src="{{ image }}" alt="loading"></ion-img>
+  </ion-card>
+</ion-content>

@@ -4,13 +4,18 @@
       <ion-row size="12">
         <ion-col size="1">
           <div>
-            <ion-avatar slot="start" style="height: 5vw; width: 5vw">
-              <img src="{{ rimage }}" />
+            <ion-avatar slot="start" class="ionavatarleft">
+              <img [src]="rimage" />
             </ion-avatar>
           </div>
         </ion-col>
         <ion-col size="11">
-          <ion-card> {{ text }}</ion-card>
+          <ion-card>
+            {{ text }}
+          </ion-card>
+          <small class="time">
+            {{ time }}
+          </small>
         </ion-col>
       </ion-row>
     </ion-col>
@@ -18,15 +23,18 @@
       <ion-row size="12">
         <ion-col size="1">
           <div>
-            <ion-avatar slot="start" style="height: 5vw; width: 5vw">
-              <img src="{{ rimage }}" />
+            <ion-avatar slot="start" class="ionavatarleft">
+              <img [src]="rimage" />
             </ion-avatar>
           </div>
         </ion-col>
         <ion-col size="11">
-          <ion-card>
-            <ion-img src="{{ data }}"></ion-img>
+          <ion-card class="chat_image">
+            <ion-img (click)="displayPic(data)" [src]="data"></ion-img>
           </ion-card>
+          <small class="time">
+            {{ time }}
+          </small>
         </ion-col>
       </ion-row>
     </ion-col>
@@ -34,16 +42,52 @@
       <ion-row size="12">
         <ion-col size="1">
           <div>
-            <ion-avatar slot="start" style="height: 5vw; width: 5vw">
-              <img src="{{ rimage }}" />
+            <ion-avatar slot="start" class="ionavatarleft">
+              <img [src]="rimage" />
             </ion-avatar>
           </div>
         </ion-col>
         <ion-col size="11">
           <ion-card>
-            <img src="assets/icon/file.png" style="max-width: 30%" />
-            <a href="{{ data }}">{{ text }}</a>
+            <img
+              *ngIf="!file_data_type_img"
+              src="http://localhost:8100/assets/icon/file.png"
+              style="max-width: 30%"
+            />
+            <img
+              *ngIf="file_data_type_img"
+              src="http://localhost:8100/assets/icon/image.png"
+              style="max-width: 30%"
+              (click)="displayPic(dataUrl)"
+            />
+            <!-- <a [href]="dataUrl">{{ text }}</a> -->
+            <div>
+              <a href="dataUrl" [download]="text">{{ text }}</a>
+            </div>
           </ion-card>
+          <small class="time">
+            {{ time }}
+          </small>
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <ion-col size="8" *ngIf="type == 'audio'">
+      <ion-row size="12">
+        <ion-col size="1">
+          <div>
+            <ion-avatar slot="start" class="ionavatarleft">
+              <img [src]="rimage" />
+            </ion-avatar>
+          </div>
+        </ion-col>
+        <ion-col size="11">
+          <audio controls style="width: -webkit-fill-available">
+            <source [src]="aud_src" type="audio/mpeg" />
+            Your device does not support the audio element.
+          </audio>
+          <small class="time">
+            {{ time }}
+          </small>
         </ion-col>
       </ion-row>
     </ion-col>
@@ -54,12 +98,17 @@
     <ion-col size="8" *ngIf="type == 'text'">
       <ion-row size="12">
         <ion-col size="11" style="text-align: -webkit-right">
-          <ion-card> {{ text }} </ion-card>
+          <ion-card>
+            {{ text }}
+          </ion-card>
+          <small class="time">
+            {{ time }}
+          </small>
         </ion-col>
         <ion-col size="1">
           <div>
-            <ion-avatar slot="start" style="height: 5vw; width: 5vw">
-              <img src="{{ image }}" />
+            <ion-avatar slot="start" class="ionavatarright">
+              <img [src]="image" />
             </ion-avatar>
           </div>
         </ion-col>
@@ -68,14 +117,21 @@
     <ion-col size="8" *ngIf="type == 'image'">
       <ion-row size="12">
         <ion-col size="11">
-          <ion-card>
-            <ion-img src="{{ data }}"></ion-img>
+          <ion-card class="chat_image">
+            <ion-img
+              *ngIf="!zoom"
+              (click)="displayPic(data)"
+              [src]="data"
+            ></ion-img>
           </ion-card>
+          <small class="time">
+            {{ time }}
+          </small>
         </ion-col>
         <ion-col size="1">
           <div>
-            <ion-avatar slot="start" style="height: 5vw; width: 5vw">
-              <img src="{{ image }}" />
+            <ion-avatar slot="start" class="ionavatarright">
+              <img [src]="image" />
             </ion-avatar>
           </div>
         </ion-col>
@@ -85,14 +141,50 @@
       <ion-row size="12">
         <ion-col size="11">
           <ion-card>
-            <img src="assets/icon/file.png" style="max-width: 30%" />
-            <a href="{{ data }}">{{ text }}</a>
+            <img
+              *ngIf="!file_data_type_img"
+              src="http://localhost:8100/assets/icon/file.png"
+              style="max-width: 30%"
+            />
+            <img
+              *ngIf="file_data_type_img"
+              src="http://localhost:8100/assets/icon/image.png"
+              style="max-width: 30%"
+              (click)="displayPic(dataUrl)"
+            />
+            <!--  <a [href]="dataUrl">{{ text }}</a> -->
+            <div>
+              <a href="dataUrl" [download]="text">{{ text }}</a>
+            </div>
           </ion-card>
+          <small class="time">
+            {{ time }}
+          </small>
         </ion-col>
         <ion-col size="1">
           <div>
-            <ion-avatar slot="start" style="height: 5vw; width: 5vw">
-              <img src="{{ image }}" />
+            <ion-avatar slot="start" class="ionavatarright">
+              <img [src]="image" />
+            </ion-avatar>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <ion-col size="8" *ngIf="type == 'audio'">
+      <ion-row size="12">
+        <ion-col size="11">
+          <audio controls style="width: -webkit-fill-available">
+            <source [src]="aud_src" type="audio/mpeg" />
+            Your device does not support the audio element.
+          </audio>
+          <small class="time">
+            {{ time }}
+          </small>
+        </ion-col>
+        <ion-col size="1">
+          <div>
+            <ion-avatar slot="start" class="ionavatarleft">
+              <img [src]="rimage" />
             </ion-avatar>
           </div>
         </ion-col>

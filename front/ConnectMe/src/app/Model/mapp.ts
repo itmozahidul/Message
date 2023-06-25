@@ -11,7 +11,7 @@ export class Mapp {
     debugger;
     let newFriend: boolean = true;
     for (let d of this.val) {
-      if (d.getKey() == 'key') {
+      if (d.getKey() == key) {
         newFriend = false;
         for (let newMsg of v) {
           d.insertValue(newMsg);
@@ -24,11 +24,16 @@ export class Mapp {
   }
   get(key: string) {
     let ans: chatResponse[] = [];
+    let temp: Friend[] = [];
     for (let d of this.val) {
       if (d.getKey() == 'key') {
         ans = d.getValue();
+      } else {
+        temp.push(d);
       }
     }
+    this.val = temp;
+    temp = [];
     return ans;
   }
 

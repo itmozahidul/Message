@@ -9,6 +9,7 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.shk.ConnectMe.Model.Geheim;
 import com.shk.ConnectMe.Model.Message;
@@ -23,8 +25,10 @@ import com.shk.ConnectMe.Model.User;
 import com.shk.ConnectMe.Repository.GeheimRepository;
 import com.shk.ConnectMe.Repository.MessageRepository;
 import com.shk.ConnectMe.Repository.UserRepository;
+import com.shk.ConnectMe.service.FileService;
 import com.shk.ConnectMe.utils.JwtTokenUtil;
 
+import DTO.FileResponse;
 import DTO.MessageResponse;
 
 
@@ -47,6 +51,8 @@ public class MessageController {
 	private JwtTokenUtil jwtutil;
 	private List<Message> messages = new ArrayList<Message>();
 	private List<MessageResponse> messagesResponse = new ArrayList<>();
+	@Autowired
+	FileService fileService ;
 	
 	@PostMapping("/all")
 	ResponseEntity<?> register(@RequestBody String string_info){//string_info is the username
@@ -119,6 +125,18 @@ public class MessageController {
 		}
 		
 		return ResponseEntity.ok(reply);
+	}
+	
+	@PostMapping(path = "/uploadFile",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	ResponseEntity<FileResponse> uploadFile(@RequestParam("file") MultipartFile file) {
+	    FileResponse ans = new FileResponse();
+		try {
+			ans = this.fileService.save(file);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    return ResponseEntity.ok(ans);
 	}
 
 }

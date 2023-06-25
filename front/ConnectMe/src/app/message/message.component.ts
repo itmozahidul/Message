@@ -19,8 +19,6 @@ import { Store } from '@ngrx/store';
 import { State } from '../store/reducer';
 import * as selector from '../store/selector';
 import * as action from '../store/action';
-//import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
-import { Camera, CameraResultType } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
 import {
   IonContent,
@@ -82,11 +80,6 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit(): void {
     console.log('go to bottom page part');
     this.modalController.dismiss();
-
-    setTimeout(() => {
-      this.scrollBottom(1000);
-      //this.loadingEnd();
-    }, 1000);
   }
   public scrollBottom(v): void {
     if (this.router.url.startsWith('/message')) {
@@ -100,10 +93,10 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     }); */
     //this.generalService.disConnect();
 
-    this.reciever = '';
+    this.reciever = 'n';
     this.store.dispatch(
       action.updateCurrentReciever({
-        currentReciever: '',
+        currentReciever: 'n',
       })
     );
     //this.router.navigate(['/chat', '']);
@@ -114,10 +107,6 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit() {
-    //this.loadingStart('');
-    //setTimeout(() => {
-    // this.loadingEnd();
-    //}, 5000);
     if (
       this.generalService.client == null ||
       this.generalService.client.connected == false
@@ -152,18 +141,16 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       })
     );
-
     this.subscriptionList.push(
-      this.activatedroute.paramMap.subscribe((params) => {
-        this.reciever = params.get('friend');
+      this.reciever$.subscribe((reciever_name) => {
+        this.reciever = reciever_name;
         this.load_reciever_image(this.reciever);
-        this.store.dispatch(
-          action.updateCurrentReciever({
-            currentReciever: this.reciever,
-          })
-        );
+        this.prepare_data_after_reciever_is_there();
       })
     );
+  }
+
+  prepare_data_after_reciever_is_there() {
     this.subscriptionList.push(
       this.msgsSnglVw$.subscribe((data) => {
         //here we can end the data process time, because new msg from backend was recieved.
@@ -192,11 +179,8 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
         if (m != undefined && m != null && m.length > 0) {
           // this may never be true, but kept it incase i need it
           this.msgs = m.slice().reverse();
+          this.loadingEnd();
         } else {
-          //this.router.navigateByUrl('/chat');
-          //this.router.navigate(['/chat', '']);
-          //this is needed if reload for message component needs to work
-
           this.generalService.getMesssagesbyUser(this.reciever).subscribe(
             (aktualMsgs) => {
               console.log('got new msg');
@@ -208,11 +192,18 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
                   })
                 );
               }
+              {
+                //its a new chat or the have eptied chat
+                this.loadingEnd();
+              }
             },
             (err) => {
               console.log(err);
-
-              this.router.navigate(['chat']);
+              this.loadingEnd();
+              this.generalService.loading_notification_short_hoover(
+                'Messages Loading failed!'
+              );
+              this.modalController.dismiss();
             }
           );
         }
@@ -413,6 +404,10 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
   handelfile(event) {
     this.file = event.target.files[0];
+    let limit = 50 * 1024 * 1024; // 50 MB
+    if (this.file.size > limit) {
+      this.generalService.loading_notification_short_hoover('File is too big.');
+    }
 
     /* if(this.file.type=="image/png"){
 
@@ -439,18 +434,19 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   sendFile() {
-    this.file.text().then((d) => {
-      this.sendFileToback(d, this.file.name);
-    });
-    /* this.file
-      .stream()
-      .getReader()
-      .read()
-      .then((d) => {
-        this.inptmodeSet(1);
-        let data = this.generalService.unit8ArrayDecode(d.value);
-        this.sendFileToback(data, this.file.name);
-      }); */
+    const bucket: FormData = new FormData();
+    bucket.append('file', this.file);
+    bucket.append('name', this.file.name);
+    this.generalService.sendFileWithoutWebSocket(bucket).subscribe(
+      (suc) => {
+        this.sendFileToback(suc.path, this.file.name);
+      },
+      (err) => {
+        this.generalService.loading_notification_short_hoover(
+          'Failed to upload ' + this.file.name
+        );
+      }
+    );
   }
   async presentSelectImageModal() {
     const modal = await this.modalController.create({
@@ -466,5 +462,9 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
       cssClass: 'my-custom-class',
     });
     return await modal.present();
+  }
+  endModal() {
+    this.modalController.dismiss();
+    this.store.dispatch(action.updateCurrentReciever({ currentReciever: '' }));
   }
 }

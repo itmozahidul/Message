@@ -75,3 +75,7 @@ export const selectFriendsNames = createSelector(selectAppState, (state) => {
 export const selectOthersLocation = createSelector(selectAppState, (state) => {
   return state.others_locations;
 });
+
+export const selectDisplayPic = createSelector(selectAppState, (state) => {
+  return state.displayPic;
+});

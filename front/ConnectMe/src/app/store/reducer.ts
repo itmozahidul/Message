@@ -19,6 +19,7 @@ export interface State {
   sentTextChat: chatResponse;
   unreadMessagesNo: Map<string, number>;
   image: string;
+  displayPic: string;
   rimage: string;
   friends: string[];
   others_locations: string[];
@@ -41,6 +42,7 @@ export const initialState: State = {
   sentTextChat: null,
   unreadMessagesNo: new Map(),
   image: '',
+  displayPic: '',
   rimage: '',
   friends: [],
   others_locations: [],
@@ -202,6 +204,15 @@ return {
     return {
       ...state,
       others_locations: newOthers_locations,
+    };
+  }),
+  on(action.updateDisplayPic, (state, { displayPic }) => {
+    var newDisplayPic: string = displayPic;
+
+    console.log('in reducer updatdisplay pic');
+    return {
+      ...state,
+      displayPic: newDisplayPic,
     };
   })
 );

@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button [routerLink]="['/chat']"></ion-back-button>
+      <ion-button [routerLink]="['/chat']">Back</ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
       <ion-menu-button></ion-menu-button>
@@ -271,8 +271,8 @@
                           profile.role
                         }}</span>
                         <div class="text-muted">
-                          <small>Joined</small>
-                          <small>{{ profile.joined }}</small>
+                          <small>Joined : </small>
+                          <small>{{ joined }}</small>
                         </div>
                       </div>
                     </div>

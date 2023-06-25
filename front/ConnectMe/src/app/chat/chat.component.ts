@@ -24,6 +24,7 @@ import {
 } from '@ionic/angular';
 import { LocationComponent } from '../location/location.component';
 import { NewFriendComponent } from '../new-friend/new-friend.component';
+import { MessageComponent } from '../message/message.component';
 
 @Component({
   selector: 'app-chat',
@@ -31,6 +32,7 @@ import { NewFriendComponent } from '../new-friend/new-friend.component';
   styleUrls: ['./chat.component.scss'],
 })
 export class ChatComponent implements OnInit, OnDestroy {
+  disable = false; //upon going to message it is true, leaving the message is set to false. in reciever update with empty string defines it.
   hasError: boolean = false;
   errommsg = '';
   currentUser: string = '';
@@ -45,6 +47,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   friendsnames: string[] = [];
   friendsnames$: Observable<string[]>;
   //@ViewChild('cilist') cilist:IonList;
+  latests: Map<string, chatResponse[]> = new Map();
   originalOrder2() {
     return 0;
   }
@@ -86,7 +89,20 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.init_observable_data();
       });
   }
+
+  loadingStartGoingToMessageComponent(msg) {
+    this.loadingEnd();
+    this.loadingCtrl
+      .create({
+        message: msg,
+      })
+      .then((toast) => {
+        console.log('loading started');
+        toast.present();
+      });
+  }
   init_observable_data() {
+    console.log('chat component init');
     this.store.dispatch(
       action.updateCurrentReciever({
         currentReciever: '',
@@ -96,6 +112,9 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.subscriptionList.push(
       this.reciever$.subscribe((data) => {
         this.reciever = data;
+        if (data == '') {
+          this.disable = false;
+        }
       })
     );
 
@@ -115,8 +134,9 @@ export class ChatComponent implements OnInit, OnDestroy {
               .subscribe((ml) => {
                 this.prepareChatHead(ml).then((s) => {
                   this.gotoChatDetail(name);
-                  this.router.navigate(['/message', name]);
-                  this.loadingEnd();
+
+                  //this.router.navigate(['/message', name]);
+                  //this.loadingEnd();
                 });
                 //this.router.navigate(['wait']);
                 /* setTimeout(() => {
@@ -127,21 +147,24 @@ export class ChatComponent implements OnInit, OnDestroy {
           );
         } else {
           //check if the messages are already saved in local storage
-          let saved_data: Map<string, chatResponse[]> =
+          /* let saved_data: Map<string, chatResponse[]> =
             this.generalService.getFromLocal('friends');
           try {
             if (saved_data.size > 0) {
               console.log('data from LocalStorage');
-
+              this.get_Data_From_the_backend();
               this.friends = saved_data;
             } else {
-              this.get_Data_From_the_backend();
+              
             }
           } catch (error) {
             console.error(error);
             console.log('data from backend');
             this.get_Data_From_the_backend();
-          }
+          } */
+          console.log(this.friends);
+
+          this.get_Data_From_the_backend();
 
           //if the messages are not saved in local storage then get them from the backend
         }
@@ -231,6 +254,10 @@ export class ChatComponent implements OnInit, OnDestroy {
 
             //this.friends.set(finalP.toString(), temp);
             this.friends.get(finalP.toString()).push(recentText);
+            this.latests.set(
+              finalP.toString(),
+              this.friends.get(finalP.toString())
+            );
 
             /* tempfriends.delete(finalP);
             tempfriends.forEach((data, key) => {
@@ -266,6 +293,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   get_Data_From_the_backend() {
+    console.log('getting data from backend');
     let s = this.generalService.getUser();
 
     if (s != '') {
@@ -368,9 +396,9 @@ export class ChatComponent implements OnInit, OnDestroy {
             }
           }
         });
-        console.log('data is saved in localstorage');
+        /* console.log('data is saved in localstorage');
         this.generalService.saveInlocal('friends', this.friends);
-        console.log(this.generalService.getFromLocal('friends'));
+        console.log(this.generalService.getFromLocal('friends')); */
       });
   }
 
@@ -398,24 +426,35 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   gotoChatDetail(key) {
-    console.log('go to chat detail');
+    this.loadingStartGoingToMessageComponent('Loading ' + key + "'s Messages");
+    console.log('go to chat detail of ' + key);
 
-    console.log(key);
+    this.store.dispatch(
+      action.updateCurrentReciever({
+        currentReciever: key,
+      })
+    );
+
+    // before going to chat making all messages seen
     let vmsgs: chatResponse[] = this.friends.get(key);
     let vmsgsMap: Map<number, chatResponse> = new Map();
 
     if (vmsgs == undefined || vmsgs == null || vmsgs.length < 1) {
       vmsgs = [];
     }
-    vmsgs.forEach((d) => {
-      vmsgsMap.set(d.id, d);
-    });
-
+    //get all the id of unseen msg
     let unms: number[] = this.unreadMessagesNo.get(key);
+    //  no need, set all to 0 as seen
+    /* vmsgs.forEach((d) => {
+      vmsgsMap.set(d.id, d);
+    }); */
+    // then delete all unseen message no array
+    this.unreadMessagesNo.set(key, []);
 
+    //  now make them seen for each id and send info to backend
     if (unms != undefined && unms != null && unms.length > 0) {
       unms.forEach((i) => {
-        vmsgsMap.get(i).seen = true;
+        //vmsgsMap.get(i).seen = true;
 
         this.generalService.updateMsgSeen(i, true).subscribe(
           (suc) => {
@@ -432,7 +471,7 @@ export class ChatComponent implements OnInit, OnDestroy {
         msgs: vmsgs,
       })
     );
-    //this.generalService.connect();
+    this.presentMessageModal();
   }
   // sortChatHeads(chatHead:Map<string, chatResponse[]> ,  key: string ){
   //   switch (key) {
@@ -509,6 +548,14 @@ export class ChatComponent implements OnInit, OnDestroy {
     const modal = await this.modalController.create({
       component: NewFriendComponent,
       cssClass: 'my-custom-class',
+    });
+    return await modal.present();
+  }
+
+  async presentMessageModal() {
+    const modal = await this.modalController.create({
+      component: MessageComponent,
+      cssClass: 'my-custom-class-message',
     });
     return await modal.present();
   }
