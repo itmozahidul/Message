@@ -1,4 +1,7 @@
 <ion-grid>
+  <div class="time">
+    {{ time }}
+  </div>
   <ion-row size="12" *ngIf="leftSide()">
     <ion-col size="8" *ngIf="type == 'text'">
       <ion-row size="12">
@@ -13,9 +16,6 @@
           <ion-card>
             {{ text }}
           </ion-card>
-          <small class="time">
-            {{ time }}
-          </small>
         </ion-col>
       </ion-row>
     </ion-col>
@@ -32,9 +32,6 @@
           <ion-card class="chat_image">
             <ion-img (click)="displayPic(data)" [src]="data"></ion-img>
           </ion-card>
-          <small class="time">
-            {{ time }}
-          </small>
         </ion-col>
       </ion-row>
     </ion-col>
@@ -65,9 +62,6 @@
               <a href="dataUrl" [download]="text">{{ text }}</a>
             </div>
           </ion-card>
-          <small class="time">
-            {{ time }}
-          </small>
         </ion-col>
       </ion-row>
     </ion-col>
@@ -85,9 +79,6 @@
             <source [src]="aud_src" type="audio/mpeg" />
             Your device does not support the audio element.
           </audio>
-          <small class="time">
-            {{ time }}
-          </small>
         </ion-col>
       </ion-row>
     </ion-col>
@@ -101,9 +92,6 @@
           <ion-card>
             {{ text }}
           </ion-card>
-          <small class="time">
-            {{ time }}
-          </small>
         </ion-col>
         <ion-col size="1">
           <div>
@@ -124,9 +112,6 @@
               [src]="data"
             ></ion-img>
           </ion-card>
-          <small class="time">
-            {{ time }}
-          </small>
         </ion-col>
         <ion-col size="1">
           <div>
@@ -157,9 +142,6 @@
               <a href="dataUrl" [download]="text">{{ text }}</a>
             </div>
           </ion-card>
-          <small class="time">
-            {{ time }}
-          </small>
         </ion-col>
         <ion-col size="1">
           <div>
@@ -177,14 +159,11 @@
             <source [src]="aud_src" type="audio/mpeg" />
             Your device does not support the audio element.
           </audio>
-          <small class="time">
-            {{ time }}
-          </small>
         </ion-col>
         <ion-col size="1">
           <div>
             <ion-avatar slot="start" class="ionavatarleft">
-              <img [src]="rimage" />
+              <img [src]="image" />
             </ion-avatar>
           </div>
         </ion-col>

@@ -40,6 +40,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   currrentUser$: Observable<string>;
   items: any[] = [];
   friends: Map<string, chatResponse[]> = new Map();
+  friendsPic: Map<string, string> = new Map();
   currentChatHeads: chatResponse[] = [];
   currentChatHeads$: Observable<chatResponse[]>;
   msgsSnglVw: chatResponse = null;
@@ -47,6 +48,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   friendsnames: string[] = [];
   friendsnames$: Observable<string[]>;
   //@ViewChild('cilist') cilist:IonList;
+  pic: string = '';
   latests: Map<string, chatResponse[]> = new Map();
   originalOrder2() {
     return 0;
@@ -201,7 +203,7 @@ export class ChatComponent implements OnInit, OnDestroy {
               finalP = recentText.reciever;
             }
           }
-          if (this.friends.size > 0) {
+          if (this.friends.size > 0 && this.friends.has(finalP.toString())) {
             try {
               // checking if it is a reciever's side of a message sent by this user
               console.log(recentText.sender != this.generalService.getUser());
@@ -393,6 +395,13 @@ export class ChatComponent implements OnInit, OnDestroy {
             if (msgsTemp.length > 0) {
               msgsTemp = this.sortMessages(msgsTemp, 'Time');
               this.friends.set(name.toString(), msgsTemp);
+              this.generalService
+                .getUserPhoto(name.toString())
+                .subscribe((pic) => {
+                  console.log('pic from backend for name ' + name);
+                  console.log(pic);
+                  this.insertNewChatheadPic(name.toString(), pic[0]);
+                });
             }
           }
         });
@@ -558,5 +567,26 @@ export class ChatComponent implements OnInit, OnDestroy {
       cssClass: 'my-custom-class-message',
     });
     return await modal.present();
+  }
+
+  getUserPicm(key) {
+    console.log('chat picture was updated for user ' + key);
+    this.friendsPic.forEach((k, d) => {
+      console.log(k.substring(0, 100));
+      console.log(d.toString().substring(0, 10));
+    });
+    return this.friendsPic.get(key);
+  }
+
+  insertNewChatheadPic(key, pic) {
+    if (!this.friendsPic.has(key)) {
+      if (this.pic == '') {
+        this.pic = pic;
+      } else {
+        console.log(this.pic == pic);
+      }
+      console.log('pic  inserted ############');
+      this.friendsPic.set(key, pic);
+    }
   }
 }

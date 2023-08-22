@@ -26,6 +26,9 @@ import {
 export class SelectImageComponent implements OnInit {
   imageFileName: any;
   imageData: string;
+  imageWebPath = '';
+  imageBlob;
+  imageBlobPromise;
   reciever: string = null;
   reciever$: Observable<string>;
   constructor(
@@ -50,17 +53,17 @@ export class SelectImageComponent implements OnInit {
 
   getImage() {
     Camera.getPhoto({
-      quality: 90,
+      quality: 30,
       allowEditing: false,
-      resultType: CameraResultType.DataUrl,
-      width: 100,
-      height: 100,
+      resultType: CameraResultType.Uri,
+      //width: 100,
+      //height: 100,
       //resultType: CameraResultType..Base64,
     }).then(
       (image) => {
-        const imageUrl = image.dataUrl;
-        this.imageFileName = imageUrl;
-        this.imageData = imageUrl;
+        this.imageWebPath = image.webPath;
+        this.imageFileName = this.imageWebPath;
+        console.log(image);
       },
       (err) => {
         console.log('image is canceled');
@@ -69,26 +72,51 @@ export class SelectImageComponent implements OnInit {
     );
   }
 
-  sendImage() {
+  async sendImage() {
     //this.generalService.showBusy();
-    this.sendFileToback(this.imageData);
+    this.imageBlob = await this.http
+      .get(this.imageWebPath, { responseType: 'blob' })
+      .toPromise();
+    const file = new File(
+      [this.imageBlob],
+      this.generalService.getUser() + '_' + this.reciever + 'image.png',
+      { type: 'image/png' }
+    );
+    this.sendFile(file, file.name);
   }
-  sendFileToback(data) {
+  sendFileToback(data, name) {
     if (data != null) {
       let newMsg = new chatResponse(
         -1111,
         '00.00',
-        '',
+        name,
         false,
         this.generalService.getUser(),
         this.reciever
       );
+
       newMsg.data = data;
       newMsg.type = 'image';
       this.generalService.sendMessage(newMsg);
       this.goToChat();
     }
   }
+  sendFile(file, filename) {
+    const bucket: FormData = new FormData();
+    bucket.append('file', file);
+    bucket.append('name', filename);
+    this.generalService.sendFileWithoutWebSocket(bucket).subscribe(
+      (suc) => {
+        this.sendFileToback(suc.path, filename);
+      },
+      (err) => {
+        this.generalService.loading_notification_short_hoover(
+          'Failed to upload ' + filename
+        );
+      }
+    );
+  }
+
   async goToChat() {
     await this.modalController.dismiss({
       dismissed: true,

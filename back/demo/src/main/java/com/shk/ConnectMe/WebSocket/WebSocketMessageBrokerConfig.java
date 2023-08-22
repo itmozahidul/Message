@@ -3,6 +3,7 @@ package com.shk.ConnectMe.WebSocket;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -20,8 +21,9 @@ public class WebSocketMessageBrokerConfig implements WebSocketMessageBrokerConfi
  */
 @Override
    public void configureMessageBroker(MessageBrokerRegistry config) {
-       config.enableSimpleBroker("/topic");
+       config.enableSimpleBroker("/topic","/queue");
        config.setApplicationDestinationPrefixes("/app");
+       config.setUserDestinationPrefix("/users");
 		/*
 		 * .setHeartbeatValue(new long[] {10000, 20000})
 		 * .setTaskScheduler(this.msgbrkSchdlr)
@@ -30,7 +32,9 @@ public class WebSocketMessageBrokerConfig implements WebSocketMessageBrokerConfi
 
    @Override
    public void registerStompEndpoints(StompEndpointRegistry registry) {
-       registry.addEndpoint("/ws").setAllowedOrigins("*");
+       registry.addEndpoint("/ws")
+       //.setHandshakeHandler(new UserHandshakeHandler())
+       .setAllowedOrigins("*");
    }
    
 	/*
@@ -44,5 +48,10 @@ public class WebSocketMessageBrokerConfig implements WebSocketMessageBrokerConfi
        registration.setSendTimeLimit(20 * 10000000); // default : 10 * 10000
        registration.setSendBufferSizeLimit(10* 512 * 1024); // default : 512 * 1024
 
+   }
+   
+   @Override
+   public void configureClientInboundChannel(ChannelRegistration registration) {
+       registration.interceptors(new UserInterceptor());
    }
 }

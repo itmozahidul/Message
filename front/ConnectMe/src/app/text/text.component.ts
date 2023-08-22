@@ -48,8 +48,6 @@ export class TextComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('in txt component');
-
     if (this.type == 'audio') {
       this.aud_src = this.data;
     }
@@ -79,10 +77,12 @@ export class TextComponent implements OnInit {
               (suc) => {
                 if (suc[0].length > 0) {
                   nimage = suc[0];
+                  this.store.dispatch(
+                    action.updateUserImage({ image: nimage })
+                  ); //from backend image comes as an array
                 } else {
                   nimage = 'assets/avatar.png';
                 }
-                this.store.dispatch(action.updateUserImage({ image: nimage })); //from backend image comes as an array
               },
               (err) => {
                 console.log(err);

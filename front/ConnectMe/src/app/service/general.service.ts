@@ -38,6 +38,7 @@ export class GeneralService {
   jwtToken: string;
   decodedToken: { [key: string]: string };
   topic: string = '/topic/messages';
+  topic_single: string = '/users/queue/reply';
   client: Stomp.Client = null;
   webSoket: WebSocket = null;
   msgStore = {};
@@ -222,6 +223,7 @@ export class GeneralService {
     this.store.dispatch(action.updateCurrentReciever({ currentReciever: '' }));
     this.store.dispatch(action.updateurrentUser({ currentUser }));
     this.store.dispatch(action.updateViewdMessage({ msgs: [] }));
+    this.store.dispatch(action.updateUserImage({ image: '' }));
     localStorage.removeItem('currentUser');
     localStorage.removeItem('friends');
   }
@@ -284,6 +286,31 @@ export class GeneralService {
   }
   sendMessage(msg) {
     //console.log(new Date().getTime().toString());
+    let url = '/app/message';
+
+    let to = msg.reciever;
+    if (this.client != null) {
+      let data = new actionEvent(
+        new Date().getUTCDate().toString(),
+        'message',
+        this.getUser(),
+        msg.reciever,
+        msg
+      );
+
+      this.client.send(
+        //'/app/broadcast',
+        //`${url}/${to}`,
+        url,
+        { Authorization: this.getBearerToken() },
+        JSON.stringify(data)
+      );
+    }
+  }
+  sendMessageAll(msg) {
+    //console.log(new Date().getTime().toString());
+    let url = '/app/message';
+    let to = msg.to;
     if (this.client != null) {
       let data = new actionEvent(
         new Date().getUTCDate().toString(),
@@ -342,13 +369,19 @@ export class GeneralService {
       this.webSoket = new WebSocket(this.getWebsoketUrl());
       this.client = Stomp.over(this.webSoket);
       this.client.connect(
-        { Authorization: this.getBearerToken() },
+        { Authorization: this.getBearerToken(), username: this.getUser() },
         (suc) => {
           resolve(true);
           reject(false);
           console.log(suc);
+          console.log(this.client);
           this.subscriptions.push(
             this.client.subscribe(this.topic, (msg) => {
+              this.handelMessage(JSON.parse(msg.body));
+            })
+          );
+          this.subscriptions.push(
+            this.client.subscribe(this.topic_single, (msg) => {
               this.handelMessage(JSON.parse(msg.body));
             })
           );
@@ -592,5 +625,9 @@ export class GeneralService {
       };
       reader.readAsDataURL(blob);
     });
+  }
+
+  recordSendMessage() {
+    return 'Voice message';
   }
 }

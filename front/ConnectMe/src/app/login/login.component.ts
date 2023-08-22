@@ -83,6 +83,9 @@ export class LoginComponent implements OnInit {
                   (succ) => {
                     if (succ[0].length > 0) {
                       nimage = succ[0];
+                      this.store.dispatch(
+                        action.updateUserImage({ image: nimage })
+                      );
                     } else {
                       nimage = 'assets/avatar.png';
                     }
@@ -96,7 +99,7 @@ export class LoginComponent implements OnInit {
                 console.log(error);
                 nimage = 'assets/avatar.png';
               }
-              this.store.dispatch(action.updateUserImage({ image: nimage }));
+
               this.general.connect().then(
                 (suc) => {
                   this.router.navigate(['/chat', '']);

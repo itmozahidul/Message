@@ -122,7 +122,6 @@ return {
     msgs.forEach((m) => {
       newMsgs.push(m);
     });
-    console.log('in reducer view msg');
     return {
       ...state,
       msgs: newMsgs,
@@ -130,8 +129,6 @@ return {
   }),
   on(action.updateurrentUser, (state, { currentUser }) => {
     var newCurrentUser = currentUser;
-    console.log('in dispatch currentUser ');
-    console.log(newCurrentUser);
 
     return {
       ...state,
@@ -159,7 +156,6 @@ return {
   }),
   on(action.updateRecentSentText, (state, { sentText }) => {
     var newSentText: chatResponse = sentText;
-    console.log('in reducer updateRecentSentText');
     return {
       ...state,
       sentText: newSentText,
@@ -167,7 +163,6 @@ return {
   }),
   on(action.updateRecentSentTextChat, (state, { sentTextChat }) => {
     var newSentTextChat: chatResponse = sentTextChat;
-    console.log('in reducer updateRecentSentTextchat');
     return {
       ...state,
       sentTextChat: sentTextChat,
@@ -175,7 +170,7 @@ return {
   }),
   on(action.updateUserImage, (state, { image }) => {
     var newImage: string = image;
-    console.log('in reducer updateuserImage');
+    console.log('sender img');
     return {
       ...state,
       image: newImage,
@@ -183,7 +178,7 @@ return {
   }),
   on(action.updateRecieverImage, (state, { rimage }) => {
     var newrImage: string = rimage;
-    console.log('in reducer updateRecieverImage');
+    console.log('reciever img');
     return {
       ...state,
       rimage: newrImage,
@@ -191,7 +186,6 @@ return {
   }),
   on(action.updatFriendsNames, (state, { friends }) => {
     var newFriends: string[] = friends;
-    console.log('in reducer updatFriendsNames');
     return {
       ...state,
       friends: newFriends,
@@ -200,7 +194,6 @@ return {
   on(action.updateOthersLocation, (state, { others_locations }) => {
     var newOthers_locations: string[] = others_locations;
 
-    console.log('in reducer updatOthers_locations');
     return {
       ...state,
       others_locations: newOthers_locations,
@@ -209,7 +202,6 @@ return {
   on(action.updateDisplayPic, (state, { displayPic }) => {
     var newDisplayPic: string = displayPic;
 
-    console.log('in reducer updatdisplay pic');
     return {
       ...state,
       displayPic: newDisplayPic,

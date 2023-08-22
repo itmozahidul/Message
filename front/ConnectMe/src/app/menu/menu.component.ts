@@ -49,6 +49,7 @@ export class MenuComponent implements OnInit {
       this.image$.subscribe((s) => {
         if (s == '') {
           let nimage: string = '';
+
           this.generalService
             .getUserPhoto(this.generalService.getUser())
             .subscribe(

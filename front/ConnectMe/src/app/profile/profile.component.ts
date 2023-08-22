@@ -325,6 +325,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         break;
       case 'image':
         this.user.image = this.image;
+        this.store.dispatch(action.updateUserImage({ image: this.image }));
         this.updateSingleUserEntry(key, this.image);
         break;
       //Profile_relevant

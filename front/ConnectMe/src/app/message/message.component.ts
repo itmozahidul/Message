@@ -436,7 +436,10 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   sendFile() {
     const bucket: FormData = new FormData();
     bucket.append('file', this.file);
-    bucket.append('name', this.file.name);
+    bucket.append(
+      'name',
+      this.generalService.getUser() + '_' + this.reciever + this.file.name
+    );
     this.generalService.sendFileWithoutWebSocket(bucket).subscribe(
       (suc) => {
         this.sendFileToback(suc.path, this.file.name);

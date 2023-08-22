@@ -51,6 +51,26 @@ export class RecordAudioComponent implements OnInit {
     });
   }
 
+  loadingEnd() {
+    console.log('loading ended');
+
+    /* setTimeout(() => {
+      
+    }, 3000); */
+    try {
+      this.loadingCtrl.dismiss().then(
+        (suc) => {
+          console.log(suc);
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   cancel() {
     this.modalController.dismiss();
   }
@@ -71,7 +91,6 @@ export class RecordAudioComponent implements OnInit {
       newMsg.data = data;
       newMsg.type = 'audio';
       this.generalService.sendMessage(newMsg);
-      this.cancel();
     }
   }
   play() {
@@ -107,14 +126,23 @@ export class RecordAudioComponent implements OnInit {
       this.audioChunks.push(e.data);
       console.log(this.rec);
       if (this.rec.state == 'inactive') {
-        let blob = new Blob(this.audioChunks, { type: 'audio/mp3' });
+        const blob = new Blob(this.audioChunks, { type: 'audio/mp3' });
+        const file = new File(
+          [blob],
+          this.generalService.getUser() + '_' + this.reciever + 'audio.mp3',
+          { type: 'audio/mp3' }
+        );
+        this.sendFile(file, this.generalService.recordSendMessage());
 
-        this.audio = new Audio(URL.createObjectURL(blob));
-        this.generalService.blobToBase64(blob).then(
+        /*this.audio = new Audio(URL.createObjectURL(blob));
+         this.generalService.blobToBase64(blob).then(
           (base64data) => {
             console.log('success');
             this.aud_src = base64data;
-            this.sendFileToback(this.aud_src);
+            this.sendFile(
+              this.aud_src,
+              this.generalService.recordSendMessage()
+            );
           },
           (f) => {
             console.log('failed');
@@ -122,7 +150,7 @@ export class RecordAudioComponent implements OnInit {
               'Voice message failed'
             );
           }
-        );
+        ); */
 
         /*  if (Capacitor.isNativePlatform()) {
           
@@ -156,6 +184,7 @@ export class RecordAudioComponent implements OnInit {
     } */
     console.log('clicked');
     this.rec.stop();
+    this.cancel();
 
     this.status = 'off';
   }
