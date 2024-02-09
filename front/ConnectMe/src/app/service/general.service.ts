@@ -34,7 +34,7 @@ export class GeneralService {
       'Content-Type': 'application/json',
     }),
   };
-  notificationDuration = 3000;
+  notificationDuration = 2000;
   jwtToken: string;
   decodedToken: { [key: string]: string };
   topic: string = '/topic/messages';

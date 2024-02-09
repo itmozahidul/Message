@@ -64,7 +64,6 @@ export class ChatComponent implements OnInit, OnDestroy {
     private router: Router,
     private generalService: GeneralService,
     private activatedroute: ActivatedRoute,
-    public loadingCtrl: LoadingController,
     public toastCtrl: ToastController,
     public modalController: ModalController
   ) {
@@ -82,7 +81,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   loadingStart(msg) {
     console.log('loading started');
-    this.loadingCtrl
+    this.generalService.loadingCtrl
       .create({
         message: msg,
       })
@@ -94,7 +93,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   loadingStartGoingToMessageComponent(msg) {
     this.loadingEnd();
-    this.loadingCtrl
+    this.generalService.loadingCtrl
       .create({
         message: msg,
       })
@@ -281,7 +280,7 @@ export class ChatComponent implements OnInit, OnDestroy {
       
     }, 3000); */
     try {
-      this.loadingCtrl.dismiss().then(
+      this.generalService.loadingCtrl.dismiss().then(
         (suc) => {
           console.log(suc);
         },
@@ -324,6 +323,7 @@ export class ChatComponent implements OnInit, OnDestroy {
             this.hasError = true;
             console.log(err);
             this.errommsg = 'can not connect';
+            this.loadingEnd();
           }
         );
       } else {

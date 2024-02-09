@@ -70,7 +70,7 @@ export class LoginComponent implements OnInit {
       this.general.login(data).subscribe(
         (suc) => {
           this.general.endBusy();
-          if (suc.jwt != '') {
+          if (suc.jwt != '' && suc.jwt != null) {
             if (this.general.prepareSession(suc.jwt)) {
               //this.router.navigate(['chat']);
               this.store.dispatch(
@@ -108,10 +108,14 @@ export class LoginComponent implements OnInit {
                   console.log(err);
                 }
               );
+            } else {
+              console.log('ERROR from backend');
+              this.errommsg = 'Incorrect credentials!';
+              this.hasError = true;
             }
           } else {
-            console.log('ERROR');
-            this.errommsg = 'Incorrect Password!';
+            console.log('no token was found');
+            this.errommsg = 'Incorrect credentials!';
             this.hasError = true;
           }
         },
