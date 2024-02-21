@@ -21,6 +21,15 @@ ion-row {
   width: fit-content;
   top: 65px;
 }
+
+.online {
+  color: rgb(0, 255, 21);
+  padding: 2px;
+}
+.offlineline {
+  color: rgb(165, 149, 126);
+  padding: 2px;
+}
 .error {
   color: orange;
   padding: 2px;

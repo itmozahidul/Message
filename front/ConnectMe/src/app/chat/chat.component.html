@@ -37,68 +37,60 @@
           (input)="search($event, inpt.value)"
         ></ion-searchbar>
         <ion-list #cilist id="listid">
-          <!--this part is only for the first chat head-->
-          <!-- <ion-item
-            *ngFor="let latest of latestss | keyvalue : originalOrder"
-            (click)="gotoChatDetail(latest.key)"
-          >
-            <ion-avatar slot="start">
-              <img src="assets/avatar.png" />
-            </ion-avatar>
-            <ion-label>
-              <h2>
-                <b>{{ latest.key }}</b>
-              </h2>
-              <h3 *ngIf="friend.value[friend.value.length - 2]">
-                {{ latest.value[latest.value.length - 2].text }}
-              </h3>
-              <p *ngIf="friend.value[friend.value.length - 1]">
-                {{ latest.value[latest.value.length - 1].text }}
-              </p>
-            </ion-label>
-
-            <ion-badge
-              color="danger"
-              *ngIf="
-                unreadMessagesNo.get(latest.key) != undefined &&
-                unreadMessagesNo.get(latest.key) != null &&
-                unreadMessagesNo.get(latest.key).length > 0
-              "
-              slot="end"
-              >{{ unreadMessagesNo.get(latest.key).length }}</ion-badge
-            >
-          </ion-item> -->
-          <ion-item
-            *ngFor="let friend of friends | keyvalue : originalOrder"
-            (click)="gotoChatDetail(friend.key); disable = true"
+          <ion-item-sliding
+            *ngFor="let friend of chatHeadsname | keyvalue : originalOrder"
             [disabled]="disable"
           >
-            <ion-avatar slot="start">
-              <img src="{{ friendsPic.get(friend.key) }}" />
-            </ion-avatar>
-            <ion-label>
-              <h2>
-                <b>{{ friend.key }}</b>
-              </h2>
-              <h3 *ngIf="friend.value[friend.value.length - 2]">
-                {{ friend.value[friend.value.length - 2].text }}
-              </h3>
-              <p *ngIf="friend.value[friend.value.length - 1]">
-                {{ friend.value[friend.value.length - 1].text }}
-              </p>
-            </ion-label>
-
-            <ion-badge
-              color="danger"
-              *ngIf="
-                unreadMessagesNo.get(friend.key) != undefined &&
-                unreadMessagesNo.get(friend.key) != null &&
-                unreadMessagesNo.get(friend.key).length > 0
+            <ion-item-options side="start">
+              <ion-item-option
+                color="success"
+                (click)="gotoProfile(friend.value.dynamicReciever)"
+              >
+                Profile
+              </ion-item-option>
+            </ion-item-options>
+            <ion-item
+              (click)="
+                gotoChatDetail(friend.key, friend.value.dynamicReciever);
+                disable = true
               "
-              slot="end"
-              >{{ unreadMessagesNo.get(friend.key).length }}</ion-badge
             >
-          </ion-item>
+              <ion-avatar slot="start">
+                <img src="{{ friendsPic.get(friend.key) }}" />
+              </ion-avatar>
+              <ion-label>
+                <h2>
+                  <b>{{ friend.value.dynamicReciever }}</b>
+                </h2>
+                <h3 *ngIf="friend.value.rsp[0]">
+                  {{ friend.value.rsp[0].text }}
+                </h3>
+                <p class="online">online</p>
+              </ion-label>
+
+              <ion-badge
+                color="danger"
+                *ngIf="
+                  friend.value.unreadMessageNo != undefined &&
+                  friend.value.unreadMessageNo != null &&
+                  friend.value.unreadMessageNo > 0
+                "
+                slot="end"
+                >{{ friend.value.unreadMessageNo }}</ion-badge
+              >
+            </ion-item>
+            <ion-item-options side="end">
+              <!-- <ion-item-option>Favorite</ion-item-option>-->
+              <ion-item-option
+                color="danger"
+                (click)="
+                  presentActionSheet(friend.key, friend.value.dynamicReciever)
+                "
+              >
+                Delete
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
         </ion-list>
 
         <ion-fab vertical="bottom" horizontal="start" edge slot="fixed">

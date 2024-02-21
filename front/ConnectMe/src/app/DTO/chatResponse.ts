@@ -7,6 +7,7 @@ export class chatResponse {
   reciever: string;
   data: string;
   type: string;
+  chatid: string = '';
 
   constructor(
     id: number,

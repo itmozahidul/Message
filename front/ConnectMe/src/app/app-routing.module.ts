@@ -12,6 +12,7 @@ import { WaitComponent } from './wait/wait.component';
 import { SelectImageComponent } from './select-image/select-image.component';
 import { SettingsComponent } from './settings/settings.component';
 import { LocationComponent } from './location/location.component';
+import { DynamicProfileComponent } from './dynamic-profile/dynamic-profile.component';
 
 const routes: Routes = [
   {
@@ -43,7 +44,12 @@ const routes: Routes = [
     canActivate: [AuthenticationGuard],
   },
   {
-    path: 'message/:friend',
+    path: 'message/:chatid/:name',
+    component: MessageComponent,
+    canActivate: [AuthenticationGuard],
+  },
+  {
+    path: 'message',
     component: MessageComponent,
     canActivate: [AuthenticationGuard],
   },
@@ -55,6 +61,11 @@ const routes: Routes = [
   {
     path: 'profile',
     component: ProfileComponent,
+    canActivate: [AuthenticationGuard],
+  },
+  {
+    path: 'dprofile/:user',
+    component: DynamicProfileComponent,
     canActivate: [AuthenticationGuard],
   },
   {

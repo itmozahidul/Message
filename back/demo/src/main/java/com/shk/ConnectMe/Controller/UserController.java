@@ -84,7 +84,7 @@ public class UserController {
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body("registration failed");
 		}
 
 	}
@@ -106,13 +106,14 @@ public class UserController {
 //			for(User u:users) {
 //				this.userNames.add(new SearchedUser(u.getName(),u.getImage()));
 //			}
-
+          return ResponseEntity.ok(this.names);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return ResponseEntity.badRequest().body("search with this "+key+" caused exception");
 		}
 
-		return ResponseEntity.ok(this.names);
+		
 	}
 
 	@PostMapping("/spokenTo")
@@ -125,13 +126,14 @@ public class UserController {
 //			for(User u:users) {
 //				this.userNames.add(new SearchedUser(u.getName(),u.getImage()));
 //			}
-
+return ResponseEntity.ok(new SpokenToEntry(spokenTo));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return ResponseEntity.badRequest().body("false");
 		}
 
-		return ResponseEntity.ok(new SpokenToEntry(spokenTo));
+		
 	}
 
 	@PostMapping("/get")
@@ -190,15 +192,17 @@ public class UserController {
 //			for(User u:users) {
 //				this.userNames.add(new SearchedUser(u.getName(),u.getImage()));
 //			}
+			this.photos.add(photo);
+
+			return ResponseEntity.ok(this.photos);
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			photo = "";
+			return ResponseEntity.notFound().build();
 		}
-		this.photos.add(photo);
-
-		return ResponseEntity.ok(this.photos);
+		
 	}
 
 	@PostMapping("/update/single")
@@ -238,7 +242,7 @@ public class UserController {
 				break;
 			}
 
-			
+		return ResponseEntity.ok(ans);	
 //			List<User> users = this.user_rpt.getUsersByKey(key);
 //			for(User u:users) {
 //				this.userNames.add(new SearchedUser(u.getName(),u.getImage()));
@@ -248,9 +252,10 @@ public class UserController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			ans = false;
+			return ResponseEntity.badRequest().body(ans);
 		}
 
-		return ResponseEntity.ok(ans);
+		
 	}
 
 	@PostMapping("profile/update/single")
@@ -371,7 +376,7 @@ public class UserController {
 				ans = false;
 				break;
 			}
-
+            return ResponseEntity.ok(ans);
 //			List<User> users = this.user_rpt.getUsersByKey(key);
 //			for(User u:users) {
 //				this.userNames.add(new SearchedUser(u.getName(),u.getImage()));
@@ -381,9 +386,10 @@ public class UserController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			ans = false;
+			return ResponseEntity.badRequest().body(ans);
 		}
 
-		return ResponseEntity.ok(ans);
+		
 	}
 
 	@PostMapping("/login")

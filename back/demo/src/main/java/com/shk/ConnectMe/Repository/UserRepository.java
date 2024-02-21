@@ -62,6 +62,11 @@ public interface UserRepository extends CrudRepository<User, Long> {
 	@Query(value="update user u set u.role = ?1 where u.name=?2", nativeQuery = true)
 	public void UpdateUserEntryrole(String role, String name); 
 	
+	@Transactional
+	@Modifying
+	@Query(value="insert into user_chat value(?1,?2)", nativeQuery = true)
+	public void UpdateUser_ChatEntryrole(String userid, String chatid);
+	
 //	@Transactional
 //	@Modifying
 //	@Query(value="update user u set u.fname=?1, u.lname=?2,u.adress=?3,u.number=?4,u.image = ?5,u.about = ?6 where user.name=?2", nativeQuery = true)

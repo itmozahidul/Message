@@ -20,6 +20,7 @@ import {
   SafeHtml,
   SafeResourceUrl,
 } from '@angular/platform-browser';
+import { Chathead } from '../DTO/chatHead';
 
 @Injectable({
   providedIn: 'root',
@@ -34,7 +35,8 @@ export class GeneralService {
       'Content-Type': 'application/json',
     }),
   };
-  notificationDuration = 2000;
+  notificationDuration = 0;
+  notificationDurationfix = 1000;
   jwtToken: string;
   decodedToken: { [key: string]: string };
   topic: string = '/topic/messages';
@@ -48,6 +50,8 @@ export class GeneralService {
   reciever$: Observable<string>;
   subscriptions = [];
   connectTryNo = 0;
+  currentchatid = 'currentchatid';
+  currentrecieverlocal = 'currentrecieverlocal';
 
   constructor(
     private httpClient: HttpClient,
@@ -77,6 +81,15 @@ export class GeneralService {
       this.httpHeader
     );
   }
+
+  createChat(user) {
+    return this.httpClient.post<any>(
+      this.endpoint + '/chat/create/',
+      [this.getUser(), user],
+      this.httpHeader
+    );
+  }
+
   update(data) {
     return this.httpClient.post<any>(
       this.endpoint + '/user/update/',
@@ -119,6 +132,31 @@ export class GeneralService {
       this.httpHeader
     );
   }
+
+  getChatHeadinfo(user: string): Observable<Chathead[]> {
+    return this.httpClient.post<any>(
+      this.endpoint + '/chat/chathead/user',
+      [this.getUser(), user],
+      this.httpHeader
+    );
+  }
+
+  getChatHeadinfobychatid(id: string): Observable<Chathead> {
+    return this.httpClient.post<any>(
+      this.endpoint + '/chat/chathead',
+      [id],
+      this.httpHeader
+    );
+  }
+
+  getChatIdoftwousers(user: string): Observable<string> {
+    return this.httpClient.post<any>(
+      this.endpoint + '/chat/findchatidoftwouser',
+      [this.getUser(), user],
+      this.httpHeader
+    );
+  }
+
   searchUserByName(key: string): Observable<string[]> {
     return this.httpClient.post<any>(
       this.endpoint + '/user/search',
@@ -170,12 +208,12 @@ export class GeneralService {
     );
   }
 
-  updateMsgSeen(id: number, ans: boolean) {
+  updateallMsgSeenOfaUser(chatid: string) {
     //const params = new HttpParams().set('id', id).set('ans', ans);
     console.log('msg seen rqst sent to backend');
     return this.httpClient.post<any>(
-      this.endpoint + '/message/messageSeen',
-      [id, ans],
+      this.endpoint + '/message/all/messageSeen/user',
+      [chatid, this.getUser()],
       this.httpHeader
     );
   }
@@ -269,7 +307,6 @@ export class GeneralService {
   }
 
   isTokenExpired(): boolean {
-    console.log(parseInt(this.getExpiryTime()));
     const expiryTime: number = parseInt(this.getExpiryTime());
     if (expiryTime) {
       return 1000 * expiryTime - new Date().getTime() < 5000;
@@ -307,6 +344,30 @@ export class GeneralService {
       );
     }
   }
+
+  sendMessage2(d, type: string) {
+    //console.log(new Date().getTime().toString());
+    let url = '/app/message';
+
+    if (this.client != null) {
+      let data = new actionEvent(
+        new Date().getUTCDate().toString(),
+        type,
+        this.getUser(),
+        d.reciever,
+        d
+      );
+
+      this.client.send(
+        //'/app/broadcast',
+        //`${url}/${to}`,
+        url,
+        { Authorization: this.getBearerToken() },
+        JSON.stringify(data)
+      );
+    }
+  }
+
   sendMessageAll(msg) {
     //console.log(new Date().getTime().toString());
     let url = '/app/message';
@@ -445,55 +506,52 @@ export class GeneralService {
   handelMessage(data: actionEvent) {
     switch (data.type) {
       case 'message':
-        // condition is useless
-        console.log(
-          data.from == this.getUser() || data.to == this.getUser()
-            ? 'data relavant to user'
-            : 'data is not relavant to user'
+        this.notify();
+        this.store.dispatch(
+          action.updateRecentSentText({
+            sentText: data.msgr,
+          })
         );
-        if (data.from == this.getUser() || data.to == this.getUser()) {
-          //this.msgs.push(data.msgr);
-          if (data.to == this.getUser()) {
-            this.notify();
-          }
-
+        this.store.dispatch(
+          action.updateRecentSentTextChat({
+            sentTextChat: data.msgr,
+          })
+        );
+        break;
+      case 'msgseennotifyall':
+      case 'msgseennotify':
+        console.log('#######################    in message notify');
+        console.log(this.getFromLocal(this.currentchatid));
+        console.log(data.msgr.chatid);
+        console.log(this.getFromLocal(this.currentchatid) == data.msgr.chatid);
+        if (
+          this.getFromLocal(this.currentchatid) == data.msgr.chatid.toString()
+        ) {
           this.store.dispatch(
-            action.updateRecentSentText({
-              sentText: data.msgr,
-            })
+            action.updateMsgidupdate({ msgidupdate: data.msgr.id })
           );
-          this.store.dispatch(
-            action.updateRecentSentTextChat({
-              sentTextChat: data.msgr,
-            })
-          );
-          /* this.store.dispatch(
-            action.updateViewdMessage({
-              msgs: this.msgs,
-            })
-          ); */
-
-          /* this.getMesssages(this.getUser()).subscribe((ml) => {
-              this.store.dispatch(
-                action.updateCurrentChatHeads({
-                  currentChatHeads: ml,
-                })
-              );
-            }); */
         }
-        /* else {
-          if (data.to == this.getUser()) {
-            console.log('updating msgs...');
-            this.getMesssages(this.getUser()).subscribe((ml) => {
-              console.log(ml);
-              this.store.dispatch(
-                action.updateCurrentChatHeads({
-                  currentChatHeads: ml,
-                })
-              );
-            });
-          }
-        } */
+        break;
+      case 'chatdelete':
+        console.log('#######################    in chat delete');
+        console.log(data.msgr.chatid);
+        this.store.dispatch(
+          action.updateDeletedchatid({ deletedchatid: data.msgr.chatid })
+        );
+        break;
+      case 'messagedelete':
+        console.log('#######################    in Message delete');
+        console.log(data.msgr.id);
+        this.store.dispatch(
+          action.updateDeletedmessageidid({ deletedmessageidid: data.msgr.id })
+        );
+        break;
+      case 'removesender':
+        console.log('#######################    in removesender');
+        console.log(data.msgr.id);
+        this.store.dispatch(
+          action.updateDeletedmessageidse({ deletedmessageidse: data.msgr.id })
+        );
         break;
       case 'location':
         let names = data.to.split(' ');
@@ -528,15 +586,10 @@ export class GeneralService {
   saveInlocal(key, data) {
     localStorage.removeItem(key);
     localStorage.setItem(key, JSON.stringify(data));
-    console.log('saving in local');
-    console.log(data);
-    console.log(JSON.stringify(data));
   }
 
   getFromLocal(key) {
     try {
-      console.log('getting from local');
-      console.log(localStorage.getItem(key));
       return JSON.parse(localStorage.getItem(key));
     } catch (error) {
       console.log(error);
@@ -591,7 +644,7 @@ export class GeneralService {
     this.loadingCtrl
       .create({
         message: msg,
-        duration: this.notificationDuration,
+        duration: this.notificationDurationfix,
       })
       .then((toast) => {
         toast.present();

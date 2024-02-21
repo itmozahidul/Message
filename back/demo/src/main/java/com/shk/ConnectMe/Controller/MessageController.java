@@ -22,12 +22,15 @@ import org.springframework.web.multipart.MultipartFile;
 import com.shk.ConnectMe.Model.Geheim;
 import com.shk.ConnectMe.Model.Message;
 import com.shk.ConnectMe.Model.User;
+import com.shk.ConnectMe.Repository.ChatRepository;
 import com.shk.ConnectMe.Repository.GeheimRepository;
 import com.shk.ConnectMe.Repository.MessageRepository;
 import com.shk.ConnectMe.Repository.UserRepository;
 import com.shk.ConnectMe.service.FileService;
 import com.shk.ConnectMe.utils.JwtTokenUtil;
+import com.shk.ConnectMe.utils.Support;
 
+import DTO.Chathead;
 import DTO.FileResponse;
 import DTO.MessageResponse;
 
@@ -43,6 +46,8 @@ public class MessageController {
 	private MessageRepository msg_rpt;
 	@Autowired
 	private UserRepository user_rpt;
+	@Autowired
+	private ChatRepository cht_rpt;
 	@Autowired
 	private GeheimRepository geheim_rpt;
 	private String jwt = "";
@@ -69,17 +74,23 @@ public class MessageController {
 					this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData()));
 				}
 			});
+			return ResponseEntity.ok(this.messagesResponse);
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return ResponseEntity.badRequest().body("No messages found for "+string_info);
+			
 		}
 		
-		return ResponseEntity.ok(this.messagesResponse);
+		
 	}
 	
+
+	
+	
 	@PostMapping("/user")
-	ResponseEntity<?> getMessageOfUser(@RequestBody String[] username){
+	ResponseEntity<?> getMessageOfUseraschathead(@RequestBody String[] username){
 		
 		try {
 			
@@ -90,53 +101,56 @@ public class MessageController {
 			messages.forEach((msg)->{log.info(msg.getText());
 			   this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData()));
 			});
-			
+			return ResponseEntity.ok(this.messagesResponse);
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return ResponseEntity.badRequest().body("no messages found for "+username[0]+" and "+username[1]);
 		}
 		
-		return ResponseEntity.ok(this.messagesResponse);
+		
 	}
 	
-	@PostMapping("/messageSeen")
-	ResponseEntity<?> setMessageOfUserAsSeen(@RequestBody String[] data){
+	@PostMapping("/all/messageSeen/user")
+	ResponseEntity<?> setallunseenMessageOfUserAsSeen(@RequestBody String[] chatids){
 		
 		
 		boolean reply = false;
 		try {
-			boolean ans = false;
-			if(data[1].equals("true")) {
-				ans = true;
-			}
-			if(data[1].equals("false")) {
-				ans = false;
-			}
-			long id = Long.parseLong(data[0]);
-			this.msg_rpt.UpdateMessage(ans, id);
-			reply = true;
 			
+			User u = this.user_rpt.getUsersByKey(chatids[1]);
+			this.msg_rpt.UpdateallMessageseenforaUser(Integer.valueOf(chatids[0]),u.getId());
+			this.cht_rpt.UpdateunreadMessageNoOfAChat(0, Integer.valueOf(chatids[0]));
+			reply = true;
+			return ResponseEntity.ok(reply);
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			this.log.warn("Updating message seen status didn't work, see exception details");
 			reply = false;
+			return ResponseEntity.badRequest().body(reply);
 		}
 		
-		return ResponseEntity.ok(reply);
+		
 	}
+	
+	
 	
 	@PostMapping(path = "/uploadFile",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	ResponseEntity<FileResponse> uploadFile(@RequestParam("file") MultipartFile file) {
 	    FileResponse ans = new FileResponse();
+	    boolean reply = false;
 		try {
 			ans = this.fileService.save(file);
+			return ResponseEntity.ok(ans);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return ResponseEntity.badRequest().body(ans);
 		}
-	    return ResponseEntity.ok(ans);
+	   
 	}
 
 }

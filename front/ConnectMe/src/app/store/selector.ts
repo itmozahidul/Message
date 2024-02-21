@@ -79,3 +79,27 @@ export const selectOthersLocation = createSelector(selectAppState, (state) => {
 export const selectDisplayPic = createSelector(selectAppState, (state) => {
   return state.displayPic;
 });
+
+export const selectMsgidupdate = createSelector(selectAppState, (state) => {
+  return state.msgidupdate;
+});
+
+export const selectCurrentchatid = createSelector(selectAppState, (state) => {
+  return state.currentchatid;
+});
+
+export const selectDeletedchatid = createSelector(selectAppState, (state) => {
+  return state.deletedchatid;
+});
+export const selectDeletedmessageidid = createSelector(
+  selectAppState,
+  (state) => {
+    return state.deletedmessageidid;
+  }
+);
+export const selectDeletedmessageidse = createSelector(
+  selectAppState,
+  (state) => {
+    return state.deletedmessageidse;
+  }
+);

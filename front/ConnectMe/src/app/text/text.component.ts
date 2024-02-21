@@ -36,6 +36,7 @@ export class TextComponent implements OnInit {
   audio: HTMLAudioElement;
   aud_src;
   file_data_type = 'data';
+  deleted: boolean = false;
   constructor(
     private generalService: GeneralService,
     private router: Router,
@@ -48,6 +49,12 @@ export class TextComponent implements OnInit {
   }
 
   ngOnInit() {
+    if (this.sender == '') {
+      if (this.user != this.reciever) {
+        this.deleted = true;
+      }
+    }
+
     if (this.type == 'audio') {
       this.aud_src = this.data;
     }

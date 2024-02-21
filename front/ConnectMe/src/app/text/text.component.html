@@ -1,4 +1,4 @@
-<ion-grid>
+<ion-grid *ngIf="!eleted">
   <div class="time">
     {{ time }}
   </div>
@@ -91,14 +91,25 @@
         <ion-col size="11" style="text-align: -webkit-right">
           <ion-card>
             {{ text }}
+            <div *ngIf="seen">
+              <ion-icon class="seen" name="checkmark-done-outline"></ion-icon>
+            </div>
+            <div *ngIf="!seen">
+              <ion-icon
+                class="notseen"
+                name="checkmark-done-outline"
+              ></ion-icon>
+            </div>
           </ion-card>
         </ion-col>
         <ion-col size="1">
-          <div>
-            <ion-avatar slot="start" class="ionavatarright">
-              <img [src]="image" />
-            </ion-avatar>
-          </div>
+          <ion-row>
+            <div>
+              <ion-avatar slot="start" class="ionavatarright">
+                <img [src]="image" />
+              </ion-avatar>
+            </div>
+          </ion-row>
         </ion-col>
       </ion-row>
     </ion-col>
@@ -114,11 +125,19 @@
           </ion-card>
         </ion-col>
         <ion-col size="1">
-          <div>
-            <ion-avatar slot="start" class="ionavatarright">
-              <img [src]="image" />
-            </ion-avatar>
-          </div>
+          <ion-row>
+            <div>
+              <ion-avatar slot="start" class="ionavatarright">
+                <img [src]="image" />
+              </ion-avatar>
+            </div>
+          </ion-row>
+          <ion-row> </ion-row>
+          <ion-row>
+            <div>
+              <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+            </div>
+          </ion-row>
         </ion-col>
       </ion-row>
     </ion-col>
@@ -144,11 +163,19 @@
           </ion-card>
         </ion-col>
         <ion-col size="1">
-          <div>
-            <ion-avatar slot="start" class="ionavatarright">
-              <img [src]="image" />
-            </ion-avatar>
-          </div>
+          <ion-row>
+            <div>
+              <ion-avatar slot="start" class="ionavatarright">
+                <img [src]="image" />
+              </ion-avatar>
+            </div>
+          </ion-row>
+          <ion-row> </ion-row>
+          <ion-row>
+            <div>
+              <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+            </div>
+          </ion-row>
         </ion-col>
       </ion-row>
     </ion-col>
@@ -161,11 +188,19 @@
           </audio>
         </ion-col>
         <ion-col size="1">
-          <div>
-            <ion-avatar slot="start" class="ionavatarleft">
-              <img [src]="image" />
-            </ion-avatar>
-          </div>
+          <ion-row>
+            <div>
+              <ion-avatar slot="start" class="ionavatarright">
+                <img [src]="image" />
+              </ion-avatar>
+            </div>
+          </ion-row>
+          <ion-row> </ion-row>
+          <ion-row>
+            <div>
+              <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+            </div>
+          </ion-row>
         </ion-col>
       </ion-row>
     </ion-col>

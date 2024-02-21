@@ -6,6 +6,8 @@ import DTO.MessageResponse;
 import DTO.actionEvent;
 
 import java.security.Principal;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import javax.transaction.Transactional;
@@ -24,9 +26,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.shk.ConnectMe.Controller.MessageController;
 import com.shk.ConnectMe.Controller.UserController;
+import com.shk.ConnectMe.Model.Chat;
 import com.shk.ConnectMe.Model.Message;
 import com.shk.ConnectMe.Model.Profile;
 import com.shk.ConnectMe.Model.User;
+import com.shk.ConnectMe.Repository.ChatRepository;
 import com.shk.ConnectMe.Repository.MessageRepository;
 import com.shk.ConnectMe.Repository.ProfileRepository;
 import com.shk.ConnectMe.Repository.UserRepository;
@@ -39,6 +43,8 @@ public class WebSocketBroadcastController {
 	private UserRepository user_rpt; 
 	@Autowired
 	private MessageRepository msg_rpt;
+	@Autowired
+	private ChatRepository chat_rpt;
 	@Autowired
 	private ProfileRepository prf_rpt;
 	@Autowired
@@ -83,7 +89,15 @@ public class WebSocketBroadcastController {
 				action.setTime(this.uts.now());
 				action.getMsgr().setTime(this.uts.now());
 				
-				Message m = new Message(action.getMsgr().getTime(),action.getMsgr().getText(),action.getMsgr().isSeen(),this.user_rpt.getUsersByKey(action.getMsgr().getSender()),this.user_rpt.getUsersByKey(action.getMsgr().getReciever()),action.getMsgr().getType());
+				Message m = new Message(
+						action.getMsgr().getTime(),
+						action.getMsgr().getText(),
+						action.getMsgr().isSeen(),
+						this.user_rpt.getUsersByKey(action.getMsgr().getSender()),
+						this.user_rpt.getUsersByKey(action.getMsgr().getReciever()),
+						action.getMsgr().getType(),
+						this.chat_rpt.getChateadById(Integer.valueOf(action.getMsgr().getChatid()))
+						);
 				try {
 					String blob_stringed_data = action.getMsgr().getData();
 					if(!blob_stringed_data.equals("null") && !blob_stringed_data.isEmpty()) {
@@ -119,9 +133,97 @@ public class WebSocketBroadcastController {
 	    			
 	    			String users_string = this.getUserSpokenTo(action.getFrom());
 	    			action.setTo(users_string);
-	    			
+	    			this.messagingTemplate.convertAndSendToUser(action.getTo(), "/queue/reply", action);
+					this.messagingTemplate.convertAndSendToUser(action.getFrom(), "/queue/reply", action);
 	    		}else if(action.getType().equals("location_share")) {
 	    			// nothing just pass the same data to reciever
+	    			this.messagingTemplate.convertAndSendToUser(action.getTo(), "/queue/reply", action);
+					this.messagingTemplate.convertAndSendToUser(action.getFrom(), "/queue/reply", action);
+	    		}else if(action.getType().equals("msgseennotify")) {
+	    			try {
+	    				this.msg_rpt.UpdateMessage(action.getMsgr().isSeen(), action.getMsgr().getId());
+	    				this.messagingTemplate.convertAndSendToUser(action.getMsgr().getReciever(), "/queue/reply", action);
+					    this.messagingTemplate.convertAndSendToUser(action.getMsgr().getSender(), "/queue/reply", action);
+	    				
+	    			} catch (Exception e) {
+	    				// TODO Auto-generated catch block
+	    				e.printStackTrace();
+	    			}
+	    			
+	    		}else if(action.getType().equals("msgseennotifyall")) {
+	    			try {
+	    				
+	    				String username=action.getFrom().trim();
+	    				int chatid = Integer.valueOf(action.getMsgr().getChatid().trim());
+	    				User u = this.user_rpt.getUsersByKey(username);
+	    				this.msg_rpt.UpdateallMessageseenforaUser(chatid,u.getId());
+	    				this.chat_rpt.UpdateunreadMessageNoOfAChat(0, chatid);
+	    				
+	    				
+	    				this.messagingTemplate.convertAndSendToUser(action.getMsgr().getReciever(), "/queue/reply", action);
+					    this.messagingTemplate.convertAndSendToUser(action.getMsgr().getSender(), "/queue/reply", action);
+	    				
+	    			} catch (Exception e) {
+	    				// TODO Auto-generated catch block
+	    				e.printStackTrace();
+	    			}
+	    		}
+	    		else if(action.getType().equals("chatdelete")) {
+	    			try {
+	    				String username=action.getFrom().trim();
+	    				int chatid = Integer.valueOf(action.getMsgr().getChatid().trim());
+	    				User u = this.user_rpt.getUsersByKey(username);
+	    				int userids[] = this.chat_rpt.getusersinchat(chatid);
+	    				if(userids.length>0) {
+	    					if(userids.length==1) {
+	    						if(userids[0]==u.getId()) {
+	    							this.chat_rpt.deleteuserfromauserchatrelation(chatid, userids[0]);
+	    							this.msg_rpt.deleteMessagesByChatid(chatid);
+	    							this.chat_rpt.deleteById(chatid);
+	    							this.messagingTemplate.convertAndSendToUser(action.getFrom(), "/queue/reply", action);
+	    						}
+	    					}else {
+	    						int deleted = 0;
+	    						for(int userid : userids) {
+		    						if(userid==u.getId()) {
+		    							this.chat_rpt.deleteuserfromauserchatrelation(chatid, userid);
+		    							deleted++;
+		    						}
+		    					}
+	    						if(deleted>0) {
+	    							this.messagingTemplate.convertAndSendToUser(action.getFrom(), "/queue/reply", action);
+	    						}
+	    					}
+	    					
+	    				}
+	    			} catch (Exception e) {
+	    				// TODO Auto-generated catch block
+	    				e.printStackTrace();
+	    			}
+	    		}else if(action.getType().equals("messagedelete")) {
+	    			try {
+	    				long msgid = action.getMsgr().getId();
+	    				this.msg_rpt.deleteaMessageByid(msgid);
+	    				this.messagingTemplate.convertAndSendToUser(action.getTo(), "/queue/reply", action);
+						this.messagingTemplate.convertAndSendToUser(action.getFrom(), "/queue/reply", action);
+	    			} catch (Exception e) {
+	    				// TODO Auto-generated catch block
+	    				e.printStackTrace();
+	    			}
+	    		}else if(action.getType().equals("removesender")) {
+	    			try {
+	    				
+	    				String sender=action.getFrom().trim();
+	    				long msgid = action.getMsgr().getId();
+	    				User us = this.user_rpt.getUsersByKey(sender);
+	    				
+	    				this.msg_rpt.UpdateSenderByID(msgid, us.getId());
+	    				
+	    				this.messagingTemplate.convertAndSendToUser(action.getTo(), "/queue/reply", action);
+	    			} catch (Exception e) {
+	    				// TODO Auto-generated catch block
+	    				e.printStackTrace();
+	    			}
 	    		}
 	    		else {
 				User sender = this.user_rpt.getUsersByKey(action.getMsgr().getSender());
@@ -143,8 +245,18 @@ public class WebSocketBroadcastController {
 				Date date = new Date();
 				action.setTime(this.uts.now());
 				action.getMsgr().setTime(this.uts.now());
+				Chat tempcht = this.chat_rpt.getChateadById(Integer.valueOf(action.getMsgr().getChatid()));
 				
-				Message m = new Message(action.getMsgr().getTime(),action.getMsgr().getText(),action.getMsgr().isSeen(),this.user_rpt.getUsersByKey(action.getMsgr().getSender()),this.user_rpt.getUsersByKey(action.getMsgr().getReciever()),action.getMsgr().getType());
+				
+				Message m = new Message(
+						action.getMsgr().getTime(),
+						action.getMsgr().getText(),
+						action.getMsgr().isSeen(),
+						this.user_rpt.getUsersByKey(action.getMsgr().getSender()),
+						this.user_rpt.getUsersByKey(action.getMsgr().getReciever()),
+						action.getMsgr().getType(),
+						tempcht
+						);
 				try {
 					String blob_stringed_data = action.getMsgr().getData();
 					if(!blob_stringed_data.equals("null") && !blob_stringed_data.isEmpty()) {
@@ -159,16 +271,21 @@ public class WebSocketBroadcastController {
 				log.info("msg saved");
 				MessageResponse mr = action.getMsgr();
 				mr.setId(this.msg_rpt.save(m).getId());
+				int unreadmsgno = tempcht.getUnreadMessageNo();
+				unreadmsgno++;
+				this.chat_rpt.UpdateunreadMessageNoOfAChat(unreadmsgno, tempcht.getId());
 				mr.setData(action.getMsgr().getData());
 				action.setMsgr(mr);
+				this.messagingTemplate.convertAndSendToUser(action.getTo(), "/queue/reply", action);
+				this.messagingTemplate.convertAndSendToUser(action.getFrom(), "/queue/reply", action);
 	    	}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 	       
-	        this.messagingTemplate.convertAndSendToUser(action.getTo(), "/queue/reply", action);
-	        this.messagingTemplate.convertAndSendToUser(user.getName(), "/queue/reply", action);
+	       
+	        //this.messagingTemplate.convertAndSendToUser(user.getName(), "/queue/reply", action);
 	    }
 	    
 	    
@@ -190,5 +307,6 @@ public class WebSocketBroadcastController {
 				return "";
 			}
 	    }
+	    
 
 }

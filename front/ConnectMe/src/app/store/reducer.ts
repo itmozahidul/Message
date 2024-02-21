@@ -23,6 +23,11 @@ export interface State {
   rimage: string;
   friends: string[];
   others_locations: string[];
+  msgidupdate: number;
+  currentchatid: string;
+  deletedchatid: string;
+  deletedmessageidid: string;
+  deletedmessageidse: string;
 }
 
 export const initialState: State = {
@@ -46,6 +51,11 @@ export const initialState: State = {
   rimage: '',
   friends: [],
   others_locations: [],
+  msgidupdate: -1,
+  currentchatid: '',
+  deletedchatid: '',
+  deletedmessageidid: '',
+  deletedmessageidse: '',
 };
 
 export const appReducer = createReducer(
@@ -119,9 +129,24 @@ return {
 }), */
   on(action.updateViewdMessage, (state, { msgs }) => {
     var newMsgs = [];
-    msgs.forEach((m) => {
-      newMsgs.push(m);
-    });
+    console.log(
+      ':::::::::::::::::::::::::::::s::::::::::::::::::::::::::::::::'
+    );
+    console.log(
+      '::::::::::::::::: viewed mesg updted::::::::::::::::::::::::::'
+    );
+    console.log('from ');
+    console.log(state.msgs);
+    console.log(' to ');
+    console.log(msgs);
+    console.log(
+      ':::::::::::::::::::::::::::::e::::::::::::::::::::::::::::::::'
+    );
+    if (msgs != null && msgs != undefined) {
+      msgs.forEach((m) => {
+        newMsgs.push(m);
+      });
+    }
     return {
       ...state,
       msgs: newMsgs,
@@ -137,13 +162,33 @@ return {
   }),
   on(action.updateCurrentReciever, (state, { currentReciever }) => {
     var newCurentReciever = currentReciever;
-
+    console.log(
+      '###########################s##################################'
+    );
+    console.log(
+      '################### reciever changed ########################'
+    );
+    console.log('from ' + state.currentReciever + ' to ' + currentReciever);
+    console.log(
+      '############################e#################################'
+    );
     return {
       ...state,
       currentReciever: newCurentReciever,
     };
   }),
   on(action.updateCurrentChatHeads, (state, { currentChatHeads }) => {
+    console.log(
+      '***************************s*********************************'
+    );
+    console.log('****************** chatheads updated ***********************');
+    console.log('from ');
+    console.log(state.currentChatHeads);
+    console.log(' to ');
+    console.log(currentChatHeads);
+    console.log(
+      '****************************e*********************************'
+    );
     var newCurentChatHeads = [];
     newCurentChatHeads.forEach((m) => {
       currentChatHeads.push(m);
@@ -205,6 +250,42 @@ return {
     return {
       ...state,
       displayPic: newDisplayPic,
+    };
+  }),
+  on(action.updateMsgidupdate, (state, { msgidupdate }) => {
+    var newMsgidupdate: number = msgidupdate;
+
+    return {
+      ...state,
+      msgidupdate: newMsgidupdate,
+    };
+  }),
+  on(action.updateCurrrentchatid, (state, { currentchatid }) => {
+    var newCurrentchatid: string = currentchatid;
+    return {
+      ...state,
+      currentchatid: newCurrentchatid,
+    };
+  }),
+  on(action.updateDeletedchatid, (state, { deletedchatid }) => {
+    var newDeletedchatid: string = deletedchatid;
+    return {
+      ...state,
+      deletedchatid: newDeletedchatid,
+    };
+  }),
+  on(action.updateDeletedmessageidid, (state, { deletedmessageidid }) => {
+    var newDeletedmessageidid: string = deletedmessageidid;
+    return {
+      ...state,
+      deletedmessageidid: newDeletedmessageidid,
+    };
+  }),
+  on(action.updateDeletedmessageidse, (state, { deletedmessageidse }) => {
+    var newDeletedmessageidse: string = deletedmessageidse;
+    return {
+      ...state,
+      deletedmessageidse: newDeletedmessageidse,
     };
   })
 );

@@ -2,6 +2,7 @@ package com.shk.ConnectMe.Model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,6 +13,7 @@ import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) 
@@ -36,6 +38,11 @@ public class Message {
 	@JoinColumn(name = "reciever", nullable = false) 
     private User reciever;
     
+    @JsonIgnoreProperties({"MessageList"})
+    @ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "chat", nullable = false ) 
+    private Chat chat;
+    
 	public Message() {
 		// TODO Auto-generated constructor stub
 	}
@@ -50,7 +57,7 @@ public class Message {
 		this.data = "";
 	}
 	
-	public Message(String time, String text, boolean seen, User sender, User reciever, String type) {
+	public Message(String time, String text, boolean seen, User sender, User reciever, String type, Chat chat) {
 		super();
 		this.time = time;
 		this.text = text;
@@ -59,6 +66,7 @@ public class Message {
 		this.reciever = reciever;
 		this.data = "";
 		this.type= type;
+		this.chat =chat;
 	}
 
 	public int getId() {
@@ -124,6 +132,15 @@ public class Message {
 	public void setType(String type) {
 		this.type = type;
 	}
+
+	public Chat getChat() {
+		return chat;
+	}
+
+	public void setChat(Chat chat) {
+		this.chat = chat;
+	}
+	
 	
 	
 

@@ -88,3 +88,28 @@ export const updateDisplayPic = createAction(
   '[app] updateDisplayPic',
   props<{ displayPic: string }>()
 );
+
+export const updateMsgidupdate = createAction(
+  '[app] updateMsgidupdate',
+  props<{ msgidupdate: number }>()
+);
+
+export const updateCurrrentchatid = createAction(
+  '[app] updateCurrrentchatid',
+  props<{ currentchatid: string }>()
+);
+
+export const updateDeletedchatid = createAction(
+  '[app] updateDeletedchatid',
+  props<{ deletedchatid: string }>()
+);
+
+export const updateDeletedmessageidid = createAction(
+  '[app] updateDeletedmessageidid',
+  props<{ deletedmessageidid: string }>()
+);
+
+export const updateDeletedmessageidse = createAction(
+  '[app] updateDeletedchatidse',
+  props<{ deletedmessageidse: string }>()
+);

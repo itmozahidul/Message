@@ -1,10 +1,13 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button (click)="endModal()">back</ion-button>
-    </ion-buttons>
+    <ion-item slot="start" (click)="gotoProfile(reciever)">
+      <ion-avatar>
+        <img src="{{ rimage }}" />
+      </ion-avatar>
+      {{ reciever }}
+    </ion-item>
     <ion-buttons slot="end">
-      <ion-menu-button></ion-menu-button>
+      <ion-button (click)="back()">back</ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -51,6 +54,7 @@
           [seen]="msg.seen"
           [user]="this.generalService.getUser()"
           [data]="msg.data"
+          (click)="presentActionSheet(msg.id, msg.sender, msg.reciever)"
         >
         </app-text>
       </ion-col>

@@ -53,33 +53,31 @@ export class NewFriendComponent implements OnInit, AfterViewInit {
 
   gotoChatDetail(newPerson) {
     if (newPerson != this.generalService.getUser()) {
-      this.router.navigate(['/chat', newPerson]);
-    }
-
-    //this part is needed if ,the chats data has to be handeled here.
-    /* this.store.dispatch(
-      action.updateViewdMessage({
-        msgs: [],
-      })
-    );
-    this.generalService.getMesssagesbyUser(newPerson).subscribe(
-      (aktualMsgs) => {
-        console.log('got new msg');
-
-        if (aktualMsgs.length > 0) {
-          this.store.dispatch(
-            action.updateViewdMessage({
-              msgs: aktualMsgs,
-            })
+      let data = {
+        name: newPerson,
+      };
+      this.generalService.createChat(newPerson).subscribe(
+        (suc) => {
+          this.generalService.saveInlocal(
+            this.generalService.currentchatid,
+            suc.id.toString()
           );
+          console.log(suc);
+          this.endModal();
+          this.router.navigate(['/chat', newPerson]);
+          console.log(suc);
+        },
+        (err) => {
+          console.log(err);
         }
-      },
-      (err) => {
-        console.log(err);
-      }
-    ); */
+      );
+    }
+  }
 
-    //this.generalService.connect();
+  gotoProfile(name) {
+    console.log('going to profile of ' + name);
+    this.endModal();
+    this.router.navigate(['/dprofile', name]);
   }
 
   ngOnDestroy() {

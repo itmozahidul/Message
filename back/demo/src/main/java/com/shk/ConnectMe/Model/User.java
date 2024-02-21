@@ -12,6 +12,9 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -46,6 +49,13 @@ public class User {
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "reciever")
 	@JsonIgnoreProperties({"sender","reciever"})
 	private List<Message> recievedMessageList;
+	
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinTable(
+			  name = "user_chat", 
+			  joinColumns = @JoinColumn(name = "userid"), 
+			  inverseJoinColumns = @JoinColumn(name = "chatid"))
+	private List<Chat> chatheadlist;
 	
 	  @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy =
 	  "user") 
