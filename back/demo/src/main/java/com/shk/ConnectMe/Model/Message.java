@@ -20,17 +20,20 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class Message {
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
+	private long id;
     private String time;
+    private long timemili;
+    private int deleted;
     private String text;
     private String type;
     private boolean seen;
     @Column(columnDefinition="TEXT")
     private String data;
     
+    
     @JsonIgnoreProperties({"sendMessageList","recievedMessageList"})
     @ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "sender", nullable = false ) 
+	@JoinColumn(name = "sender", nullable = true ) //only sender can nullify a message
     private User sender;
     
     @JsonIgnoreProperties({"sendMessageList","recievedMessageList"})
@@ -47,9 +50,11 @@ public class Message {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Message(String time, String text, boolean seen, User sender, User reciever) {
+	public Message(String time,long timemili,int deleted, String text, boolean seen, User sender, User reciever) {
 		super();
 		this.time = time;
+		this.timemili=timemili;
+		this.deleted=deleted;
 		this.text = text;
 		this.seen = seen;
 		this.sender = sender;
@@ -57,9 +62,10 @@ public class Message {
 		this.data = "";
 	}
 	
-	public Message(String time, String text, boolean seen, User sender, User reciever, String type, Chat chat) {
+	public Message(String time,long timemili,int deleted, String text, boolean seen, User sender, User reciever, String type, Chat chat) {
 		super();
 		this.time = time;
+		this.deleted= deleted;
 		this.text = text;
 		this.seen = seen;
 		this.sender = sender;
@@ -67,13 +73,24 @@ public class Message {
 		this.data = "";
 		this.type= type;
 		this.chat =chat;
+		this.timemili=timemili;
+	}
+	
+	
+
+	public long getTimemili() {
+		return timemili;
 	}
 
-	public int getId() {
+	public void setTimemili(long timemili) {
+		this.timemili = timemili;
+	}
+
+	public long getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -139,6 +156,14 @@ public class Message {
 
 	public void setChat(Chat chat) {
 		this.chat = chat;
+	}
+
+	public int getDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(int deleted) {
+		this.deleted = deleted;
 	}
 	
 	

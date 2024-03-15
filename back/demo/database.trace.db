@@ -3086,3 +3086,15 @@ alter table message add constraint FKgycahrw2jcpdwc15i9x6yl3y2 foreign key (chat
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1301)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1290)
 	at com.shk.ConnectMe.DemoApplication.main(DemoApplication.java:17)
+2024-03-08 15:32:19 jdbc[73]: exception
+org.h2.jdbc.JdbcSQLDataException: Wert zu gross / lang für Feld "TEXT VARCHAR(255)": "'{""event"":""offer"",""reciever"":""shakil1"",""data"":{""sdp"":""v=0\r\no=- 3727277689594202358 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=gro... (563)"
+Value too long for column "TEXT VARCHAR(255)": "'{""event"":""offer"",""reciever"":""shakil1"",""data"":{""sdp"":""v=0\r\no=- 3727277689594202358 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=gro... (563)"; SQL statement:
+insert into message (chat, data, deleted, reciever, seen, sender, text, time, timemili, type, id) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) [22001-200]
+2024-03-08 15:32:23 jdbc[73]: exception
+org.h2.jdbc.JdbcSQLDataException: Wert zu gross / lang für Feld "TEXT VARCHAR(255)": "'{""event"":""offer"",""reciever"":""shakil1"",""data"":{""sdp"":""v=0\r\no=- 3727277689594202358 3 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=gro... (811)"
+Value too long for column "TEXT VARCHAR(255)": "'{""event"":""offer"",""reciever"":""shakil1"",""data"":{""sdp"":""v=0\r\no=- 3727277689594202358 3 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=gro... (811)"; SQL statement:
+insert into message (chat, data, deleted, reciever, seen, sender, text, time, timemili, type, id) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) [22001-200]
+2024-03-08 15:35:28 jdbc[73]: exception
+org.h2.jdbc.JdbcSQLDataException: Wert zu gross / lang für Feld "TEXT VARCHAR(255)": "'{""event"":""offer"",""reciever"":""shakil1"",""data"":{""sdp"":""v=0\r\no=- 3727277689594202358 4 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=gro... (811)"
+Value too long for column "TEXT VARCHAR(255)": "'{""event"":""offer"",""reciever"":""shakil1"",""data"":{""sdp"":""v=0\r\no=- 3727277689594202358 4 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=gro... (811)"; SQL statement:
+insert into message (chat, data, deleted, reciever, seen, sender, text, time, timemili, type, id) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) [22001-200]

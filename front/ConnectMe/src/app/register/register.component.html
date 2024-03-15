@@ -13,7 +13,7 @@
           <ion-col size="6">
             <form [formGroup]="registerForm" (ngSubmit)="onFormSubmit()">
               <div><ion-text>First Name</ion-text></div>
-              <input #fnm formControlName="fname" />
+              <input #fnm formControlName="fname" autofocus />
               <div>
                 <label
                   *ngIf="registerForm.get('fname').invalid && fnm.value != ''"

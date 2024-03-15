@@ -3,6 +3,7 @@ package com.shk.ConnectMe.Controller;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.json.simple.JSONObject;
@@ -23,9 +24,12 @@ import com.shk.ConnectMe.Model.Geheim;
 import com.shk.ConnectMe.Model.Message;
 import com.shk.ConnectMe.Model.Profile;
 import com.shk.ConnectMe.Model.User;
+import com.shk.ConnectMe.Model.UserChat;
 import com.shk.ConnectMe.Repository.ChatRepository;
 import com.shk.ConnectMe.Repository.MessageRepository;
+import com.shk.ConnectMe.Repository.UserChatRepository;
 import com.shk.ConnectMe.Repository.UserRepository;
+import com.shk.ConnectMe.utils.Support;
 
 import DTO.Chathead;
 import DTO.MessageResponse;
@@ -42,6 +46,8 @@ Logger log = LoggerFactory.getLogger(ChatController.class);
 	private UserRepository user_rpt;
 	@Autowired
 	private MessageRepository msg_rpt;
+	@Autowired
+	private UserChatRepository usrcht_rpt;
 	
 	
 	
@@ -52,6 +58,9 @@ Logger log = LoggerFactory.getLogger(ChatController.class);
 	
 	private List<Message> messages = new ArrayList<Message>();
 	private List<MessageResponse> messagesResponse = new ArrayList<>();
+	
+	private String time;
+	private static Date date;
 	
 	@PostMapping("/create")
 	ResponseEntity<?> register(@RequestBody String[] name) {
@@ -75,10 +84,14 @@ Logger log = LoggerFactory.getLogger(ChatController.class);
 					}
 				}
 			}else {
-				Chat chat = new Chat(name[0].trim()+"_"+name[1].trim(),0,this.now(),null); 
-				int chatid = this.chat_rpt.save(chat).getId();
-				this.user_rpt.UpdateUser_ChatEntryrole(String.valueOf(u.getId()), String.valueOf(chatid));
-				this.user_rpt.UpdateUser_ChatEntryrole(String.valueOf(u2.getId()), String.valueOf(chatid));
+				String t = Support.now();
+				long tl = Support.nowinmilisec();
+				Chat chat = new Chat(name[0].trim()+"_"+name[1].trim(),0,t,null); 
+				long chatid = this.chat_rpt.save(chat).getId();
+				UserChat uc = new UserChat(chat,u,tl,0);
+				this.usrcht_rpt.save(uc);
+				uc = new UserChat(chat,u2,tl,0);
+				this.usrcht_rpt.save(uc);
 				ans.put("id", chatid);
 
 				
@@ -140,13 +153,16 @@ Logger log = LoggerFactory.getLogger(ChatController.class);
 	public static String now() {
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
+		date = cal.getTime();
 		return sdf.format(cal.getTime());
 	}
 	
 	
 	
+	
+	
 	@PostMapping("/chathead")
-	ResponseEntity<?> getchatheadbyid(@RequestBody String[] chatid){
+	ResponseEntity<?> getchatheadbyidandUser(@RequestBody String[] data){
 		
 		
 		
@@ -154,25 +170,96 @@ Logger log = LoggerFactory.getLogger(ChatController.class);
 		Chathead chhd = null;
 		Chat cht = null;
 		try {
-			int id =Integer.valueOf( chatid[0]);
-			cht = this.chat_rpt.findById(id).get();
-			//this.sendMessageToUsers(cht.getName().split("_"));
-			this.messagesResponse = new ArrayList<>();
-			this.messages = this.msg_rpt.getMessagesbyChatId(id);
-			if(this.messages.size()==0) {
-				this.log.warn("########################################## empty chat ###########################");
+			if(data.length>2) {
+				int limit = Integer.valueOf(data[2]);
+				int offset = Integer.valueOf(data[4]);
+				long id =Long.valueOf( data[0]);
+				cht = this.chat_rpt.findById(id).get();
+				User u = this.user_rpt.getUsersByKey(data[1]);
+				//this.sendMessageToUsers(cht.getName().split("_"));
+				UserChat uc = this.usrcht_rpt.getUserChatByuserandchatid(u.getId(), id);
+				this.messagesResponse = new ArrayList<>();
+				if(uc!=null) {
+					if(uc.getBlocked()==0) {
+						this.messages = this.msg_rpt.getMessagesbyChatIdoffset(id,uc.getMsglimit(),limit,u.getId(),offset);
+						if(this.messages.size()==0) {
+							this.log.warn("########################################## empty chat ###########################");
+						}
+						
+						messages.forEach((msg)->{log.info(msg.getText());
+							this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getTimemili(),msg.getDeleted(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData(), String.valueOf(id)));
+							
+						});
+						chhd=new Chathead(id,String.valueOf(cht.getUnreadMessageNo()),cht.getCreateTime(),cht.getName(),this.messagesResponse);
+						
+						return ResponseEntity.ok(chhd);
+					}else {
+						this.log.warn("user "+ data[1]+" is blocked from the chat with id "+ data[0]);
+						return ResponseEntity.badRequest().body("user "+ data[1]+" is blocked from the chat with id "+ data[0]);
+						
+					}
+				}else {
+					if(cht!=null) {
+						if(cht.getUserChatList().size()==2) {
+							this.log.warn("this Chat is already Full with 2 members, This kind of request should not be send to back end , unless if you want to create a group chat, othewise Check chat list in chat page in front end code");
+							return ResponseEntity.badRequest().body("this Chat is already Full with 2 members, This kind of request should not be send to back end , unless if you want to create a group chat, othewise Check chat list in chat page in front end code");
+						}else {
+							long tl = Long.valueOf(data[3]);
+							if(tl==0) {
+								tl=Support.nowinmilisec();
+								String r = cht.getName().split("_")[0].equals(u.getName())?cht.getName().split("_")[1]:cht.getName().split("_")[0];
+								Message m = new Message(
+										Support.now(),
+										tl,
+										0,
+										"Hi "+r+", This is "+u.getName(),
+										true,
+										u,
+										this.user_rpt.getUsersByKey(r),
+										"message",
+										cht
+										);
+								this.msg_rpt.save(m);
+							}
+							UserChat uc2 = new UserChat(cht,u,tl,0);
+							this.usrcht_rpt.save(uc2);
+							
+							
+							if(uc2.getBlocked()==0) {
+								this.messages = this.msg_rpt.getMessagesbyChatIdoffset(id,uc2.getMsglimit(),limit,u.getId(),offset);
+								if(this.messages.size()==0) {
+									this.log.warn("########################################## empty chat ###########################");
+								}
+								
+								messages.forEach((msg)->{log.info(msg.getText());
+									this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getTimemili(),msg.getDeleted(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData()));
+									
+								});
+								chhd=new Chathead(String.valueOf(cht.getUnreadMessageNo()),cht.getCreateTime(),cht.getName(),this.messagesResponse);
+								
+								return ResponseEntity.ok(chhd);
+							}else {
+								this.log.warn("user "+ data[1]+" is blocked from the chat with id "+ data[0]);
+								return ResponseEntity.badRequest().body("user "+ data[1]+" is blocked from the chat with id "+ data[0]);
+								
+							}
+						}
+						
+					}else {
+						this.log.warn("no chat head was found by the chatid "+ data[0]);
+						return ResponseEntity.badRequest().body("no chat head was found by the chatid "+ data[0]);
+					}
+				}
+			}else {
+				this.log.warn("user or chat id is missing data might be empty, check parameters in requests");
+				return ResponseEntity.badRequest().body("user or chat id is missing data might be empty, check parameters in requests");
 			}
-			messages.forEach((msg)->{log.info(msg.getText());
-				this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData()));
-				
-			});
-			chhd=new Chathead(String.valueOf(cht.getUnreadMessageNo()),cht.getCreateTime(),cht.getName(),this.messagesResponse);
 			
-			return ResponseEntity.ok(chhd);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return ResponseEntity.badRequest().body("no chat head was found by the chatid "+ chatid[0]);
+			this.log.warn("Error Occured, may be no chat head was found by the chatid "+ data[0]);
+			return ResponseEntity.badRequest().body("\"Error Occured, may be no chat head was found by the chatid "+ data[0]);
 		}
 	}
 	
@@ -190,12 +277,13 @@ Logger log = LoggerFactory.getLogger(ChatController.class);
 				
 				this.messagesResponse = new ArrayList<>();
 				int unreadmsgno = this.msg_rpt.getNoOfUnreadMsgBychatid(cht.getId(),user1.getId());
-				this. messages =  this.msg_rpt.getMessagesbyChatId(cht.getId());
+				UserChat uc = this.usrcht_rpt.getUserChatByuserandchatid(user1.getId(), cht.getId());
+				this. messages =  this.msg_rpt.getMessagesbyChatId(cht.getId(),uc.getMsglimit(),1,user1.getId());
 				if(this.messages.size()<1) {
 					this.log.warn("empty chat");
 				}else {
 					Message msg = messages.get(messages.size()-1);
-					this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData(),String.valueOf(msg.getChat().getId())));
+					this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getTimemili(),msg.getDeleted(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData(),String.valueOf(msg.getChat().getId())));
 					
 				}
 				

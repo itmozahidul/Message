@@ -3,6 +3,8 @@ package DTO;
 public class MessageResponse {
 	private long id;
 	    private String time;
+	    private long timemili;
+	    private int deleted;
 	    private String text;
 	    private boolean seen;
 	    private String sender;
@@ -13,20 +15,23 @@ public class MessageResponse {
 	public MessageResponse() {
 		// TODO Auto-generated constructor stub
 	}
-	public MessageResponse(long id, String time, String text, boolean seen, String sender, String reciever) {
+	public MessageResponse(long id, String time,long timemili,int deleted, String text, boolean seen, String sender, String reciever) {
 		super();
 		this.id = id;
 		this.time = time;
+		this.timemili = timemili;
 		this.text = text;
 		this.seen = seen;
 		this.sender = sender;
 		this.reciever = reciever;
+		this.deleted= deleted;
 	}
 	
-	public MessageResponse(long id, String time, String text, boolean seen, String sender, String reciever, String type, String data) {
+	public MessageResponse(long id, String time,long timemili,int deleted, String text, boolean seen, String sender, String reciever, String type, String data) {
 		super();
 		this.id = id;
 		this.time = time;
+		this.timemili = timemili;
 		this.text = text;
 		this.seen = seen;
 		this.sender = sender;
@@ -34,12 +39,14 @@ public class MessageResponse {
 		this.type = type;
 		this.data = data;
 		this.chatid="";
+		this.deleted=deleted;
 	}
 	
-	public MessageResponse(long id, String time, String text, boolean seen, String sender, String reciever, String type, String data, String chatid) {
+	public MessageResponse(long id, String time,long timemili,int deleted, String text, boolean seen, String sender, String reciever, String type, String data, String chatid) {
 		super();
 		this.id = id;
 		this.time = time;
+		this.timemili = timemili;
 		this.text = text;
 		this.seen = seen;
 		this.sender = sender;
@@ -47,6 +54,7 @@ public class MessageResponse {
 		this.type = type;
 		this.data = data;
 		this.chatid= chatid;
+		this.deleted= deleted;
 	}
 	
 	public String getTime() {
@@ -102,6 +110,18 @@ public class MessageResponse {
 	}
 	public void setChatid(String chatid) {
 		this.chatid = chatid;
+	}
+	public long getTimemili() {
+		return timemili;
+	}
+	public void setTimemili(long timemili) {
+		this.timemili = timemili;
+	}
+	public int getDeleted() {
+		return deleted;
+	}
+	public void setDeleted(int deleted) {
+		this.deleted = deleted;
 	}
 	
     

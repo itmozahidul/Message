@@ -1,5 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { chatResponse } from '../DTO/chatResponse';
+import { Gifformat } from '../DTO/Gifformat';
 
 export const updateImgList = createAction(
   '[puzzle] updateImgList',
@@ -91,7 +92,7 @@ export const updateDisplayPic = createAction(
 
 export const updateMsgidupdate = createAction(
   '[app] updateMsgidupdate',
-  props<{ msgidupdate: number }>()
+  props<{ msgidupdate: string }>()
 );
 
 export const updateCurrrentchatid = createAction(
@@ -112,4 +113,44 @@ export const updateDeletedmessageidid = createAction(
 export const updateDeletedmessageidse = createAction(
   '[app] updateDeletedchatidse',
   props<{ deletedmessageidse: string }>()
+);
+
+export const updateGifs = createAction(
+  '[app] updateGifs',
+  props<{ gifs: Gifformat[] }>()
+);
+
+export const updateOffer = createAction(
+  '[app] updateOffer',
+  props<{ offer: string }>()
+);
+
+export const updateAns = createAction(
+  '[app] updateAns',
+  props<{ ans: string }>()
+);
+
+export const updateCand = createAction(
+  '[app] updateCand',
+  props<{ cand: string }>()
+);
+
+export const updateCallend = createAction(
+  '[app] updateCallend',
+  props<{ callend: number }>()
+);
+
+export const updateCall = createAction(
+  '[app] updateCall',
+  props<{ call: string }>()
+);
+
+export const updateansr = createAction(
+  '[app] updateansr',
+  props<{ ansr: string }>()
+);
+
+export const updatePc = createAction(
+  '[app] updatePc',
+  props<{ pc: RTCPeerConnection }>()
 );

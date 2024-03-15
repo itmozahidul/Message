@@ -103,3 +103,32 @@ export const selectDeletedmessageidse = createSelector(
     return state.deletedmessageidse;
   }
 );
+export const selectGifs = createSelector(selectAppState, (state) => {
+  return state.gifs;
+});
+export const selectOffer = createSelector(selectAppState, (state) => {
+  return state.offer;
+});
+export const selectAns = createSelector(selectAppState, (state) => {
+  return state.ans;
+});
+
+export const selectCand = createSelector(selectAppState, (state) => {
+  return state.cand;
+});
+
+export const selectCallend = createSelector(selectAppState, (state) => {
+  return state.callend;
+});
+
+export const selectCall = createSelector(selectAppState, (state) => {
+  return state.call;
+});
+
+export const selectansr = createSelector(selectAppState, (state) => {
+  return state.ansr;
+});
+
+export const selectPc = createSelector(selectAppState, (state) => {
+  return state.pc;
+});

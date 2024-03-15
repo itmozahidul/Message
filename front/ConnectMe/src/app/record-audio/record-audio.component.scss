@@ -1,0 +1,47 @@
+ion-content {
+  --background: #ff040400;
+}
+ion-card {
+  // border-bottom-left-radius: 40vw;
+  // border-bottom-right-radius: 40vw;
+  // border-top-right-radius: 55vw;
+  // border-top-left-radius: 55vw;
+  background-color: transparent;
+  margin-top: 40vh;
+}
+ion-button {
+  --background: rgba(255, 255, 255, 0);
+}
+ion-grid {
+  background-color: #ffffff59;
+}
+ion-img {
+  height: 30px;
+  background-color: grey;
+  border-top-left-radius: 100vw;
+  /* border-bottom-left-radius: 100vw; */
+  border-top-right-radius: 100vw;
+  /* border-bottom-right-radius: 100vw;*/
+}
+.one {
+  background-color: green;
+  text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 15px #00ff00;
+}
+
+.on {
+  margin-top: 1vw;
+  background-color: #53a3ff;
+  -webkit-animation: glowing 1s ease-in-out infinite alternate;
+  -moz-animation: glowing 1s ease-in-out infinite alternate;
+  animation: glowing 1s ease-in-out infinite alternate;
+}
+@keyframes glowing {
+  from {
+    box-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px rgb(0, 255, 149),
+      0 0 40px #0ff, 0 0 50px #00c4e6, 0 0 60px #7f00e6, 0 0 70px #9200e6;
+  }
+  to {
+    box-shadow: 0 0 20px #fff, 0 0 30px #ff4da6, 0 0 40px #1639ff,
+      0 0 50px #cabfdf, 0 0 60px #a8d0ff, 0 0 70px #98f195, 0 0 80px #7fff4d;
+  }
+}

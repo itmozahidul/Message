@@ -1,3 +1,13 @@
 #pic_send_cancel_btn_s {
   bottom: 0;
 }
+
+.my-custom-class-img {
+  --background: rgba(0, 0, 0, 0);
+  --height: 50vh;
+  --width: 80vw;
+}
+
+ion-content {
+  --background: transparent;
+}

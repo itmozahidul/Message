@@ -8,7 +8,6 @@ export class Mapp {
   }
 
   set(key: string, v: chatResponse[]) {
-    debugger;
     let newFriend: boolean = true;
     for (let d of this.val) {
       if (d.getKey() == key) {

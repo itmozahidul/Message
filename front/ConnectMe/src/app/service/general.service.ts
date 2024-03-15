@@ -21,6 +21,7 @@ import {
   SafeResourceUrl,
 } from '@angular/platform-browser';
 import { Chathead } from '../DTO/chatHead';
+import { Gifformat } from '../DTO/Gifformat';
 
 @Injectable({
   providedIn: 'root',
@@ -35,6 +36,7 @@ export class GeneralService {
       'Content-Type': 'application/json',
     }),
   };
+  call_cancelled = 'cancel';
   notificationDuration = 0;
   notificationDurationfix = 1000;
   jwtToken: string;
@@ -52,6 +54,7 @@ export class GeneralService {
   connectTryNo = 0;
   currentchatid = 'currentchatid';
   currentrecieverlocal = 'currentrecieverlocal';
+  waiting_time = 1000 * 2000;
 
   constructor(
     private httpClient: HttpClient,
@@ -133,6 +136,17 @@ export class GeneralService {
     );
   }
 
+  getGifs(key: string): Observable<Gifformat[]> {
+    console.log(key);
+    let p = this.httpClient.post<any>(
+      this.endpoint + '/message/gif',
+      [key],
+      this.httpHeader
+    );
+    console.log(p);
+    return p;
+  }
+
   getChatHeadinfo(user: string): Observable<Chathead[]> {
     return this.httpClient.post<any>(
       this.endpoint + '/chat/chathead/user',
@@ -141,10 +155,15 @@ export class GeneralService {
     );
   }
 
-  getChatHeadinfobychatid(id: string): Observable<Chathead> {
+  getChatHeadinfobychatid(
+    id: string,
+    limit: number,
+    timemili: number,
+    offset: number
+  ): Observable<Chathead> {
     return this.httpClient.post<any>(
       this.endpoint + '/chat/chathead',
-      [id],
+      [id, this.getUser(), limit, timemili, offset],
       this.httpHeader
     );
   }
@@ -208,7 +227,7 @@ export class GeneralService {
     );
   }
 
-  updateallMsgSeenOfaUser(chatid: string) {
+  /* updateallMsgSeenOfaUser(chatid: string) {
     //const params = new HttpParams().set('id', id).set('ans', ans);
     console.log('msg seen rqst sent to backend');
     return this.httpClient.post<any>(
@@ -216,7 +235,7 @@ export class GeneralService {
       [chatid, this.getUser()],
       this.httpHeader
     );
-  }
+  } */
 
   /* uploadDataToServerAsBlob(file: Blob, filename: string) {
     //const params = new HttpParams().set('id', id).set('ans', ans);
@@ -264,6 +283,8 @@ export class GeneralService {
     this.store.dispatch(action.updateUserImage({ image: '' }));
     localStorage.removeItem('currentUser');
     localStorage.removeItem('friends');
+    localStorage.removeItem(this.currentrecieverlocal);
+    localStorage.removeItem(this.currentchatid);
   }
   setToken(token: string): boolean {
     if (token) {
@@ -325,23 +346,33 @@ export class GeneralService {
     //console.log(new Date().getTime().toString());
     let url = '/app/message';
 
-    let to = msg.reciever;
-    if (this.client != null) {
-      let data = new actionEvent(
-        new Date().getUTCDate().toString(),
-        'message',
-        this.getUser(),
-        msg.reciever,
-        msg
-      );
+    try {
+      let to = msg.reciever;
+      if (this.client != null && msg.reciever != '' && this.getUser() != '') {
+        let data = new actionEvent(
+          new Date().getUTCDate().toString(),
+          -111,
+          'message',
+          this.getUser(),
+          msg.reciever,
+          msg
+        );
 
-      this.client.send(
-        //'/app/broadcast',
-        //`${url}/${to}`,
-        url,
-        { Authorization: this.getBearerToken() },
-        JSON.stringify(data)
+        this.client.send(
+          //'/app/broadcast',
+          //`${url}/${to}`,
+          url,
+          { Authorization: this.getBearerToken() },
+          JSON.stringify(data)
+        );
+      } else {
+        throw new Error('soket cleint or reciever or sender may be empty');
+      }
+    } catch (error) {
+      console.log(
+        '#################### error while sending message ################### '
       );
+      console.log(error);
     }
   }
 
@@ -349,22 +380,32 @@ export class GeneralService {
     //console.log(new Date().getTime().toString());
     let url = '/app/message';
 
-    if (this.client != null) {
-      let data = new actionEvent(
-        new Date().getUTCDate().toString(),
-        type,
-        this.getUser(),
-        d.reciever,
-        d
-      );
+    try {
+      if (this.client != null && d.reciever != '' && this.getUser() != '') {
+        let data = new actionEvent(
+          new Date().getUTCDate().toString(),
+          1,
+          type,
+          this.getUser(),
+          d.reciever,
+          d
+        );
 
-      this.client.send(
-        //'/app/broadcast',
-        //`${url}/${to}`,
-        url,
-        { Authorization: this.getBearerToken() },
-        JSON.stringify(data)
+        this.client.send(
+          //'/app/broadcast',
+          //`${url}/${to}`,
+          url,
+          { Authorization: this.getBearerToken() },
+          JSON.stringify(data)
+        );
+      } else {
+        throw new Error('soket cleint or reciever or sender may be empty');
+      }
+    } catch (error) {
+      console.log(
+        '#################### error while sending message ################### '
       );
+      console.log(error);
     }
   }
 
@@ -372,20 +413,30 @@ export class GeneralService {
     //console.log(new Date().getTime().toString());
     let url = '/app/message';
     let to = msg.to;
-    if (this.client != null) {
-      let data = new actionEvent(
-        new Date().getUTCDate().toString(),
-        'message',
-        this.getUser(),
-        msg.reciever,
-        msg
-      );
+    try {
+      if (this.client != null) {
+        let data = new actionEvent(
+          new Date().getUTCDate().toString(),
+          1,
+          'message',
+          this.getUser(),
+          msg.reciever,
+          msg
+        );
 
-      this.client.send(
-        '/app/broadcast',
-        { Authorization: this.getBearerToken() },
-        JSON.stringify(data)
+        this.client.send(
+          '/app/broadcast',
+          { Authorization: this.getBearerToken() },
+          JSON.stringify(data)
+        );
+      } else {
+        throw new Error('soket cleint or reciever or sender may be empty');
+      }
+    } catch (error) {
+      console.log(
+        '#################### error while sending message ################### '
       );
+      console.log(error);
     }
   }
 
@@ -393,10 +444,11 @@ export class GeneralService {
     if (this.client != null) {
       let data = new actionEvent(
         new Date().getUTCDate().toString(),
+        1,
         'location',
         this.getUser(),
         '',
-        new chatResponse(-1, '', '', true, '', '')
+        new chatResponse(-1, '', 1, 0, '', true, '', '')
       );
 
       this.client.send(
@@ -411,10 +463,11 @@ export class GeneralService {
     if (this.client != null) {
       let data = new actionEvent(
         new Date().getUTCDate().toString(),
+        1,
         'location_share',
         this.getUser(),
         share,
-        new chatResponse(-1, '', loc, true, '', '')
+        new chatResponse(-1, '', 1, 0, loc, true, '', '')
       );
       this.client.send(
         '/app/broadcast',
@@ -490,6 +543,8 @@ export class GeneralService {
           console.log('STOMP client succesfully disconnected.');
           _this.subscriptions.forEach((s) => {
             s.unsubscribe();
+          });
+          _this.subscriptions.forEach((s) => {
             _this.subscriptions.pop();
           });
           _this.destroySession();
@@ -523,12 +578,21 @@ export class GeneralService {
         console.log('#######################    in message notify');
         console.log(this.getFromLocal(this.currentchatid));
         console.log(data.msgr.chatid);
-        console.log(this.getFromLocal(this.currentchatid) == data.msgr.chatid);
+        console.log(
+          this.getFromLocal(this.currentchatid) == data.msgr.chatid.toString()
+        );
         if (
           this.getFromLocal(this.currentchatid) == data.msgr.chatid.toString()
         ) {
+          console.log(this.getFromLocal(this.currentchatid));
+          console.log(data.msgr.chatid.toString());
+          console.log(data.msgr.id.toString());
+          //this dispatching message id is not important , we just want to trigger the subscription so that
+          //we can update the messages as seen. the value is not being used there.
           this.store.dispatch(
-            action.updateMsgidupdate({ msgidupdate: data.msgr.id })
+            action.updateMsgidupdate({
+              msgidupdate: data.msgr.id.toString(),
+            })
           );
         }
         break;
@@ -577,6 +641,59 @@ export class GeneralService {
             })
           );
         }
+        break;
+      case 'answer':
+        if (data.from != this.getUser()) {
+          this.store.dispatch(
+            action.updateAns({
+              ans: data.msgr.text,
+            })
+          );
+        }
+        break;
+      case 'offer':
+        if (data.from != this.getUser()) {
+          console.log('in recieveing offer ');
+          this.store.dispatch(
+            action.updateOffer({
+              offer: data.msgr.text,
+            })
+          );
+        }
+        break;
+      case 'candidate':
+        if (data.from != this.getUser()) {
+          this.store.dispatch(
+            action.updateCand({
+              cand: data.msgr.text,
+            })
+          );
+        }
+        break;
+      case 'call':
+        this.store.dispatch(
+          action.updateCall({
+            call: data.msgr.text,
+          })
+        );
+
+        break;
+
+      case 'ansr':
+        this.store.dispatch(
+          action.updateansr({
+            ansr: data.msgr.text,
+          })
+        );
+
+        break;
+      case 'end':
+        this.store.dispatch(
+          action.updateCallend({
+            callend: data.msgr.text,
+          })
+        );
+
         break;
       default:
         break;

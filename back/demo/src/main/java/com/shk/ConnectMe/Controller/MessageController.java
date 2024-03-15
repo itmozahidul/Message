@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.shk.ConnectMe.Model.Geheim;
+import com.shk.ConnectMe.Model.Gifformat;
 import com.shk.ConnectMe.Model.Message;
 import com.shk.ConnectMe.Model.User;
 import com.shk.ConnectMe.Repository.ChatRepository;
@@ -27,8 +28,10 @@ import com.shk.ConnectMe.Repository.GeheimRepository;
 import com.shk.ConnectMe.Repository.MessageRepository;
 import com.shk.ConnectMe.Repository.UserRepository;
 import com.shk.ConnectMe.service.FileService;
+import com.shk.ConnectMe.utils.GifProvider;
 import com.shk.ConnectMe.utils.JwtTokenUtil;
 import com.shk.ConnectMe.utils.Support;
+import com.shk.ConnectMe.utils.TenorGifs;
 
 import DTO.Chathead;
 import DTO.FileResponse;
@@ -56,8 +59,11 @@ public class MessageController {
 	private JwtTokenUtil jwtutil;
 	private List<Message> messages = new ArrayList<Message>();
 	private List<MessageResponse> messagesResponse = new ArrayList<>();
+	private List<Gifformat> gifs = new ArrayList<>();
 	@Autowired
 	FileService fileService ;
+	@Autowired
+	TenorGifs gifservice;
 	
 	@PostMapping("/all")
 	ResponseEntity<?> register(@RequestBody String string_info){//string_info is the username
@@ -71,7 +77,7 @@ public class MessageController {
 			
 			messagesTemp.forEach((msg)->{log.info(msg.getText());
 				if(msg.getSender().getName().equals(string_info) || msg.getReciever().getName().equals(string_info)) {
-					this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData()));
+					this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getTimemili(),msg.getDeleted(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData()));
 				}
 			});
 			return ResponseEntity.ok(this.messagesResponse);
@@ -99,7 +105,7 @@ public class MessageController {
 			this.messagesResponse = new ArrayList<>();
 			this.messages = this.msg_rpt.getMessagesByUser(user1.getId(),user2.getId());
 			messages.forEach((msg)->{log.info(msg.getText());
-			   this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData()));
+			   this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getTimemili(),msg.getDeleted(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData()));
 			});
 			return ResponseEntity.ok(this.messagesResponse);
 			
@@ -112,29 +118,48 @@ public class MessageController {
 		
 	}
 	
-	@PostMapping("/all/messageSeen/user")
-	ResponseEntity<?> setallunseenMessageOfUserAsSeen(@RequestBody String[] chatids){
+	@PostMapping("/gif")
+	ResponseEntity<?> getgifs(@RequestBody String[] data){
 		
-		
-		boolean reply = false;
 		try {
 			
-			User u = this.user_rpt.getUsersByKey(chatids[1]);
-			this.msg_rpt.UpdateallMessageseenforaUser(Integer.valueOf(chatids[0]),u.getId());
-			this.cht_rpt.UpdateunreadMessageNoOfAChat(0, Integer.valueOf(chatids[0]));
-			reply = true;
-			return ResponseEntity.ok(reply);
+			String key = data[0];
+			this.gifs=this.gifservice.getGif(key, 15);
+			this.messagesResponse = new ArrayList<>();
+			return ResponseEntity.ok(this.gifs);
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			this.log.warn("Updating message seen status didn't work, see exception details");
-			reply = false;
-			return ResponseEntity.badRequest().body(reply);
+			return ResponseEntity.badRequest().body("search for "+data[0]+" was failed");
 		}
 		
 		
 	}
+	
+//	@PostMapping("/all/messageSeen/user")
+//	ResponseEntity<?> setallunseenMessageOfUserAsSeen(@RequestBody String[] chatids){
+//		
+//		
+//		boolean reply = false;
+//		try {
+//			
+//			User u = this.user_rpt.getUsersByKey(chatids[1]);
+//			this.msg_rpt.UpdateallMessageseenforaUser(Integer.valueOf(chatids[0]),u.getId());
+//			this.cht_rpt.UpdateunreadMessageNoOfAChat(0, Integer.valueOf(chatids[0]));
+//			reply = true;
+//			return ResponseEntity.ok(reply);
+//			
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			this.log.warn("Updating message seen status didn't work, see exception details");
+//			reply = false;
+//			return ResponseEntity.badRequest().body(reply);
+//		}
+//		
+//		
+//	}
 	
 	
 	

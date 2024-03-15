@@ -1,6 +1,7 @@
 import { Action, createReducer, on } from '@ngrx/store';
 import { chatResponse } from '../DTO/chatResponse';
 import * as action from './action';
+import { Gifformat } from '../DTO/Gifformat';
 
 export interface State {
   //   imgList: any[];
@@ -23,11 +24,19 @@ export interface State {
   rimage: string;
   friends: string[];
   others_locations: string[];
-  msgidupdate: number;
+  msgidupdate: string;
   currentchatid: string;
   deletedchatid: string;
   deletedmessageidid: string;
   deletedmessageidse: string;
+  gifs: Gifformat[];
+  offer: string;
+  ans: string;
+  cand: string;
+  callend: number;
+  pc: RTCPeerConnection;
+  call: string;
+  ansr: string;
 }
 
 export const initialState: State = {
@@ -51,11 +60,19 @@ export const initialState: State = {
   rimage: '',
   friends: [],
   others_locations: [],
-  msgidupdate: -1,
+  msgidupdate: '',
   currentchatid: '',
   deletedchatid: '',
   deletedmessageidid: '',
   deletedmessageidse: '',
+  gifs: [],
+  offer: '',
+  ans: '',
+  cand: '',
+  callend: 0,
+  pc: null,
+  call: '',
+  ansr: '',
 };
 
 export const appReducer = createReducer(
@@ -129,19 +146,6 @@ return {
 }), */
   on(action.updateViewdMessage, (state, { msgs }) => {
     var newMsgs = [];
-    console.log(
-      ':::::::::::::::::::::::::::::s::::::::::::::::::::::::::::::::'
-    );
-    console.log(
-      '::::::::::::::::: viewed mesg updted::::::::::::::::::::::::::'
-    );
-    console.log('from ');
-    console.log(state.msgs);
-    console.log(' to ');
-    console.log(msgs);
-    console.log(
-      ':::::::::::::::::::::::::::::e::::::::::::::::::::::::::::::::'
-    );
     if (msgs != null && msgs != undefined) {
       msgs.forEach((m) => {
         newMsgs.push(m);
@@ -162,33 +166,13 @@ return {
   }),
   on(action.updateCurrentReciever, (state, { currentReciever }) => {
     var newCurentReciever = currentReciever;
-    console.log(
-      '###########################s##################################'
-    );
-    console.log(
-      '################### reciever changed ########################'
-    );
-    console.log('from ' + state.currentReciever + ' to ' + currentReciever);
-    console.log(
-      '############################e#################################'
-    );
+
     return {
       ...state,
       currentReciever: newCurentReciever,
     };
   }),
   on(action.updateCurrentChatHeads, (state, { currentChatHeads }) => {
-    console.log(
-      '***************************s*********************************'
-    );
-    console.log('****************** chatheads updated ***********************');
-    console.log('from ');
-    console.log(state.currentChatHeads);
-    console.log(' to ');
-    console.log(currentChatHeads);
-    console.log(
-      '****************************e*********************************'
-    );
     var newCurentChatHeads = [];
     newCurentChatHeads.forEach((m) => {
       currentChatHeads.push(m);
@@ -215,7 +199,6 @@ return {
   }),
   on(action.updateUserImage, (state, { image }) => {
     var newImage: string = image;
-    console.log('sender img');
     return {
       ...state,
       image: newImage,
@@ -223,7 +206,6 @@ return {
   }),
   on(action.updateRecieverImage, (state, { rimage }) => {
     var newrImage: string = rimage;
-    console.log('reciever img');
     return {
       ...state,
       rimage: newrImage,
@@ -253,7 +235,7 @@ return {
     };
   }),
   on(action.updateMsgidupdate, (state, { msgidupdate }) => {
-    var newMsgidupdate: number = msgidupdate;
+    var newMsgidupdate: string = msgidupdate;
 
     return {
       ...state,
@@ -286,6 +268,68 @@ return {
     return {
       ...state,
       deletedmessageidse: newDeletedmessageidse,
+    };
+  }),
+  on(action.updateGifs, (state, { gifs }) => {
+    var newGifs: Gifformat[] = gifs;
+    return {
+      ...state,
+      gifs: newGifs,
+    };
+  }),
+  on(action.updateOffer, (state, { offer }) => {
+    var newOffer: string = offer;
+    return {
+      ...state,
+      offer: newOffer,
+    };
+  }),
+  on(action.updateAns, (state, { ans }) => {
+    var newAns: string = ans;
+    return {
+      ...state,
+      ans: newAns,
+    };
+  }),
+  on(action.updateCand, (state, { cand }) => {
+    var newCand: string = cand;
+    return {
+      ...state,
+      cand: newCand,
+    };
+  }),
+  on(action.updateCallend, (state, { callend }) => {
+    var newCallend: number = callend;
+    console.log('call ended');
+    console.log(newCallend);
+    return {
+      ...state,
+      callend: newCallend,
+    };
+  }),
+  on(action.updateCall, (state, { call }) => {
+    var newCall: string = call;
+    console.log('call requested');
+    console.log(newCall);
+    return {
+      ...state,
+      call: newCall,
+    };
+  }),
+  on(action.updateansr, (state, { ansr }) => {
+    var newansr: string = ansr;
+    console.log('call recieved');
+    console.log(ansr);
+    return {
+      ...state,
+      ansr: newansr,
+    };
+  }),
+  on(action.updatePc, (state, { pc }) => {
+    var newpc: RTCPeerConnection = pc;
+    return {
+      ...state,
+      pc: newpc,
     };
   })
 );

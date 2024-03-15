@@ -21,8 +21,8 @@ public class WebSocketMessageBrokerConfig implements WebSocketMessageBrokerConfi
  */
 @Override
    public void configureMessageBroker(MessageBrokerRegistry config) {
-       config.enableSimpleBroker("/topic","/queue");
-       config.setApplicationDestinationPrefixes("/app");
+       config.enableSimpleBroker("/topic","/queue","/call");
+       config.setApplicationDestinationPrefixes("/app","/webrtc");
        config.setUserDestinationPrefix("/users");
 		/*
 		 * .setHeartbeatValue(new long[] {10000, 20000})
@@ -35,6 +35,7 @@ public class WebSocketMessageBrokerConfig implements WebSocketMessageBrokerConfi
        registry.addEndpoint("/ws")
        //.setHandshakeHandler(new UserHandshakeHandler())
        .setAllowedOrigins("*");
+       registry.addEndpoint("/call").setAllowedOriginPatterns("*");
    }
    
 	/*
@@ -52,6 +53,7 @@ public class WebSocketMessageBrokerConfig implements WebSocketMessageBrokerConfi
    
    @Override
    public void configureClientInboundChannel(ChannelRegistration registration) {
+	   //registration.taskExecutor().corePoolSize(2)//look into it for production
        registration.interceptors(new UserInterceptor());
    }
 }

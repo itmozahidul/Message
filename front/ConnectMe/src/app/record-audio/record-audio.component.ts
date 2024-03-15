@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { GeneralService } from '../service/general.service';
 import { Capacitor } from '@capacitor/core';
 import {
@@ -24,11 +24,13 @@ export class RecordAudioComponent implements OnInit {
   audio: HTMLAudioElement;
 
   audioChunks = [];
-  rec;
+  rec: MediaRecorder;
   aud_src;
 
   reciever: string = null;
   reciever$: Observable<string>;
+
+  @Output() onCancel = new EventEmitter<any>();
 
   constructor(
     private store: Store<State>,
@@ -41,14 +43,18 @@ export class RecordAudioComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.recordstart();
+    this.reciever$.subscribe((reciever_name) => {
+      this.reciever = reciever_name;
+    });
+  }
+
+  recordstart() {
     if (Capacitor.isNativePlatform()) {
       this.record();
     } else {
       this.record2();
     }
-    this.reciever$.subscribe((reciever_name) => {
-      this.reciever = reciever_name;
-    });
   }
 
   loadingEnd() {
@@ -72,17 +78,30 @@ export class RecordAudioComponent implements OnInit {
   }
 
   cancel() {
-    this.modalController.dismiss();
+    console.log('canceled');
+    this.status = 'off';
+    this.rec.ondataavailable = null;
+    this.rec.stream.getTracks().forEach((t) => {
+      t.stop();
+    });
+    this.onCancel.emit();
   }
   send() {
-    this.stop();
+    this.rec.stop();
+    this.onCancel.emit();
   }
 
   sendFileToback(data) {
-    if (data != null) {
+    if (
+      data != null &&
+      this.reciever != '' &&
+      this.generalService.getUser() != ''
+    ) {
       let newMsg = new chatResponse(
         -1111,
         '00.00',
+        1,
+        0,
         '',
         false,
         this.generalService.getUser(),
@@ -91,28 +110,30 @@ export class RecordAudioComponent implements OnInit {
       newMsg.data = data;
       newMsg.type = 'audio';
       this.generalService.sendMessage(newMsg);
+    } else {
+      throw new Error('Audio or reciever or sender might be empty');
     }
   }
   play() {
     this.audio.play;
   }
-  reset() {
-    this.stop();
-    this.record();
-  }
+
   record2() {
     window.navigator.mediaDevices.getUserMedia({ audio: true }).then(
       (s) => {
         console.log('stream is found');
         console.log(s);
+        this.status = 'on';
         this.handlerFunction(s);
       },
       (f) => {
         console.log('stream is not found');
         console.log(f);
+        this.status = 'off';
         this.generalService.loading_notification_short_hoover(
           'Device is not compitable'
         );
+        this.cancel();
       }
     );
   }
@@ -125,7 +146,7 @@ export class RecordAudioComponent implements OnInit {
       console.log(e);
       this.audioChunks.push(e.data);
       console.log(this.rec);
-      if (this.rec.state == 'inactive') {
+      if (this.rec.state == 'inactive' && this.rec.stream.active == true) {
         const blob = new Blob(this.audioChunks, { type: 'audio/mp3' });
         const file = new File(
           [blob],
@@ -133,39 +154,9 @@ export class RecordAudioComponent implements OnInit {
           { type: 'audio/mp3' }
         );
         this.sendFile(file, this.generalService.recordSendMessage());
-
-        /*this.audio = new Audio(URL.createObjectURL(blob));
-         this.generalService.blobToBase64(blob).then(
-          (base64data) => {
-            console.log('success');
-            this.aud_src = base64data;
-            this.sendFile(
-              this.aud_src,
-              this.generalService.recordSendMessage()
-            );
-          },
-          (f) => {
-            console.log('failed');
-            this.generalService.loading_notification_short_hoover(
-              'Voice message failed'
-            );
-          }
-        ); */
-
-        /*  if (Capacitor.isNativePlatform()) {
-          
-        } else {
-          var reader = new FileReader();
-
-          reader.readAsDataURL(blob);
-          console.log(reader.result);
-          reader.onloadend = () => {
-            console.log('inside');
-            let base64data = reader.result;
-            this.aud_src = base64data;
-            this.sendFileToback(this.aud_src);
-          };
-        } */
+        this.rec.stream.getTracks().forEach((t) => {
+          t.stop();
+        });
       }
     };
   }
@@ -176,33 +167,30 @@ export class RecordAudioComponent implements OnInit {
     this.status = 'on'; */
   }
 
-  stop() {
-    /* if (Capacitor.isNativePlatform()) {
-      this.file.stopRecord();
-    } else {
-      this.rec.stop();
-    } */
-    console.log('clicked');
-    this.rec.stop();
-    this.cancel();
-
-    this.status = 'off';
-  }
-
   sendAudioFileToback(data, name) {
-    if (data != null) {
+    if (
+      data != null &&
+      this.reciever != '' &&
+      this.generalService.getUser() != ''
+    ) {
       let newMsg = new chatResponse(
         -1111,
         '00.00',
+        1,
+        0,
         name,
         false,
         this.generalService.getUser(),
         this.reciever
       );
-
+      newMsg.chatid = this.generalService.getFromLocal(
+        this.generalService.currentchatid
+      );
       newMsg.data = data;
       newMsg.type = 'audio';
       this.generalService.sendMessage(newMsg);
+    } else {
+      throw new Error('Audio or reciever or sender might be empty');
     }
   }
 

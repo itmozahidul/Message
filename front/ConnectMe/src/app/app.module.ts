@@ -30,6 +30,11 @@ import { LocationComponent } from './location/location.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { DisplayImageComponent } from './display-image/display-image.component';
 import { DynamicProfileComponent } from './dynamic-profile/dynamic-profile.component';
+import { EmojiComponent } from './emoji/emoji.component';
+import { GifComponent } from './gif/gif.component';
+import { SearchengineComponent } from './searchengine/searchengine.component';
+import { TestComponent } from './test/test.component';
+import { CalldispComponent } from './calldisp/calldisp.component';
 //import { FileUploadOptions } from '@ionic-native/file-transfer/__ivy_ngcc__/ngx';
 
 @NgModule({
@@ -50,6 +55,11 @@ import { DynamicProfileComponent } from './dynamic-profile/dynamic-profile.compo
     RecordAudioComponent,
     LocationComponent,
     DisplayImageComponent,
+    EmojiComponent,
+    GifComponent,
+    SearchengineComponent,
+    TestComponent,
+    CalldispComponent,
   ],
   entryComponents: [],
   imports: [

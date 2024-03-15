@@ -22,12 +22,16 @@ public class Support {
 		return sdf.format(cal.getTime());
 	}
 	
-	public static void sendMessageToUsers(String[] users, String text, String type) {
-		for(String u: users) {
-			MessageResponse data = new MessageResponse(0,now(),text,true,"backend",u);
-				actionEvent action = new actionEvent(now(),type,"backend",u,data) ;
-				messagingTemplate.convertAndSendToUser(action.getTo(), "/queue/reply", action);
-		}
-		
+	public static long nowinmilisec() {
+		return  Calendar.getInstance().getTimeInMillis();
 	}
+	
+//	public static void sendMessageToUsers(String[] users, String text, String type) {
+//		for(String u: users) {
+//			MessageResponse data = new MessageResponse(0,now(),text,true,"backend",u);
+//				actionEvent action = new actionEvent(now(),type,"backend",u,data) ;
+//				messagingTemplate.convertAndSendToUser(action.getTo(), "/queue/reply", action);
+//		}
+//		
+//	}
 }

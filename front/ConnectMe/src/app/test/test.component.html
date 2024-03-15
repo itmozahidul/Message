@@ -1,0 +1,61 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button (click)="back()">back</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content #con_disp>
+  <video class="nfs" #disp2 autoplay="autoplay" (click)="switchtofocus(disp2)">
+    <source src="{{ callingurl }}" type="video/mp4" />
+  </video>
+  <video class="nfs" #disp1 autoplay="autoplay" (click)="switchtofocus(disp1)">
+    <source src="{{ callingurl }}" type="video/mp4" />
+  </video>
+</ion-content>
+
+<ion-footer>
+  <ion-grid>
+    <ion-row size="12">
+      <ion-col size="12">
+        <ion-row size="11">
+          <ion-col size="4"></ion-col>
+          <ion-col size="4">
+            <ion-button (click)="drop_call('me')">Cancel</ion-button>
+          </ion-col>
+          <ion-col size="4"></ion-col>
+        </ion-row>
+        <ion-row size="1">
+          <ion-col size="12">
+            <ion-row size="12">
+              <ion-col
+                size="2"
+                [ngStyle]="{ backgroundColor: state == 1 ? 'white' : 'black' }"
+              ></ion-col>
+              <ion-col
+                size="2"
+                [ngStyle]="{ backgroundColor: state == 2 ? 'blue' : 'black' }"
+              ></ion-col>
+              <ion-col
+                size="2"
+                [ngStyle]="{ backgroundColor: state == 3 ? 'green' : 'black' }"
+              ></ion-col>
+              <ion-col
+                size="2"
+                [ngStyle]="{ backgroundColor: state == 4 ? 'yellow' : 'black' }"
+              ></ion-col>
+              <ion-col
+                size="2"
+                [ngStyle]="{ backgroundColor: state == 5 ? 'orange' : 'black' }"
+              ></ion-col>
+              <ion-col
+                size="2"
+                [ngStyle]="{ backgroundColor: state == 6 ? 'red' : 'black' }"
+              ></ion-col>
+            </ion-row>
+          </ion-col>
+        </ion-row>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-footer>

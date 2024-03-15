@@ -49,12 +49,6 @@ export class TextComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.sender == '') {
-      if (this.user != this.reciever) {
-        this.deleted = true;
-      }
-    }
-
     if (this.type == 'audio') {
       this.aud_src = this.data;
     }
@@ -155,7 +149,7 @@ export class TextComponent implements OnInit {
   async presentDisplayImageModal() {
     const modal = await this.modalController.create({
       component: DisplayImageComponent,
-      cssClass: 'my-custom-class',
+      cssClass: 'my-custom-class-dsp-img',
     });
     return await modal.present();
   }

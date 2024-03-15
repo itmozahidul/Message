@@ -1,18 +1,15 @@
-<ion-content>
-  <ion-card>
-    <ion-card-header>
-      <ion-img src="../../assets/Gif/record.gif"></ion-img>
-    </ion-card-header>
-
-    <ion-grid>
-      <ion-row>
-        <ion-col size="6">
-          <ion-button (click)="send()" expand="block">Send</ion-button>
-        </ion-col>
-        <ion-col size="6">
-          <ion-button (click)="cancel()" expand="block">Cancel</ion-button>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </ion-card>
-</ion-content>
+<ion-row size="12">
+  <ion-col size="2">
+    <ion-button (click)="send()" expand="block">
+      <ion-icon name="send-outline"></ion-icon>
+    </ion-button>
+  </ion-col>
+  <ion-col size="8">
+    <ion-img class="on" src="../../assets/Gif/recording.gif"></ion-img>
+  </ion-col>
+  <ion-col size="2">
+    <ion-button (click)="cancel()" expand="block">
+      <ion-icon name="close-circle-outline"></ion-icon>
+    </ion-button>
+  </ion-col>
+</ion-row>

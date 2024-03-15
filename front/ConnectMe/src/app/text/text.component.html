@@ -1,7 +1,10 @@
-<ion-grid *ngIf="!eleted">
+<ion-grid>
   <div class="time">
     {{ time }}
   </div>
+  <ion-row *ngIf="type == 'message'">
+    {{ text }}
+  </ion-row>
   <ion-row size="12" *ngIf="leftSide()">
     <ion-col size="8" *ngIf="type == 'text'">
       <ion-row size="12">
@@ -86,6 +89,15 @@
   </ion-row>
   <ion-row size="12" *ngIf="!leftSide()" style="text-align: right">
     <ion-col size="4"> </ion-col>
+    <ion-col size="8" *ngIf="type == 'deleted'">
+      <ion-row size="12">
+        <ion-col size="8"> </ion-col>
+        <ion-col size="3">
+          <ion-label color="danger">deleted</ion-label>
+        </ion-col>
+        <ion-col size="1"> </ion-col>
+      </ion-row>
+    </ion-col>
     <ion-col size="8" *ngIf="type == 'text'">
       <ion-row size="12">
         <ion-col size="11" style="text-align: -webkit-right">

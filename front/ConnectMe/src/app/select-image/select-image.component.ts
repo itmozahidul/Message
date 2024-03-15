@@ -56,8 +56,8 @@ export class SelectImageComponent implements OnInit {
       quality: 30,
       allowEditing: false,
       resultType: CameraResultType.Uri,
-      //width: 100,
-      //height: 100,
+      width: 100,
+      height: 100,
       //resultType: CameraResultType..Base64,
     }).then(
       (image) => {
@@ -85,20 +85,30 @@ export class SelectImageComponent implements OnInit {
     this.sendFile(file, file.name);
   }
   sendFileToback(data, name) {
-    if (data != null) {
+    if (
+      data != null &&
+      this.reciever != '' &&
+      this.generalService.getUser() != ''
+    ) {
       let newMsg = new chatResponse(
         -1111,
         '00.00',
+        1,
+        0,
         name,
         false,
         this.generalService.getUser(),
         this.reciever
       );
-
+      newMsg.chatid = this.generalService.getFromLocal(
+        this.generalService.currentchatid
+      );
       newMsg.data = data;
       newMsg.type = 'image';
       this.generalService.sendMessage(newMsg);
       this.goToChat();
+    } else {
+      throw new Error('Image or reciever or sender might be empty');
     }
   }
   sendFile(file, filename) {

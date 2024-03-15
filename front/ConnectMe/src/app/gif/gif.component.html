@@ -1,0 +1,21 @@
+<ion-grid>
+  <ion-row size="12">
+    <ion-col size="10">
+      <ion-input id="sc" #inpt></ion-input>
+    </ion-col>
+    <ion-col size="2">
+      <ion-icon
+        id="shbt"
+        name="search-outline"
+        (click)="search($event, inpt.value)"
+      ></ion-icon>
+    </ion-col>
+  </ion-row>
+  <ion-row size="12">
+    <ion-col id="gifarea">
+      <div class="gifsc" *ngFor="let u of gifs" (click)="send(u.url)">
+        <img alt="gif" src="{{ u.url }}" />
+      </div>
+    </ion-col>
+  </ion-row>
+</ion-grid>

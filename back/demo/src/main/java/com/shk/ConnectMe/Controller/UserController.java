@@ -147,7 +147,7 @@ return ResponseEntity.ok(new SpokenToEntry(spokenTo));
 //			for(User u:users) {
 //				this.userNames.add(new SearchedUser(u.getName(),u.getImage()));
 //			}
-			UserUpdate up = new UserUpdate(Integer.toString(u.getId()), u.getName(), u.getFname(), u.getLname(),
+			UserUpdate up = new UserUpdate(Long.toString(u.getId()), u.getName(), u.getFname(), u.getLname(),
 					u.getMobile(), u.getAdress(), u.getImage(), u.getRole());
 			return ResponseEntity.ok(up);
 		} catch (Exception e) {

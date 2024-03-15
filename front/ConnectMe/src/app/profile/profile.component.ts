@@ -33,6 +33,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   user: updateUser = new updateUser('', '', '', '', '', '', '', '');
   profile: Profile = new Profile();
   tempImageStore: string;
+  imageWebPath = '';
   //booleans for editing
   //User
   efname: boolean = false;
@@ -102,6 +103,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   answer3: string = 'loading..';
   gps_location: string = 'loading..';
   joined: string = 'loading..';
+  imageBlob: Blob;
 
   constructor(
     private store: Store<State>,
@@ -152,6 +154,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
           );
         } else {
           this.image = s;
+          this.user.image = this.image;
         }
       },
       (errr) => {
@@ -325,8 +328,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         break;
       case 'image':
         this.user.image = this.image;
-        this.store.dispatch(action.updateUserImage({ image: this.image }));
-        this.updateSingleUserEntry(key, this.image);
+        this.sendImage(key);
         break;
       //Profile_relevant
       case 'city':
@@ -434,20 +436,31 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.edit = true;
   }
 
+  async sendImage(key) {
+    //this.generalService.showBusy();
+    this.imageBlob = await this.http
+      .get(this.imageWebPath, { responseType: 'blob' })
+      .toPromise();
+    const file = new File(
+      [this.imageBlob],
+      this.user.name + '_' + 'image.png',
+      { type: 'image/png' }
+    );
+    this.sendFile(file, key);
+  }
+
   getPhoto() {
     Camera.getPhoto({
-      quality: 10,
+      quality: 90,
       allowEditing: false,
-      resultType: CameraResultType.DataUrl,
-      width: 10,
-      height: 10,
+      resultType: CameraResultType.Uri,
+      width: 100,
+      height: 100,
       //resultType: CameraResultType..Base64,
     }).then(
       (image) => {
-        console.log(image);
-        const imageUrl = image.dataUrl;
         this.tempImageStore = this.user.image;
-        this.store.dispatch(action.updateUserImage({ image: imageUrl }));
+        this.imageWebPath = image.webPath;
 
         this.update('image');
       },
@@ -595,5 +608,25 @@ export class ProfileComponent implements OnInit, OnDestroy {
       default:
         break;
     }
+  }
+
+  sendFile(file, key) {
+    const bucket: FormData = new FormData();
+    bucket.append('file', file);
+    bucket.append('name', file.name);
+    this.general.sendFileWithoutWebSocket(bucket).subscribe(
+      (suc) => {
+        this.updateSingleUserEntry(key, suc.path);
+        this.store.dispatch(action.updateUserImage({ image: suc.path }));
+        this.general.loading_notification_short_hoover(
+          'Successfully uploaded ' + file.name
+        );
+      },
+      (err) => {
+        this.general.loading_notification_short_hoover(
+          'Failed to upload ' + file.name
+        );
+      }
+    );
   }
 }

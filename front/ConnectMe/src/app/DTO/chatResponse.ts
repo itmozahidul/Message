@@ -1,6 +1,8 @@
 export class chatResponse {
   id: number;
   time: string;
+  timemili: number;
+  deleted: number;
   text: string;
   seen: boolean;
   sender: string;
@@ -12,6 +14,8 @@ export class chatResponse {
   constructor(
     id: number,
     time: string,
+    timemili: number,
+    deleted: number,
     text: string,
     seen: boolean,
     sender: string,
@@ -22,8 +26,10 @@ export class chatResponse {
     this.sender = sender;
     this.text = text;
     this.time = time;
+    this.timemili = timemili;
     this.seen = seen;
     this.data = null;
     this.type = 'text';
+    this.deleted = deleted;
   }
 }

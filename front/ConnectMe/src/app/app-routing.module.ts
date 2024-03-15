@@ -1,5 +1,10 @@
 import { NgModule } from '@angular/core';
-import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import {
+  NoPreloading,
+  PreloadAllModules,
+  RouterModule,
+  Routes,
+} from '@angular/router';
 import { AuthenticationGuard } from './authentication.guard';
 import { ChatComponent } from './chat/chat.component';
 import { LoginComponent } from './login/login.component';
@@ -13,18 +18,22 @@ import { SelectImageComponent } from './select-image/select-image.component';
 import { SettingsComponent } from './settings/settings.component';
 import { LocationComponent } from './location/location.component';
 import { DynamicProfileComponent } from './dynamic-profile/dynamic-profile.component';
+import { SearchengineComponent } from './searchengine/searchengine.component';
+import { TestComponent } from './test/test.component';
+import { CalldispComponent } from './calldisp/calldisp.component';
 
 const routes: Routes = [
-  {
+  /*  {
     path: 'home',
     loadChildren: () =>
       import('./home/home.module').then((m) => m.HomePageModule),
-  },
-  {
+  }, */
+  { path: '', component: LoginComponent },
+  /* {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full',
-  },
+  }, */
   {
     path: 'register',
     component: RegisterComponent,
@@ -89,12 +98,29 @@ const routes: Routes = [
   {
     path: 'location',
     component: LocationComponent,
+    canActivate: [AuthenticationGuard],
+  },
+  {
+    path: 'search',
+    component: SearchengineComponent,
+    canActivate: [AuthenticationGuard],
+  },
+  {
+    path: 'call/:user',
+    component: TestComponent,
+    canActivate: [AuthenticationGuard],
+  },
+  {
+    path: 'calldisp/:user',
+    component: CalldispComponent,
+    canActivate: [AuthenticationGuard],
   },
 ];
 
 @NgModule({
   imports: [
-    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules }),
+    // RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules }),
+    RouterModule.forRoot(routes, { preloadingStrategy: NoPreloading }),
   ],
   exports: [RouterModule],
 })

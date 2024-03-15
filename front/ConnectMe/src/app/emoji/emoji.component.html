@@ -1,0 +1,88 @@
+<ion-grid>
+  <ion-row size="12">
+    <ion-col class="head" size="4" (click)="headmode = 'em'"> Emojis </ion-col>
+    <ion-col class="head" size="4" (click)="headmode = 'gi'"> GIF </ion-col>
+    <ion-col class="head" size="4" (click)="headmode = 'av'"> Avater </ion-col>
+  </ion-row>
+  <ion-row size="12" *ngIf="headmode == 'gi'">
+    <ion-col size="12">
+      <app-gif (onGifinput)="sendselectedgif($event)"></app-gif>
+    </ion-col>
+  </ion-row>
+  <ion-row size="12" *ngIf="headmode == 'av'">
+    <ion-col size="12"> Feature is not avaiable. </ion-col>
+  </ion-row>
+  <ion-row size="12" *ngIf="headmode == 'em'">
+    <ion-col
+      size="2"
+      class="emotic"
+      [ngStyle]="{
+        backgroundColor: categoryFlags[0] == selectedmode ? 'white' : 'black'
+      }"
+    >
+      <div (click)="loadcurrentemo(categoryFlags[0])">
+        {{ this.emojiObj.People[0].emoji }}
+      </div>
+    </ion-col>
+    <ion-col
+      size="2"
+      class="emotic"
+      [ngStyle]="{
+        backgroundColor: categoryFlags[1] == selectedmode ? 'white' : 'black'
+      }"
+    >
+      <div (click)="loadcurrentemo(categoryFlags[1])">
+        {{ this.emojiObj.Nature[0].emoji }}
+      </div>
+    </ion-col>
+    <ion-col
+      size="2"
+      class="emotic"
+      [ngStyle]="{
+        backgroundColor: categoryFlags[2] == selectedmode ? 'white' : 'black'
+      }"
+    >
+      <div (click)="loadcurrentemo(categoryFlags[2])">
+        {{ this.emojiObj.Activity[0].emoji }}
+      </div>
+    </ion-col>
+    <ion-col
+      size="2"
+      class="emotic"
+      [ngStyle]="{
+        backgroundColor: categoryFlags[3] == selectedmode ? 'white' : 'black'
+      }"
+    >
+      <div (click)="loadcurrentemo(categoryFlags[3])">
+        {{ this.emojiObj.Objects[0].emoji }}
+      </div>
+    </ion-col>
+    <ion-col
+      size="2"
+      class="emotic"
+      [ngStyle]="{
+        backgroundColor: categoryFlags[4] == selectedmode ? 'white' : 'black'
+      }"
+    >
+      <div (click)="loadcurrentemo(categoryFlags[4])">
+        {{ this.emojiObj.Symbols[0].emoji }}
+      </div>
+    </ion-col>
+    <ion-col
+      size="2"
+      class="emotic"
+      [ngStyle]="{
+        backgroundColor: categoryFlags[5] == selectedmode ? 'white' : 'black'
+      }"
+    >
+      <div (click)="loadcurrentemo(categoryFlags[5])">
+        {{ this.emojiObj.Flags[0].emoji }}
+      </div>
+    </ion-col>
+  </ion-row>
+  <ion-row size="12" class="scrollablec" *ngIf="headmode == 'em'">
+    <ion-col *ngFor="let em of currentEMoList" (click)="sendtomsg(em.emoji)">
+      {{ em.emoji }}
+    </ion-col>
+  </ion-row>
+</ion-grid>

@@ -1,0 +1,10 @@
+ion-content {
+  // --background: #fff url("../../assets/images/advertise/advertise.png")
+  //   no-repeat center center / cover;
+  --background: #000000;
+}
+ion-card {
+  --background: rgb(255, 255, 255);
+  height: 85vh;
+  overflow: scroll;
+}

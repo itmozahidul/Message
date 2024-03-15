@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class Chat {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
+	private long id;
 	private String name;
 	private String createTime;
 	private int unreadMessageNo;
@@ -30,9 +30,10 @@ public class Chat {
 	@JsonIgnoreProperties({"chat"})
 	private List<Message> MessageList;
 	
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "chatid")
+	@JsonIgnoreProperties({"chatid","userid"})
+	private List<UserChat> userChatList;
 	
-	@ManyToMany(fetch = FetchType.LAZY,mappedBy = "chatheadlist",cascade = CascadeType.ALL)
-    private List<User> users;
 	
 	public Chat() {
 		super();
@@ -46,10 +47,10 @@ public class Chat {
 		MessageList = messageList;
 		this.unreadMessageNo= unreadMessageNo;
 	}
-	public int getId() {
+	public long getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 	public String getName() {
@@ -76,12 +77,15 @@ public class Chat {
 	public void setUnreadMessageNo(int unreadMessageNo) {
 		this.unreadMessageNo = unreadMessageNo;
 	}
-	public List<User> getUsers() {
-		return users;
+
+	public List<UserChat> getUserChatList() {
+		return userChatList;
 	}
-	public void setUsers(List<User> users) {
-		this.users = users;
+
+	public void setUserChatList(List<UserChat> userChatList) {
+		this.userChatList = userChatList;
 	}
+	
 	
 
 }

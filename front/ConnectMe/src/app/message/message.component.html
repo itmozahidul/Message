@@ -1,3 +1,4 @@
+<!-- <ion-header *ngIf="!calling"> -->
 <ion-header>
   <ion-toolbar>
     <ion-item slot="start" (click)="gotoProfile(reciever)">
@@ -8,9 +9,13 @@
     </ion-item>
     <ion-buttons slot="end">
       <ion-button (click)="back()">back</ion-button>
+      <ion-button id="call" (click)="makecall()">
+        <ion-icon id="iconcall" name="call-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+<!-- <ion-content #cnt id="cont" *ngIf="!calling"> -->
 <ion-content #cnt id="cont">
   <ion-grid
     *ngIf="
@@ -42,7 +47,19 @@
   <ion-grid>
     <ion-row class="messageBox" *ngIf="!dataProcess" id="chatAreaOuterBox">
       <ion-col id="chatArea">
+        <ion-infinite-scroll
+          threshold="5px"
+          position="top"
+          (ionInfinite)="loadData($event)"
+        >
+          <ion-infinite-scroll-content
+            loadingSpinner="bubbles"
+            loadingText="Loading more data..."
+          >
+          </ion-infinite-scroll-content>
+        </ion-infinite-scroll>
         <app-text
+          #smsg
           class="chatTest"
           *ngFor="let msg of msgs"
           [id]="msg.id.toString()"
@@ -54,63 +71,88 @@
           [seen]="msg.seen"
           [user]="this.generalService.getUser()"
           [data]="msg.data"
-          (click)="presentActionSheet(msg.id, msg.sender, msg.reciever)"
+          (click)="presentActionSheet(msg.id, msg.sender, msg.reciever, smsg)"
         >
         </app-text>
       </ion-col>
     </ion-row>
   </ion-grid>
 </ion-content>
+<!--<ion-footer *ngIf="!calling">-->
 <ion-footer>
   <ion-grid>
     <ion-row size="12">
-      <ion-col size="6">
+      <ion-col size="11">
         <ion-row size="12">
-          <ion-col size="2">
-            <ion-icon name="text" (click)="inptmodeSet(1)"></ion-icon>
+          <ion-col size="1">
+            <input
+              class="fileInputhid"
+              #inputFile
+              type="file"
+              (change)="handelfile($event)"
+            />
+            <ion-icon
+              *ngIf="inptmode == 2"
+              name="text-outline"
+              (click)="inptmodeSet(1)"
+            ></ion-icon>
+            <ion-icon
+              *ngIf="inptmode == 1"
+              name="attach-outline"
+              (click)="inptmodeSet(2); inputFile.click()"
+            ></ion-icon>
           </ion-col>
-          <ion-col size="2">
-            <ion-icon name="attach-outline" (click)="inptmodeSet(2)"></ion-icon>
-          </ion-col>
-          <ion-col size="2"
+          <ion-col size="1"
             ><ion-icon name="camera" (click)="inptmodeSet(3)"></ion-icon
           ></ion-col>
-          <ion-col size="2" *ngIf="isNativePlatform || true">
+          <ion-col size="1" *ngIf="isNativePlatform || true">
             <ion-icon name="mic" (click)="inptmodeSet(4)"></ion-icon>
           </ion-col>
-          <ion-col size="2" id="gif" (click)="inptmodeSet(5)">
-            <b>gif</b>
-          </ion-col>
-          <ion-col size="2">
-            <ion-icon name="happy-outline" (click)="inptmodeSet(6)"></ion-icon>
+
+          <ion-col id="ioninputtext" size="9">
+            <ion-row size="12" *ngIf="inptmode == 1">
+              <ion-col size="1">
+                <ion-icon
+                  id="emotic"
+                  name="happy-outline"
+                  (click)="setemojimode(1)"
+                ></ion-icon>
+              </ion-col>
+              <ion-col size="11">
+                <ion-input
+                  #inputText
+                  [(ngModel)]="activetext"
+                  placeholder="write..."
+                  (click)="emojimode = 0"
+                ></ion-input>
+              </ion-col>
+            </ion-row>
+            <ion-row class="fileInput" *ngIf="inptmode == 2">
+              <ion-col size="11">
+                <p class="filename">{{ inputFile.files[0].name }}</p>
+              </ion-col>
+            </ion-row>
           </ion-col>
         </ion-row>
       </ion-col>
-      <ion-col size="6"> </ion-col>
+      <ion-col size="1" *ngIf="inptmode == 1">
+        <ion-icon
+          name="send"
+          (click)="send(activetext); emojimode = 0"
+        ></ion-icon>
+      </ion-col>
+      <ion-col size="1" *ngIf="inptmode == 2">
+        <ion-icon
+          name="send"
+          (click)="sendFile(inputFile); emojimode = 0"
+        ></ion-icon>
+      </ion-col>
     </ion-row>
 
-    <ion-row size="12" *ngIf="inptmode == 1">
-      <ion-col size="11">
-        <ion-input #inputText placeholder="write..."></ion-input>
-      </ion-col>
-      <ion-col size="1">
-        <ion-icon name="send" (click)="send(inputText)"></ion-icon>
-      </ion-col>
-    </ion-row>
-
-    <ion-row size="12" *ngIf="inptmode == 2">
-      <ion-col size="11">
-        <input
-          class="fileInput"
-          #inputFile
-          type="file"
-          (change)="handelfile($event)"
-        />
-      </ion-col>
-      <ion-col size="1">
-        <ion-icon name="send" (click)="sendFile(inputFile)"></ion-icon>
-      </ion-col>
-    </ion-row>
+    <app-record-audio
+      *ngIf="inptmode == 4"
+      (onCancel)="recordStopped($event)"
+    ></app-record-audio>
 
     <ion-row size="12" *ngIf="inptmode == -1">
       <ion-col size="11">
@@ -127,8 +169,13 @@
         />
       </ion-col>
       <ion-col size="1">
-        <ion-icon name="send" (click)="sendImage()"></ion-icon>
+        <ion-icon name="send" (click)="sendImage(); emojimode = 0"></ion-icon>
       </ion-col>
     </ion-row>
   </ion-grid>
+  <app-emoji
+    *ngIf="emojimode == 1"
+    (onEmoinput)="addemoticintext($event)"
+    (onGifinput2)="addGifintext($event)"
+  ></app-emoji>
 </ion-footer>

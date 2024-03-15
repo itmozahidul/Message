@@ -1,0 +1,44 @@
+
+##########################################################################################################
+##                                        Clientend                                                     ##
+##########################################################################################################
+ceates connect to:
+webSoket: 'wss://guiding-turkey-entirely.ngrok-free.app/connect/ws',
+#################################################
+subscreib:
+topic: string = '/topic/messages';
+topic_single: string = '/users/queue/reply';
+#################################################
+send:
+url = '/app/message';
+#################################################
+
+
+
+
+
+
+
+##########################################################################################################
+##                                        Backend                                                       ##
+##########################################################################################################
+Allows connection from :
+ .setAllowedOrigins("*");
+#################################################
+Available Websoket Endpoint to connect:
+registry.addEndpoint("/ws")
+#################################################
+Messages are sent from backend to client using:
+following url -> '/users/queue/reply'
+it consits in thre steps:
+  1.enabling message broker:
+      config.enableSimpleBroker("/topic","/queue");// here we see 2 of them
+  2.additional information to it as prefix:
+      config.setUserDestinationPrefix("/users"); // if it is used than it needs to be at the brgening of url
+  3.a url which is being used in back end when sending message to client using sprinboot's builtin SimpMessagingTemplate
+      :this.messagingTemplate.convertAndSendToUser(action.getFrom(), "/queue/reply", action);
+#################################################
+for recieving or mapping the messages coming from client we need to set up a mapper:
+  1.config.setApplicationDestinationPrefixes("/app");
+  2.@MessageMapping("/message")
+together it is '/app/message' which is being used in client side to send messages to backend

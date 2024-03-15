@@ -36,7 +36,7 @@ public class User {
 	 */
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
+	private long id;
 	private String name;
 	private String fname;
 	private String lname;
@@ -50,12 +50,9 @@ public class User {
 	@JsonIgnoreProperties({"sender","reciever"})
 	private List<Message> recievedMessageList;
 	
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinTable(
-			  name = "user_chat", 
-			  joinColumns = @JoinColumn(name = "userid"), 
-			  inverseJoinColumns = @JoinColumn(name = "chatid"))
-	private List<Chat> chatheadlist;
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "chatid")
+	@JsonIgnoreProperties({"userid","chatid"})
+	private List<UserChat> userChatList;
 	
 	  @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy =
 	  "user") 
@@ -105,11 +102,11 @@ public class User {
 		this.spokento="";
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

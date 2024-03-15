@@ -40,6 +40,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   currentUser: string = '';
   subscriptionList: any[] = [];
   currrentUser$: Observable<string>;
+  image: string = 'assets/avatar.png';
   items: any[] = [];
   //friends: Map<string, chatResponse[]> = new Map();
   chatHeadsname: Map<string, Chathead> = new Map();
@@ -56,8 +57,8 @@ export class ChatComponent implements OnInit, OnDestroy {
   originalOrder2() {
     return 0;
   }
-  originalOrder = (a: KeyValue<string, any>, b: KeyValue<string, any>) => {
-    return 0;
+  originalOrder = (a: Chathead, b: Chathead) => {
+    return a.rsp[a.rsp.length - 1].timemili > b.rsp[b.rsp.length - 1].timemili;
   };
   unreadMessagesNo: Map<string, number> = new Map();
   reciever: string = null;
@@ -66,6 +67,7 @@ export class ChatComponent implements OnInit, OnDestroy {
   chatid$: Observable<string>;
   deletedchatid: string = '';
   deletedchatid$: Observable<string>;
+  @ViewChild(IonContent) cntc: IonContent;
   constructor(
     private store: Store<State>,
     private router: Router,
@@ -85,8 +87,13 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.disable = false;
     console.log('in chat ngoninit');
-    this.loadingStart('Loading..');
+    this.sub_rcver();
+    this.sub_currrentuser();
+    this.sub_delete_chatid();
+    this.sub_chatid();
+    this.sub_msgsSnglVw();
   }
 
   loadingStart(msg) {
@@ -97,12 +104,11 @@ export class ChatComponent implements OnInit, OnDestroy {
       })
       .then((toast) => {
         toast.present();
-        this.init_observable_data();
       });
   }
 
   loadingStartGoingToMessageComponent(msg) {
-    this.loadingEnd();
+    this.loadingEnd('105');
     this.generalService.loadingCtrl
       .create({
         message: msg,
@@ -112,22 +118,29 @@ export class ChatComponent implements OnInit, OnDestroy {
         toast.present();
       });
   }
-  init_observable_data() {
-    console.log('chat component init');
-
+  sub_rcver() {
     this.subscriptionList.push(
       this.reciever$.subscribe((data) => {
-        this.reciever = data;
+        console.log(
+          'old value ' +
+            this.reciever +
+            ' , new subscription reciever is ' +
+            data
+        );
+        this.disable = false;
         if (data == '') {
-          this.disable = false;
           this.get_Data_From_the_backend();
         } else {
-          this.loadingEnd();
+          console.log(
+            'the subscribtion of reciever got empty value while it was already empty no need to load data from the back.because it meant chat component is reloaded'
+          );
         }
+        this.reciever = data;
       })
     );
-
-    /*this.subscriptionList.push(
+  }
+  sub_routermap() {
+    this.subscriptionList.push(
       this.activatedroute.paramMap.subscribe((params) => {
         console.log('in chat and param url is');
         let name = params.get('friend');
@@ -143,46 +156,47 @@ export class ChatComponent implements OnInit, OnDestroy {
           this.get_Data_From_the_backend();
         }
       })
-    );*/
+    );
+  }
+  sub_currrentuser() {
     this.subscriptionList.push(
       this.currrentUser$.subscribe((s) => {
         console.log('current user in chat ');
       })
     );
+  }
 
+  sub_delete_chatid() {
     this.subscriptionList.push(
       this.deletedchatid$.subscribe((m) => {
         this.deletedchatid = m;
-        this.chatHeadsname.delete(m);
-        this.unreadMessagesNo.delete(m);
-        this.loadingEnd();
+        if (m != '') {
+          this.chatHeadsname.delete(m);
+          this.unreadMessagesNo.delete(m);
+          this.loadingEnd('157');
+          this.store.dispatch(
+            action.updateDeletedchatid({ deletedchatid: '' })
+          );
+        }
       })
     );
-
+  }
+  sub_chatid() {
     this.subscriptionList.push(
       this.chatid$.subscribe((m) => {
         this.chatid = m;
         if (m != null && m != undefined && m != '') {
           if (this.chatHeadsname.has(m)) {
             this.chatHeadsname.get(m).unreadMessageNo = 0;
-            let cr: chatResponse = new chatResponse(
-              -1111,
-              '',
-              '',
-              true,
-              this.generalService.getUser(),
-              this.reciever
-            );
-            cr.chatid = m;
-            this.generalService.sendMessage2(cr, 'msgseennotifyall');
           }
         }
       })
     );
-
+  }
+  sub_msgsSnglVw() {
     this.subscriptionList.push(
       this.msgsSnglVw$.subscribe((recentText) => {
-        //debugger;
+        //
 
         if (recentText != null) {
           console.log('in chat component updating recent text');
@@ -192,23 +206,34 @@ export class ChatComponent implements OnInit, OnDestroy {
           ) {
             console.log('chat id already exist in chathead list');
             if (recentText.sender != this.generalService.getUser()) {
+              console.log('you have recieved  a message from the backend');
               if (this.reciever != recentText.sender) {
+                console.log(
+                  'you are not currently in chat with sender of this message, thats why'
+                );
                 console.log('unread message no got increased by 1');
                 this.chatHeadsname.get(recentText.chatid).unreadMessageNo++;
               }
+            } else {
+              console.log('ur own sent message has come from back end');
             }
 
             this.chatHeadsname.get(recentText.chatid).rsp.unshift(recentText);
           } else {
-            console.log('new chat id , addind it to chathead list');
+            console.log('new chat id , adding it to chathead list');
             this.generalService
-              .getChatHeadinfobychatid(recentText.chatid)
+              .getChatHeadinfobychatid(
+                recentText.chatid,
+                1,
+                recentText.timemili,
+                0
+              )
               .subscribe(
                 (suc) => {
-                  if (this.reciever != recentText.sender) {
+                  /* if (this.reciever != recentText.sender) {
                     console.log('unread message no got increased by 1');
                     suc.unreadMessageNo++;
-                  }
+                  } */
                   this.chatHeadsname.set(recentText.chatid, suc);
                   let dynamicUser = suc.name.split('_');
                   if (dynamicUser.length > 1) {
@@ -232,8 +257,8 @@ export class ChatComponent implements OnInit, OnDestroy {
       })
     );
   }
-  loadingEnd() {
-    console.log('loading ended');
+  loadingEnd(l) {
+    console.log('loadingend is called from line ' + l);
 
     /* setTimeout(() => {
       
@@ -262,24 +287,33 @@ export class ChatComponent implements OnInit, OnDestroy {
         this.generalService.client == null ||
         this.generalService.client.connected == false
       ) {
-        this.generalService.connect().then(
-          (suc) => {
-            this.prepareChatHead(s, 0);
-          },
-          (err) => {
-            this.hasError = true;
-            console.log(err);
-            this.errommsg = 'connection failed!';
-            this.loadingEnd();
-          }
-        );
+        this.generalService.loadingCtrl
+          .create({
+            message: 'Connecting...',
+            duration: this.generalService.notificationDuration,
+          })
+          .then((toast) => {
+            toast.present();
+            this.generalService.connect().then(
+              (suc) => {
+                this.loadingEnd('275');
+                this.prepareChatHead(s, 0);
+              },
+              (err) => {
+                this.hasError = true;
+                console.log(err);
+                this.errommsg = 'connection failed!';
+                this.loadingEnd('282');
+              }
+            );
+          });
       } else {
         // if websoket connection is there then as usual prosess
         this.prepareChatHead(s, 0);
       }
     } else {
       //TODO when no user is in local storage?
-      this.loadingEnd();
+      this.loadingEnd(292);
       this.generalService.loading_notification_short_hoover(
         'Session is expeired. Trying to reconnect.'
       );
@@ -289,58 +323,61 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   prepareChatHead(name, opt) {
-    this.generalService
-      .getChatHeadinfo(this.generalService.getUser())
-      .subscribe(
-        (suc) => {
-          console.log(suc);
-          console.log('in prepared chat ###################');
-          this.chatHeadsname = new Map(
-            suc.map((obj) => {
-              let dynamicUser: string = (obj.dynamicReciever =
-                obj.name.split('_'));
-              if (dynamicUser.length > 1) {
-                obj.dynamicReciever =
-                  dynamicUser[0] == this.generalService.getUser()
-                    ? dynamicUser[1]
-                    : dynamicUser[0];
-              } else {
-                console.log(
-                  'this chat has no valid name, it contains no users name'
-                );
-              }
+    this.generalService.loadingCtrl
+      .create({
+        message: 'loading...',
+        duration: this.generalService.notificationDuration,
+      })
+      .then((toast) => {
+        toast.present();
+        this.generalService.getChatHeadinfo(name).subscribe(
+          (suc) => {
+            console.log(suc);
+            console.log('in prepared chat ###################');
+            this.chatHeadsname = new Map(
+              suc.map((obj) => {
+                let dynamicUser: string = (obj.dynamicReciever =
+                  obj.name.split('_'));
+                if (dynamicUser.length > 1) {
+                  obj.dynamicReciever =
+                    dynamicUser[0] == this.generalService.getUser()
+                      ? dynamicUser[1]
+                      : dynamicUser[0];
+                } else {
+                  console.log(
+                    'this chat has no valid name, it contains no users name'
+                  );
+                }
 
-              return [obj.id.toString(), obj];
-            })
-          );
-          this.loadingEnd();
-          console.log(this.chatHeadsname);
-          if (opt == 1) {
-            this.gotoChatDetail(
-              this.generalService.getFromLocal(
-                this.generalService.currentchatid
-              ),
-              name
+                return [obj.id.toString(), obj];
+              })
             );
-            this.loadingEnd();
+            this.loadingEnd('333');
+            console.log(this.chatHeadsname);
+            this.chatHeadsname.forEach((data) => {
+              this.generalService
+                .getUserPhoto(data.dynamicReciever.toString())
+                .subscribe(
+                  (pic) => {
+                    this.insertNewChatheadPic(
+                      data.dynamicReciever.toString(),
+                      pic[0]
+                    );
+                  },
+                  (err) => {
+                    this.insertNewChatheadPic(data.dynamicReciever.name, '');
+                  }
+                );
+            });
+            console.log(this.friendsPic);
+          },
+          (err) => {
+            console.log('An error Occured while fetching chat data for a user');
+            console.log(err);
+            this.loadingEnd('365');
           }
-          suc.forEach((data) => {
-            this.generalService.getUserPhoto(data.name.toString()).subscribe(
-              (pic) => {
-                this.insertNewChatheadPic(data.name, pic[0]);
-              },
-              (err) => {
-                this.insertNewChatheadPic(data.name, '');
-              }
-            );
-          });
-        },
-        (err) => {
-          console.log('An error Occured while fetching chat data for a user');
-          console.log(err);
-          this.loadingEnd();
-        }
-      );
+        );
+      });
   }
 
   search(event, v: string) {
@@ -349,7 +386,7 @@ export class ChatComponent implements OnInit, OnDestroy {
       Array.from(document.getElementById('listid').children).forEach(
         (item: any) => {
           const shouldShow =
-            item.children[1].children[0].textContent
+            item.children[1].children[1].children[0].children[0].textContent
               .toLowerCase()
               .indexOf(query) > -1;
           item.style.display = shouldShow ? 'block' : 'none';
@@ -360,61 +397,53 @@ export class ChatComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     //this.generalService.disConnect();
-    /*console.log('destroying chat component ----------------');
+    console.log('destroying chat component ----------------');
     this.subscriptionList.forEach((s) => {
       s.unsubscribe();
-    });*/
+    });
+    this.subscriptionList.forEach((s) => {
+      this.subscriptionList.pop();
+    });
   }
 
   gotoChatDetail(key, name) {
     //we need to save the chat id again incase this function would be called from not active routing map
-    this.loadingStartGoingToMessageComponent('loadin...');
-    console.log('go to chat detail of ' + key);
-    this.generalService.saveInlocal(this.generalService.currentchatid, key);
-    this.generalService.saveInlocal(
-      this.generalService.currentrecieverlocal,
-      name
-    );
 
-    // before going to chat making all messages seen
-    this.store.dispatch(
-      action.updateCurrentReciever({
-        currentReciever: name,
+    this.loadingEnd('397');
+    this.generalService.loadingCtrl
+      .create({
+        message: 'Loading...',
       })
-    );
-    this.store.dispatch(
-      action.updateCurrrentchatid({
-        currentchatid: key,
-      })
-    );
-    console.log('go to chat detail of ' + key);
-    //this.presentMessageModal();
-    this.router.navigate(['/message']);
+      .then((toast) => {
+        console.log('loading started');
+        toast.present();
+        this.generalService.saveInlocal(this.generalService.currentchatid, key);
+        this.generalService.saveInlocal(
+          this.generalService.currentrecieverlocal,
+          name
+        );
+
+        // before going to chat making all messages seen
+        this.store.dispatch(
+          action.updateCurrentReciever({
+            currentReciever: name,
+          })
+        );
+        console.log(
+          '######################################################current chat is dispatched ' +
+            key
+        );
+        this.store.dispatch(
+          action.updateCurrrentchatid({
+            currentchatid: key,
+          })
+        );
+        console.log('go to chat detail of ' + key + ' user ' + name);
+        //this.presentMessageModal();
+        this.router.navigate(['/message']);
+      });
   }
-  // sortChatHeads(chatHead:Map<string, chatResponse[]> ,  key: string ){
-  //   switch (key) {
-  //     case 'time':
-  //       let temp : chatResponse[] = [];
-  //       let tempKey = "";
-  //       let keys:string[] = [];
-  //       chatHead.forEach((d,k)=>{
-  //         keys.fill(k);
-  //       })
-  //       for(let i=0;i<chatHead.size-1;i++){
-  //         if(chatHead.get(keys[i])[chatHead.size-1].time>chatHead.get(keys[i+1])[chatHead.size-1].time){
-  //            temp= chatHead.get(keys[i]);
-  //            tempKey = keys[i];
-  //            chatHead.delete(keys[i]);
-  //            chatHead.set(keys[i],);
-  //         }
-  //       }
-  //       break;
 
-  //     default:
-  //       break;
-  //   }
-  //   return chatHead;
-  // }
   sortMessages(ml: chatResponse[], type) {
     switch (type) {
       case 'time':
@@ -488,14 +517,13 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   insertNewChatheadPic(key, pic) {
-    if (!this.friendsPic.has(key)) {
-      if (this.pic == '') {
-        this.pic = pic;
-      } else {
-        console.log(this.pic == pic);
-      }
-      console.log('pic  inserted ############');
+    console.log(pic);
+    if (pic != '' && pic != null) {
       this.friendsPic.set(key, pic);
+      console.log('original pic  inserted ############');
+    } else {
+      this.friendsPic.set(key, this.image);
+      console.log(' empty pic  inserted ############');
     }
   }
   gotoProfile(name) {
@@ -506,12 +534,15 @@ export class ChatComponent implements OnInit, OnDestroy {
     let cr: chatResponse = new chatResponse(
       -1111,
       '',
+      1,
+      0,
       '',
       true,
       this.generalService.getUser(),
       reciever
     );
     cr.chatid = chatid;
+    this.store.dispatch(action.updateViewdMessage({ msgs: [] }));
     this.generalService.sendMessage2(cr, 'chatdelete');
   }
 

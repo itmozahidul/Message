@@ -23,6 +23,7 @@ import { Capacitor } from '@capacitor/core';
 import {
   ActionSheetController,
   IonContent,
+  IonInfiniteScroll,
   LoadingController,
   ModalController,
   ToastController,
@@ -31,6 +32,7 @@ import { SelectImageComponent } from '../select-image/select-image.component';
 
 import { RecordAudioComponent } from '../record-audio/record-audio.component';
 import { NewFriendComponent } from '../new-friend/new-friend.component';
+import { Chathead } from '../DTO/chatHead';
 
 @Component({
   selector: 'app-message',
@@ -39,14 +41,15 @@ import { NewFriendComponent } from '../new-friend/new-friend.component';
   encapsulation: ViewEncapsulation.None,
 })
 export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
+  toggledemo: boolean = false;
   isNativePlatform: boolean = false;
   imageURI: any;
   msgs: chatResponse[] = [];
   msgs$: Observable<chatResponse[]>;
   msgsSnglVw: chatResponse = null;
   msgsSnglVw$: Observable<chatResponse>;
-  msgidupdate$: Observable<number>;
-  msgidupdate: number = -1;
+  msgidupdate$: Observable<string>;
+  msgidupdate: string = '';
   newMsg: Message = null;
   reciever: string = null;
   reciever$: Observable<string>;
@@ -59,15 +62,30 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   rimage$: Observable<string>;
   chatid: string;
   deletedmsgidid$: Observable<string>;
+
+  ansr: string;
+  answer$: Observable<string>;
+  candidate: string;
+  candidate$: Observable<string>;
+
   deletedmsgidid: string;
   deletedmsgidse$: Observable<string>;
   deletedmsgidse: string;
   chatid$: Observable<string>;
+  firstload: number = 10;
+  offsetload: number = 5;
   file: File = null;
+
   // @ViewChild('cnt', { read: ElementRef }) cnt: IonContent;
   @ViewChild(IonContent) cnt: IonContent;
   @ViewChild('inputFile', { read: ElementRef }) inputFile: ElementRef;
+  @ViewChild(IonInfiniteScroll) infiniteScroll: IonInfiniteScroll;
   inptmode: number = 1;
+  activetext: string = '';
+  emojimode: number = 0;
+  configuration: null;
+  dataChannel: RTCDataChannel;
+  peerConnection: RTCPeerConnection;
 
   constructor(
     private store: Store<State>,
@@ -90,8 +108,51 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.chatid$ = this.store.select(selector.selectCurrentchatid);
     this.deletedmsgidid$ = this.store.select(selector.selectDeletedmessageidid);
     this.deletedmsgidse$ = this.store.select(selector.selectDeletedmessageidse);
+    this.answer$ = this.store.select(selector.selectAns);
+    this.candidate$ = this.store.select(selector.selectCand);
   }
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void {
+    console.log('this.inputFile');
+    console.log(this.inputFile);
+  }
+  loadData(event) {
+    setTimeout(() => {
+      console.log('D-----2------one');
+      event.target.complete();
+      // App logic to determine if all data is loaded
+      // and disable the infinite scroll
+      if (this.msgs.length > 0) {
+        this.getMsgsDatafromBackend(
+          this.msgs[0].chatid,
+          this.offsetload,
+          this.msgs.length
+        ).then(
+          (resolve: Chathead) => {
+            console.log(this.msgs);
+            console.log(resolve);
+
+            if (resolve.rsp.length > 0) {
+              // this.msgs = resolve.rsp.slice().reverse().concat(this.msgs);
+              let temp: any[] = resolve.rsp.slice().reverse();
+              this.msgs = [...temp, ...this.msgs];
+              console.log(this.msgs);
+            }
+          },
+          (reject: string) => {
+            console.log(reject);
+          }
+        );
+      }
+    }, 500);
+    if (this.msgs.length == 1000) {
+      event.target.disabled = true;
+    }
+  }
+
+  handleSelection(event) {
+    this.activetext = this.activetext + ' ' + event.char;
+    this.toggledemo = false;
+  }
   public scrollBottom(v): void {
     setTimeout(() => {
       console.log(
@@ -102,10 +163,10 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     }, 700);
   }
   ngOnDestroy(): void {
-    /* console.log('destroying message component');
+    console.log('destroying message component');
     this.subscriptionList.forEach((s) => {
       s.unsubscribe();
-    }); */
+    });
     //this.generalService.disConnect();
     //this.router.navigate(['/chat', '']);
   }
@@ -115,6 +176,7 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit() {
+    console.log('in message ngoninit');
     if (
       this.generalService.client == null ||
       this.generalService.client.connected == false
@@ -129,8 +191,6 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit_call() {
-    console.log('ngOninit');
-
     this.isNativePlatform = Capacitor.isNativePlatform();
     /* this.subscriptionList.push(
       this.activatedroute.paramMap.subscribe((params) => {
@@ -169,7 +229,52 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.subscreibviewedmsgs();
     this.subscreib_deletemsgidid();
     this.subscreib_deletemsgidse();
+    /* this.subscreib_offer();
+    this.subscreib_ans();
+    this.subscreib_cand(); */
   }
+
+  /*  subscreib_offer() {
+    this.subscriptionList.push(
+      this.offer$.subscribe((strobj) => {
+        this.offer = strobj;
+        let t = JSON.parse(strobj);
+        this.peerConnection.setRemoteDescription(
+          new RTCSessionDescription(t.data)
+        );
+        this.peerConnection.createAnswer(
+          (answer) => {
+            this.sendWebrtcrequest('answer', answer);
+          },
+          (error) => {
+            console.log('couldnt subscreib answer to offer of remote client');
+          }
+        );
+      })
+    );
+  }
+
+  subscreib_ans() {
+    this.subscriptionList.push(
+      this.answer$.subscribe((strobj) => {
+        this.answer = strobj;
+        let t = JSON.parse(strobj);
+        this.peerConnection.setRemoteDescription(
+          new RTCSessionDescription(t.data)
+        );
+      })
+    );
+  }
+
+  subscreib_cand() {
+    this.subscriptionList.push(
+      this.candidate$.subscribe((strobj) => {
+        this.candidate = strobj;
+        let t = JSON.parse(strobj);
+        this.peerConnection.addIceCandidate(new RTCIceCandidate(t.data));
+      })
+    );
+  } */
 
   subscreib_deletemsgidid() {
     this.subscriptionList.push(
@@ -188,11 +293,12 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.subscriptionList.push(
       this.deletedmsgidse$.subscribe((id) => {
         this.deletedmsgidse = id;
-        this.msgs.forEach((m) => {
-          if (m.id.toString() == id) {
-            m.type = '';
+        for (let i = 0; i < this.msgs.length; i++) {
+          if (this.msgs[i].id.toString() == id) {
+            this.msgs[i].text = 'deleted';
+            this.msgs[i].type = 'deleted';
           }
-        });
+        }
       })
     );
   }
@@ -201,30 +307,6 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.subscriptionList.push(
       this.currrentUser$.subscribe((s) => {
         // this needs to be checked for a infinit loop situation
-        console.log(
-          '################################################################'
-        );
-        console.log(
-          '################################################################'
-        );
-        console.log(
-          '##########  Current user subscription is used    ###############'
-        );
-        console.log(
-          '##########            one time                   ###############'
-        );
-        console.log(
-          '################################################################'
-        );
-        console.log(
-          '################################################################'
-        );
-        console.log(
-          '################################################################'
-        );
-        console.log(
-          '################################################################'
-        );
         if (s == '') {
           let temp_user = this.generalService.getUser();
           if (temp_user == '') {
@@ -258,15 +340,16 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
           //easy to read
         } else {
           console.log('current reciever is now empty ' + this.reciever);
+          this.gotoChatPage();
         }
         console.log(this.reciever);
       })
     );
   }
   gotoChatPage() {
-    this.subscriptionList.forEach((s) => {
+    /*this.subscriptionList.forEach((s) => {
       s.unsubscribe();
-    });
+    });*/
     this.router.navigate(['/chat']);
   }
 
@@ -274,30 +357,38 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.subscriptionList.push(
       this.msgs$.subscribe((m) => {
         console.log('in message component on reload');
-        if (m != undefined && m != null && m.length > 0) {
-          // this may never be true, but kept it incase i need it
-          if (
-            this.reciever != null &&
-            this.reciever != undefined &&
-            this.reciever != ''
-          ) {
-            //this.msgs = m.slice().reverse();
-            this.msgs = m;
-            this.scrollBottom(0);
+
+        // this may never be true, but kept it incase i need it
+        if (
+          this.reciever != null &&
+          this.reciever != undefined &&
+          this.reciever != ''
+        ) {
+          if (m != undefined && m != null && m.length > 0) {
+            this.msgs = m.slice().reverse();
           } else {
-            console.log('reciever is empty ' + this.reciever);
+            this.msgs = m;
           }
+
+          //this.msgs = m;
+          this.scrollBottom(0);
+        } else {
+          console.log('reciever is empty ' + this.reciever);
+          this.msgs = m;
         }
       })
     );
 
     this.subscriptionList.push(
       this.msgidupdate$.subscribe((n) => {
-        if (n != -1) {
+        console.log('trying to update messages as seen chat id ' + n);
+        if (n != '' && n != this.msgidupdate) {
+          this.msgidupdate = n;
           console.log('updating seen message ' + n);
           this.msgs.forEach((m) => {
             if (m.seen == false) {
               m.seen = true;
+              console.log(m.chatid);
             }
           });
         }
@@ -391,16 +482,63 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   subscreib_currentchatid() {
-    this.chatid$.subscribe((m) => {
-      console.log('current chatid subscription ' + m);
-      this.chatid = m;
-      // chat id needs not to be checked here , it will be checked in following function
-      this.getMsgsDatafromBackend(m);
-      console.log(this.chatid);
-      if (m == '') {
-        this.gotoChatPage();
+    this.chatid$.subscribe(
+      (m) => {
+        if (m != this.chatid) {
+          console.log('current chatid subscription ' + m);
+          this.chatid = m;
+          // chat id needs not to be checked here , it will be checked in following function
+          this.getMsgsDatafromBackend(m, this.firstload, 0).then(
+            (resolve: Chathead) => {
+              console.log(resolve);
+              this.store.dispatch(
+                action.updateViewdMessage({
+                  msgs: resolve.rsp,
+                })
+              );
+              if (resolve.unreadMessageNo > 0) {
+                this.sendrequesttobacktosetmsgasseen(
+                  resolve.id,
+                  resolve.rsp[resolve.rsp.length - 1].id
+                );
+              }
+            },
+            (reject: string) => {
+              console.log(reject);
+            }
+          );
+        }
+        if (m == '') {
+          this.store.dispatch(action.updateViewdMessage({ msgs: [] }));
+          this.store.dispatch(
+            action.updateCurrentReciever({ currentReciever: '' })
+          );
+        } else {
+        }
+      },
+      (err) => {
+        console.log(err);
       }
-    });
+    );
+  }
+
+  sendrequesttobacktosetmsgasseen(chatid, lastmsgid) {
+    let cr: chatResponse = new chatResponse(
+      lastmsgid,
+      '',
+      1,
+      0,
+      '',
+      true,
+      this.generalService.getUser(),
+      this.reciever == ''
+        ? this.generalService.getFromLocal(
+            this.generalService.currentrecieverlocal
+          )
+        : this.reciever
+    );
+    cr.chatid = chatid;
+    this.generalService.sendMessage2(cr, 'msgseennotifyall');
   }
 
   load_reciever_image(rsvr) {
@@ -421,28 +559,35 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     );
   }
 
-  getMsgsDatafromBackend(chatid) {
-    if (chatid != '' && chatid != null && chatid != undefined) {
-      this.generalService.getChatHeadinfobychatid(chatid).subscribe(
-        (data) => {
-          this.loadingEnd();
-          if (data.rsp.length > 0) {
-            this.store.dispatch(
-              action.updateViewdMessage({
-                msgs: data.rsp,
-              })
-            );
-          } else {
-            console.log(
-              'no msgs are dispatch cause it is empty ' + this.reciever
-            );
-          }
-        },
-        (err) => {
-          this.handelErrorwithLoadingMessage(err);
-        }
-      );
-    }
+  getMsgsDatafromBackend(chatid, limit, offset) {
+    return new Promise((resolve: any, reject: any) => {
+      if (chatid != '' && chatid != null && chatid != undefined) {
+        this.generalService
+          .getChatHeadinfobychatid(chatid, limit, 0, offset)
+          .subscribe(
+            (data) => {
+              this.loadingEnd();
+              if (data.rsp.length > 0) {
+                resolve(data);
+              } else {
+                console.log(
+                  'no msgs are dispatch cause it is empty ' + this.reciever
+                );
+                reject(
+                  'no msgs are dispatch cause it is empty ' + this.reciever
+                );
+              }
+            },
+            (err) => {
+              this.handelErrorwithLoadingMessage(err);
+              reject(err);
+            }
+          );
+      } else {
+        reject('chat id wrong, may be empty');
+        console.log(chatid);
+      }
+    });
   }
 
   handelErrorwithLoadingMessage(err) {
@@ -454,28 +599,38 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   send(data) {
-    let input: string = data.value;
-    if (
-      input != null &&
-      input.length > 0 &&
-      input.trim() != '' &&
-      input.trim() != ' '
-    ) {
-      let newMsge = new chatResponse(
-        -1111,
-        '00.00',
-        data.value,
-        false,
-        this.generalService.getUser(),
-        this.reciever
-      );
-      newMsge.chatid = this.generalService.getFromLocal(
-        this.generalService.currentchatid
-      );
+    let input: string = data;
+    try {
+      if (
+        input != null &&
+        input.length > 0 &&
+        input.trim() != '' &&
+        input.trim() != ' ' &&
+        this.reciever != '' &&
+        this.generalService.getUser() != ''
+      ) {
+        let newMsge = new chatResponse(
+          -1111,
+          '00.00',
+          1,
+          0,
+          input,
+          false,
+          this.generalService.getUser(),
+          this.reciever
+        );
+        newMsge.chatid = this.generalService.getFromLocal(
+          this.generalService.currentchatid
+        );
 
-      this.generalService.sendMessage(newMsge);
+        this.generalService.sendMessage(newMsge);
+      } else {
+        throw new Error('text or reciever or sender might be empty');
+      }
+    } catch (error) {
+      console.log(error);
     }
-    data.value = '';
+    this.activetext = '';
   }
 
   loadingStart(msg) {
@@ -489,23 +644,27 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
   loadingEnd() {
-    this.loadingCtrl.getTop().then((succ) => {
-      if (succ) {
-        this.loadingCtrl.dismiss().then(
-          (suc) => {
-            if (suc) {
-              console.log('loading ctrl end');
-              this.loadingEnd();
-            } else {
-              console.log('loading ctrl end Failed');
+    try {
+      this.loadingCtrl.getTop().then((succ) => {
+        if (succ) {
+          this.loadingCtrl.dismiss().then(
+            (suc) => {
+              if (suc) {
+                console.log('loading ctrl end');
+                this.loadingEnd();
+              } else {
+                console.log('loading ctrl end Failed');
+              }
+            },
+            (err) => {
+              console.log(err);
             }
-          },
-          (err) => {
-            console.log(err);
-          }
-        );
-      }
-    });
+          );
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   uploadFile() {
@@ -573,19 +732,40 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
+  recordStopped(e) {
+    this.inptmodeSet(1);
+  }
+
+  setemojimode(k: number) {
+    this.emojimode = k;
+  }
+
   inptmodeSet(v: number) {
+    this.emojimode = 0;
     this.inptmode = v;
     if (v == 2) {
       //this.handelfile();
+      console.log(this.inputFile);
+      // this.inputFile.nativeElement.click();
     }
     if (v == 4) {
-      this.presentRecordAudioModal();
+      //this.presentRecordAudioModal();
       //this.router.navigateByUrl('selectImage');
-      this.inptmode = 1;
     }
     if (v == 3) {
       this.presentSelectImageModal();
       //this.router.navigateByUrl('selectImage');
+      this.inptmode = 1;
+    }
+    if (v == 5) {
+      //this.presentSelectImageModal();
+      //this.router.navigateByUrl('selectImage');
+      this.inptmode = 1;
+    }
+    if (v == 6) {
+      //this.presentSelectImageModal();
+      //this.router.navigateByUrl('selectImage');
+      this.toggledemo = true;
       this.inptmode = 1;
     }
   }
@@ -593,6 +773,7 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.file = event.target.files[0];
     let limit = 50 * 1024 * 1024; // 50 MB
     if (this.file.size > limit) {
+      this.inptmodeSet(1);
       this.generalService.loading_notification_short_hoover('File is too big.');
     }
 
@@ -604,10 +785,16 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   sendFileToback(data, name) {
-    if (data != null) {
+    if (
+      data != null &&
+      this.reciever != '' &&
+      this.generalService.getUser() != ''
+    ) {
       let newMsg = new chatResponse(
         -1111,
         '00.00',
+        1,
+        0,
         name,
         false,
         this.generalService.getUser(),
@@ -622,10 +809,14 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
       console.log('#############################');
       console.log(newMsg);
       this.generalService.sendMessage(newMsg);
+    } else {
+      throw new Error('data or sender or reciever might be empty');
     }
   }
 
-  sendFile() {
+  sendFile(f: HTMLInputElement) {
+    console.log(f.files);
+    f.files[0] = null;
     const bucket: FormData = new FormData();
     bucket.append('file', this.file);
     bucket.append(
@@ -635,8 +826,10 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.generalService.sendFileWithoutWebSocket(bucket).subscribe(
       (suc) => {
         this.sendFileToback(suc.path, this.file.name);
+        this.inptmodeSet(1);
       },
       (err) => {
+        this.inptmodeSet(1);
         this.generalService.loading_notification_short_hoover(
           'Failed to upload ' + this.file.name
         );
@@ -646,7 +839,7 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   async presentSelectImageModal() {
     const modal = await this.modalController.create({
       component: SelectImageComponent,
-      cssClass: 'my-custom-class',
+      cssClass: 'my-custom-class-img',
     });
     return await modal.present();
   }
@@ -654,7 +847,7 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   async presentRecordAudioModal() {
     const modal = await this.modalController.create({
       component: RecordAudioComponent,
-      cssClass: 'my-custom-class',
+      cssClass: 'my-custom-class-record',
     });
     return await modal.present();
   }
@@ -679,14 +872,20 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     );
     //this has to be at the end to enable the other subscribstion to finish their cleaning job
     //before we end the subscription later in reciever;
-    this.store.dispatch(action.updateCurrentReciever({ currentReciever: '' }));
+    //current chat id empty triggers setting current reciever empty, this triggers to go to chat page back
+    console.log(
+      '######################################################current chat is dispatched ' +
+        ''
+    );
+
     this.store.dispatch(action.updateCurrrentchatid({ currentchatid: '' }));
 
     // we dont need to go directly to chat, if the reciever is empty it will take us to chat
     // this.router.navigate(['/chat']);
   }
 
-  async presentActionSheet(msgid: number, sender: string, reciever) {
+  async presentActionSheet(msgid: number, sender: string, reciever, ele: any) {
+    console.log(ele);
     if (sender == this.generalService.getUser()) {
       const actionSheet = await this.actionSheetController.create({
         header: 'Message',
@@ -697,6 +896,8 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
             icon: 'trash',
             handler: () => {
               this.removeyouassender(msgid, sender, reciever);
+              ele.text = 'deleted';
+              ele.type = 'deleted';
             },
           },
           {
@@ -742,6 +943,8 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     let cr: chatResponse = new chatResponse(
       key,
       '',
+      1,
+      0,
       '',
       true,
       sender,
@@ -753,6 +956,8 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     let cr: chatResponse = new chatResponse(
       key,
       '',
+      1,
+      0,
       '',
       true,
       sender,
@@ -760,4 +965,95 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     );
     this.generalService.sendMessage2(cr, 'removesender');
   }
+  addemoticintext(emo) {
+    console.log(emo);
+    this.activetext = this.activetext + ' ' + emo + ' ';
+  }
+
+  sendImgFileToback(data, name) {
+    if (
+      data != null &&
+      this.reciever != '' &&
+      this.generalService.getUser() != ''
+    ) {
+      let newMsg = new chatResponse(
+        -1111,
+        '00.00',
+        1,
+        0,
+        name,
+        false,
+        this.generalService.getUser(),
+        this.reciever
+      );
+      newMsg.chatid = this.generalService.getFromLocal(
+        this.generalService.currentchatid
+      );
+      newMsg.data = data;
+      newMsg.type = 'image';
+      this.generalService.sendMessage(newMsg);
+    } else {
+      throw new Error('Image or reciever or sender might be empty');
+    }
+  }
+
+  addGifintext(data) {
+    this.sendImgFileToback(data, '');
+    this.inptmodeSet(1);
+  }
+
+  makecall() {
+    this.router.navigate(['/calldisp', this.reciever]);
+  }
+
+  /* sendWebrtcrequest(type, obj) {
+    let text = JSON.stringify({
+      event: type,
+      data: obj,
+    });
+
+    let newMsge = new chatResponse(
+      -1111,
+      '00.00',
+      1,
+      0,
+      text,
+      false,
+      this.generalService.getUser(),
+      this.reciever
+    );
+    newMsge.chatid = this.generalService.getFromLocal(
+      this.generalService.currentchatid
+    );
+
+    this.generalService.sendMessage2(newMsge, type);
+  }
+
+  createsignalcon() {
+    this.configuration = null;
+    this.peerConnection = new RTCPeerConnection(this.configuration);
+    this.dataChannel = this.peerConnection.createDataChannel('dataChannel');
+    this.dataChannel.onerror = (error) => {
+      console.log('Error:', error);
+    };
+    this.dataChannel.onclose = () => {
+      console.log('Data channel is closed');
+    };
+    this.peerConnection.createOffer(
+      (offer) => {
+        this.sendWebrtcrequest('offer', offer);
+        this.peerConnection.setLocalDescription(offer);
+      },
+      (error) => {
+        //habdel
+        console.log('offer from client has failed');
+      }
+    );
+
+    this.peerConnection.onicecandidate = (event) => {
+      if (event.candidate) {
+        this.sendWebrtcrequest('candidate', event.candidate);
+      }
+    };
+  } */
 }

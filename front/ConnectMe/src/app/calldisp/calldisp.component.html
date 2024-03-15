@@ -1,0 +1,22 @@
+<video class="fs" *ngIf="calling" autoplay="autoplay">
+  <source src="{{ callingurl }}" type="video/mp4" />
+</video>
+<ion-grid *ngIf="calling">
+  <ion-row size="12">
+    <ion-col size="4">
+      <ion-button id="call_cancel_btn" (click)="call_canceled('me')">
+        cancel
+      </ion-button>
+    </ion-col>
+    <ion-col size="4">
+      <ion-button id="call_cancel_btn" (click)="call_canceledFront()">
+        cancel
+      </ion-button>
+    </ion-col>
+    <ion-col size="4">
+      <ion-button id="call_cancel_btn" (click)="call_canceled('me')">
+        cancel
+      </ion-button>
+    </ion-col>
+  </ion-row>
+</ion-grid>
