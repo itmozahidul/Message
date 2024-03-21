@@ -1,13 +1,126 @@
-#answer_call_cancel {
+ion-content {
+  // --background: #fff url("../../assets/images/advertise/advertise.png")
+  //   no-repeat center center / cover;
+  --background: #000000;
 }
-#answer_call_cancel {
+ion-icon {
+  width: 95%;
+  height: 95%;
+  color: rgb(255, 255, 255);
+  padding: 2.5%;
+  border-radius: 1vh;
 }
-#id_v_el {
-  position: absolute;
+ion-icon:hover {
+  width: 100%;
+  height: 100%;
+  color: rgb(255, 208, 0);
+}
+#call {
+  background-color: black;
+  color: white;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+}
+#iconcall {
+  width: 2vh;
+}
+ion-col {
+  padding: 0;
+}
+#ioninputtext {
+  background-color: white;
+  color: #000000;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+}
+#emotic {
+  color: rgb(184, 83, 0);
+}
+
+ion-footer {
+  background: rgb(0, 0, 0);
+}
+#gif {
+  text-align: center;
+  color: white;
+}
+#gif:hover {
+  background-color: cornflowerblue;
+  color: white;
+}
+.fileInput {
+  background-color: white;
+  color: #000000;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+}
+.filename {
+  background-color: #000000;
+  width: -moz-fit-content;
+  width: fit-content;
+  color: white;
+  margin-left: 2vw;
+  margin-top: 2vh;
+  padding: 2px;
+  border-radius: 5px;
+}
+.fileInputhid {
+  display: none;
+}
+::-webkit-file-upload-button {
+  /* border-radius: 100px;
+  width: 20%;
+  outline: none;
+  color: white;
+  background-color: cornflowerblue; */
+  display: none;
+}
+
+app-text {
+  display: block;
+}
+/*
+.chatTest {
+  rotate: 180deg;
+}
+
+#cont {
+  rotate: 180deg;
+}*/
+
+#pic_send_cancel_btn {
+  bottom: 0;
+}
+
+.my-custom-class-record {
+  --background: rgba(0, 0, 0, 0);
+  --height: 50vh;
+  --width: 80vw;
+}
+
+.my-custom-class-img {
+  --background: rgba(0, 0, 0, 0);
+  --height: 50vh;
+  --width: 80vw;
+}
+
+.my-custom-class-dsp-img {
+  --background: rgba(0, 0, 0, 0);
+  --height: 50vh;
+  --width: 80vw;
+}
+
+#call_cancel_btn {
+}
+
+.fs {
   width: 100vw;
   height: 100vh;
-}
-#id_ion_g_el {
-  position: absolute;
-  bottom: 0;
+  background: black;
 }

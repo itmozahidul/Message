@@ -33,6 +33,7 @@ import { SelectImageComponent } from '../select-image/select-image.component';
 import { RecordAudioComponent } from '../record-audio/record-audio.component';
 import { NewFriendComponent } from '../new-friend/new-friend.component';
 import { Chathead } from '../DTO/chatHead';
+import { act } from '@ngrx/effects';
 
 @Component({
   selector: 'app-message',
@@ -1003,7 +1004,15 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   makecall() {
-    this.router.navigate(['/calldisp', this.reciever]);
+    this.store.dispatch(
+      action.updateCall({
+        call:
+          this.generalService.call_started_me +
+          this.generalService.separator +
+          this.reciever,
+      })
+    );
+    //this.router.navigate(['/calldisp', this.reciever]);
   }
 
   /* sendWebrtcrequest(type, obj) {

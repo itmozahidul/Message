@@ -41,7 +41,8 @@ import { Chathead } from '../DTO/chatHead';
   styleUrls: ['./calldisp.component.scss'],
 })
 export class CalldispComponent implements OnInit {
-  ansr: string;
+  ngOnInit(): void {}
+  /*  ansr: string;
   ansr$: Observable<string>;
   callingurl = 'assets/video/calling.mp4';
   calling = false;
@@ -187,5 +188,5 @@ export class CalldispComponent implements OnInit {
       console.log('Reciever or sender or text or type was empty');
       this.location.back();
     }
-  }
+  } */
 }

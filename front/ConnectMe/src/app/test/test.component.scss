@@ -2,3 +2,75 @@
   height: 20vh;
   width: 20vh;
 }
+
+ion-button {
+  width: -webkit-fill-available;
+  --background: var(ion-color-secondary-tint);
+  --border-radius: 1000px;
+}
+
+#cancel {
+  --background: var(--ion-color-danger);
+}
+
+#fsv {
+  --background: var(--ion-color-success);
+}
+
+#fsa {
+  --background: var(--ion-color-success);
+}
+
+ion-content {
+  --background: black;
+}
+
+ion-footer {
+  --background: black;
+}
+
+.footer_box {
+  background: black;
+}
+
+ion-row {
+  display: flex;
+}
+
+ion-col {
+  display: flex;
+}
+
+ion-card {
+  height: -webkit-fill-available;
+  background: black;
+}
+
+.svgiconimg {
+  height: 20px;
+  width: 20px;
+}
+
+#remoteview {
+  object-fit: fill;
+  width: 100%;
+  height: -webkit-fill-available;
+}
+
+#incallimgon {
+  width: 20vw;
+  height: 20vw;
+  background: rgb(159, 255, 121);
+  border-radius: 200px;
+  margin-left: 40vw;
+  margin-top: 30vh;
+}
+
+#incallimgoff {
+  width: 20vw;
+  height: 20vw;
+  background: rgb(255, 92, 92);
+  border-radius: 200px;
+  margin-left: 40vw;
+  margin-top: 30vh;
+}

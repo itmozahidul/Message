@@ -33,10 +33,18 @@ export interface State {
   offer: string;
   ans: string;
   cand: string;
+  offer2: string;
+  ans2: string;
+  cand2: string;
   callend: number;
   pc: RTCPeerConnection;
   call: string;
   ansr: string;
+  talkingpartner: string;
+  talkingpartnero: string;
+  gotocallwith: string;
+  requesttomute: string;
+  pausevideo: string;
 }
 
 export const initialState: State = {
@@ -69,10 +77,18 @@ export const initialState: State = {
   offer: '',
   ans: '',
   cand: '',
+  offer2: '',
+  ans2: '',
+  cand2: '',
   callend: 0,
   pc: null,
   call: '',
   ansr: '',
+  talkingpartner: '',
+  talkingpartnero: '',
+  gotocallwith: '',
+  requesttomute: '',
+  pausevideo: '',
 };
 
 export const appReducer = createReducer(
@@ -298,6 +314,27 @@ return {
       cand: newCand,
     };
   }),
+  on(action.updateOffer2, (state, { offer2 }) => {
+    var newOffer2: string = offer2;
+    return {
+      ...state,
+      offer2: newOffer2,
+    };
+  }),
+  on(action.updateAns2, (state, { ans2 }) => {
+    var newAns2: string = ans2;
+    return {
+      ...state,
+      ans2: newAns2,
+    };
+  }),
+  on(action.updateCand2, (state, { cand2 }) => {
+    var newCand2: string = cand2;
+    return {
+      ...state,
+      cand2: newCand2,
+    };
+  }),
   on(action.updateCallend, (state, { callend }) => {
     var newCallend: number = callend;
     console.log('call ended');
@@ -325,11 +362,48 @@ return {
       ansr: newansr,
     };
   }),
+  on(action.updatetalkingpartner, (state, { talkingpartner }) => {
+    var newtalkingpartner: string = talkingpartner;
+    return {
+      ...state,
+      talkingpartner: newtalkingpartner,
+    };
+  }),
+  on(action.updatetalkingpartnero, (state, { talkingpartnero }) => {
+    var newtalkingpartnero: string = talkingpartnero;
+    return {
+      ...state,
+      talkingpartnero: newtalkingpartnero,
+    };
+  }),
+
+  on(action.updategotocallwith, (state, { gotocallwith }) => {
+    var newgotocallwith: string = gotocallwith;
+    return {
+      ...state,
+      gotocallwith: newgotocallwith,
+    };
+  }),
+
   on(action.updatePc, (state, { pc }) => {
     var newpc: RTCPeerConnection = pc;
     return {
       ...state,
       pc: newpc,
+    };
+  }),
+  on(action.updaterequesttomute, (state, { requesttomute }) => {
+    var newrequesttomute: string = requesttomute;
+    return {
+      ...state,
+      requesttomute: newrequesttomute,
+    };
+  }),
+  on(action.updatepausevideo, (state, { pausevideo }) => {
+    var newpausevideo: string = pausevideo;
+    return {
+      ...state,
+      pausevideo: newpausevideo,
     };
   })
 );

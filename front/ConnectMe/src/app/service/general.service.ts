@@ -36,7 +36,13 @@ export class GeneralService {
       'Content-Type': 'application/json',
     }),
   };
-  call_cancelled = 'cancel';
+  call_cancelled_me = 'cancel_me';
+  call_cancelled_other = 'cancel_other';
+  call_started_me = 'start_me';
+  call_started_other = 'start_other';
+  call_answered_me = 'answer_me';
+  call_answered_other = 'answer_other';
+  separator = '|-|';
   notificationDuration = 0;
   notificationDurationfix = 1000;
   jwtToken: string;
@@ -799,5 +805,29 @@ export class GeneralService {
 
   recordSendMessage() {
     return 'Voice message';
+  }
+
+  sendWebrtcCallMessage(text, rcv, type) {
+    if (
+      text != null &&
+      text != '' &&
+      rcv != '' &&
+      type != '' &&
+      this.getUser() != ''
+    ) {
+      let newMsge = new chatResponse(
+        -1111,
+        '00.00',
+        1,
+        0,
+        text,
+        false,
+        this.getUser(),
+        rcv
+      );
+      this.sendMessage2(newMsge, type);
+    } else {
+      throw new Error('Reciever or sender or text or type was empty');
+    }
   }
 }

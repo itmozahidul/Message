@@ -16,15 +16,11 @@ ion-icon:hover {
   color: rgb(255, 208, 0);
 }
 #call {
-  background-color: black;
-  color: white;
-  border-bottom-left-radius: 18px;
-  border-bottom-right-radius: 18px;
-  border-top-left-radius: 18px;
-  border-top-right-radius: 18px;
+  background-color: var(--ion-color-success-tint);
+  border-radius: 18px;
 }
 #iconcall {
-  width: 2vh;
+  width: 20px;
 }
 ion-col {
   padding: 0;

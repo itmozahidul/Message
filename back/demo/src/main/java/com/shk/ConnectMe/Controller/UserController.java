@@ -45,28 +45,30 @@ public class UserController {
 	private ProfileRepository prf_rpt;
 	@Autowired
 	private GeheimRepository geheim_rpt;
-	private String jwt = "";
-	private JSONObject job_info = new JSONObject();
 	@Autowired
 	private JwtTokenUtil jwtutil;
-
-	private List<SearchedUser> smlObjUsers = new ArrayList<SearchedUser>();
-	private List<User> Objusers = new ArrayList<User>();
-	private List<String> names = new ArrayList<String>();
-	private List<String> photos = new ArrayList<String>();
+	
+//	private String jwt = "";
+//	private JSONObject job_info = new JSONObject();
+//	
+//
+//	private List<SearchedUser> smlObjUsers = new ArrayList<SearchedUser>();
+//	private List<User> Objusers = new ArrayList<User>();
+//	private List<String> names = new ArrayList<String>();
+//	private List<String> photos = new ArrayList<String>();
 
 	@PostMapping("/register")
 	ResponseEntity<?> register(@RequestBody String string_info) {
 		JSONObject ans = new JSONObject();
 		ans.put("name", "User");
 		ans.put("result", "false");
-		this.job_info = new JSONObject();
+		JSONObject tjob_info = new JSONObject();
 		try {
-			job_info = (JSONObject) new JSONParser().parse(string_info);
-			User user = new User("", this.job_info.get("fname").toString(), this.job_info.get("lname").toString(),
-					this.job_info.get("mobile").toString(), this.job_info.get("adress").toString(),
-					this.job_info.get("image").toString());
-			Geheim geheim = new Geheim(this.job_info.get("imp").toString());
+			tjob_info = (JSONObject) new JSONParser().parse(string_info);
+			User user = new User("", tjob_info.get("fname").toString(), tjob_info.get("lname").toString(),
+					tjob_info.get("mobile").toString(), tjob_info.get("adress").toString(),
+					tjob_info.get("image").toString());
+			Geheim geheim = new Geheim(tjob_info.get("imp").toString());
 			geheim.setUser(user);
 			user.setCard(geheim);
 			Profile profile = new Profile(this.now());
@@ -101,12 +103,12 @@ public class UserController {
 	ResponseEntity<?> search(@RequestBody String key) {
 
 		try { // this.user_rpt.getUsersByKey("shakil");
-			this.names = this.user_rpt.getSearchedUserNamesByKey(key);
+			List<String> tnames = this.user_rpt.getSearchedUserNamesByKey(key);
 //			List<User> users = this.user_rpt.getUsersByKey(key);
 //			for(User u:users) {
 //				this.userNames.add(new SearchedUser(u.getName(),u.getImage()));
 //			}
-          return ResponseEntity.ok(this.names);
+          return ResponseEntity.ok(tnames);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -183,7 +185,7 @@ return ResponseEntity.ok(new SpokenToEntry(spokenTo));
 
 	@PostMapping("/photo")
 	ResponseEntity<?> getUserPhoto(@RequestBody String key) {
-		this.photos = new ArrayList<String>();
+		List<String> tphotos = new ArrayList<String>();
 		String photo = "";
 		try { // this.user_rpt.getUsersByKey("shakil");
 			User u = this.user_rpt.getUsersByKey(key);// key means username
@@ -192,9 +194,9 @@ return ResponseEntity.ok(new SpokenToEntry(spokenTo));
 //			for(User u:users) {
 //				this.userNames.add(new SearchedUser(u.getName(),u.getImage()));
 //			}
-			this.photos.add(photo);
+			tphotos.add(photo);
 
-			return ResponseEntity.ok(this.photos);
+			return ResponseEntity.ok(tphotos);
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -207,14 +209,14 @@ return ResponseEntity.ok(new SpokenToEntry(spokenTo));
 
 	@PostMapping("/update/single")
 	ResponseEntity<?> updateUser(@RequestBody String string_info) {
-		this.job_info = new JSONObject();
+		JSONObject tjob_info = new JSONObject();
 
 		boolean ans = false;
 		try { // this.user_rpt.getUsersByKey("shakil");
-			job_info = (JSONObject) new JSONParser().parse(string_info);
-			String key = this.job_info.get("key").toString();
-			String p_id = this.job_info.get("p_id").toString();
-			String value = this.job_info.get("value").toString();
+			tjob_info = (JSONObject) new JSONParser().parse(string_info);
+			String key = tjob_info.get("key").toString();
+			String p_id = tjob_info.get("p_id").toString();
+			String value = tjob_info.get("value").toString();
 			ans = true;
 
 			switch (key) {
@@ -260,15 +262,15 @@ return ResponseEntity.ok(new SpokenToEntry(spokenTo));
 
 	@PostMapping("profile/update/single")
 	ResponseEntity<?> updateUserProfileSingleEntry(@RequestBody String string_info) {
-		this.job_info = new JSONObject();
+		JSONObject tjob_info = new JSONObject();
 
 		boolean ans = false;
 		try { // this.user_rpt.getUsersByKey("shakil");
-			job_info = (JSONObject) new JSONParser().parse(string_info);
+			tjob_info = (JSONObject) new JSONParser().parse(string_info);
 
-			String key = this.job_info.get("key").toString();
-			String p_id = this.job_info.get("p_id").toString();
-			String value = this.job_info.get("value").toString();
+			String key = tjob_info.get("key").toString();
+			String p_id = tjob_info.get("p_id").toString();
+			String value = tjob_info.get("value").toString();
 			ans = true;
 			switch (key) {
 			case "city":
@@ -394,24 +396,32 @@ return ResponseEntity.ok(new SpokenToEntry(spokenTo));
 
 	@PostMapping("/login")
 	ResponseEntity<?> login(@RequestBody String string_info) {
-		this.jwt = null;
-		this.job_info = new JSONObject();
+		String tjwt = null;
+		JSONObject tjob_info = new JSONObject();
 		try {
-			this.job_info = (JSONObject) new JSONParser().parse(string_info);
-			this.user_rpt.findAll().forEach((u) -> {
-				if (u.getAdress().equals(this.job_info.get("adress").toString())) {
-					this.geheim_rpt.findAll().forEach((g) -> {
+			tjob_info = (JSONObject) new JSONParser().parse(string_info);
+			
+			for(User u :this.user_rpt.findAll()) {
+				if (u.getAdress().equals(tjob_info.get("adress").toString())) {
+					for(Geheim g: this.geheim_rpt.findAll()) {
 						if (g.getUser().getId() == u.getId()
-								&& g.getPass().equals(this.job_info.get("imp").toString())) {
-							this.jwt = this.jwtutil.generateToken(u.getName());
+								&& g.getPass().equals(tjob_info.get("imp").toString())) {
+							 tjwt = this.jwtutil.generateToken(u.getName());
+							break;
 
 						}
-					});
+					}
+					break;
 				}
-			});
-			return ResponseEntity.ok(new RestResponse(this.jwt));
+			}
+			if(tjwt != null) {
+				return ResponseEntity.ok(new RestResponse(tjwt));
+			}else {
+				throw new Exception("Wrong Credential!!");
+			}
+			
 
-		} catch (ParseException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return ResponseEntity.notFound().build();

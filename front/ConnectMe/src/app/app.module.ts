@@ -35,6 +35,8 @@ import { GifComponent } from './gif/gif.component';
 import { SearchengineComponent } from './searchengine/searchengine.component';
 import { TestComponent } from './test/test.component';
 import { CalldispComponent } from './calldisp/calldisp.component';
+import { MecalldispComponent } from './mecalldisp/mecalldisp.component';
+import { OthercalldispComponent } from './othercalldisp/othercalldisp.component';
 //import { FileUploadOptions } from '@ionic-native/file-transfer/__ivy_ngcc__/ngx';
 
 @NgModule({
@@ -60,6 +62,8 @@ import { CalldispComponent } from './calldisp/calldisp.component';
     SearchengineComponent,
     TestComponent,
     CalldispComponent,
+    MecalldispComponent,
+    OthercalldispComponent,
   ],
   entryComponents: [],
   imports: [

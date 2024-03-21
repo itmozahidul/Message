@@ -1,0 +1,46 @@
+ion-content {
+  --background: #000000;
+}
+ion-card {
+  // --background: #fff url("../../assets/images/advertise/advertise.png")
+  //   no-repeat center center / cover;
+  --background: #000000;
+}
+ion-grid {
+  color: white;
+  background-color: rgba(0, 0, 0, 0);
+  height: -webkit-fill-available;
+}
+
+.ionimgw {
+  background: black;
+  border: 2px solid green;
+  border-radius: 1000px;
+  width: 40%;
+  margin-left: 30%;
+  margin-top: 25%;
+  margin-bottom: 10%;
+  animation: glowing 1s ease-in-out infinite alternate;
+}
+@keyframes glowing {
+  from {
+    box-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px rgb(0, 255, 149),
+      0 0 40px #0ff, 0 0 50px #00c4e6, 0 0 60px #7f00e6, 0 0 70px #9200e6;
+  }
+  to {
+    box-shadow: 0 0 20px #fff, 0 0 30px #ff4da6, 0 0 40px #1639ff,
+      0 0 50px #cabfdf, 0 0 60px #a8d0ff, 0 0 70px #98f195, 0 0 80px #7fff4d;
+  }
+}
+
+ion-col {
+  display: grid;
+  text-align: center;
+}
+ion-row {
+  display: flex;
+}
+
+video {
+  width: 100%;
+}

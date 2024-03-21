@@ -58,7 +58,14 @@ export class ChatComponent implements OnInit, OnDestroy {
     return 0;
   }
   originalOrder = (a: Chathead, b: Chathead) => {
-    return a.rsp[a.rsp.length - 1].timemili > b.rsp[b.rsp.length - 1].timemili;
+    return (
+      (a.rsp != null && a.rsp != undefined
+        ? a.rsp[a.rsp.length - 1].timemili
+        : 0) >
+      (b.rsp != null && b.rsp != undefined
+        ? b.rsp[b.rsp.length - 1].timemili
+        : 0)
+    );
   };
   unreadMessagesNo: Map<string, number> = new Map();
   reciever: string = null;

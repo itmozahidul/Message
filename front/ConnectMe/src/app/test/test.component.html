@@ -2,59 +2,162 @@
   <ion-toolbar>
     <ion-buttons slot="end">
       <ion-button (click)="back()">back</ion-button>
+      <ion-button>
+        <img src="assets/icon/arrow-down-outline.svg" />
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content #con_disp>
-  <video class="nfs" #disp2 autoplay="autoplay" (click)="switchtofocus(disp2)">
-    <source src="{{ callingurl }}" type="video/mp4" />
-  </video>
-  <video class="nfs" #disp1 autoplay="autoplay" (click)="switchtofocus(disp1)">
-    <source src="{{ callingurl }}" type="video/mp4" />
-  </video>
+<ion-content>
+  <ion-card>
+    <h1 style="text-align: center">
+      {{ talker }}
+    </h1>
+    <video
+      class="nfs"
+      id="remoteview"
+      [ngStyle]="{ display: off_video ? 'none' : 'block' }"
+      #disp2
+      autoplay="autoplay"
+      (click)="switchtofocus(disp2)"
+    >
+      <source src="{{ callingurl }}" type="video/mp4" />
+    </video>
+    <audio #aud2 autoplay="autoplay">
+      <source [src]="aud_src" type="audio/mpeg" />
+    </audio>
+    <img
+      *ngIf="remote_voice_on"
+      id="incallimgon"
+      src="assets/icon/volume-high-outline.svg"
+      (click)="remote_voice_on = false; aud2.pause()"
+    />
+    <img
+      *ngIf="!remote_voice_on"
+      id="incallimgoff"
+      src="assets/icon/volume-mute-outline.svg"
+      (click)="remote_voice_on = true; aud2.play()"
+    />
+    <!-- <ion-card-header>
+      <h1 style="text-align: center">
+        {{ talker }}
+      </h1>
+    </ion-card-header>
+    <ion-card-content>
+      <video
+        class="nfs"
+        [ngStyle]="{ display: off_video ? 'none' : 'block' }"
+        #disp2
+        autoplay="autoplay"
+        (click)="switchtofocus(disp2)"
+      >
+        <source src="{{ callingurl }}" type="video/mp4" />
+      </video>
+      <ion-grid> </ion-grid>
+    </ion-card-content>
+    <ion-card-footer>
+      <ion-grid>
+        <ion-row>
+          <audio #aud2 autoplay="autoplay">
+            <source [src]="aud_src" type="audio/mpeg" />
+          </audio>
+        </ion-row>
+      </ion-grid>
+    </ion-card-footer> -->
+  </ion-card>
 </ion-content>
-
 <ion-footer>
-  <ion-grid>
+  <ion-grid class="footer_box">
+    <ion-row>
+      <video
+        class="nfs"
+        [ngStyle]="{ display: off_video ? 'none' : 'block' }"
+        #disp1
+        autoplay="autoplay"
+        (click)="switchtofocus(disp1)"
+      >
+        <source src="{{ callingurl }}" type="video/mp4" />
+      </video>
+    </ion-row>
+    <ion-row>
+      <!--i dont want to hear my voice-->
+      <audio #aud1 autoplay="autoplay">
+        <source [src]="aud_src" type="audio/mpeg" />
+      </audio>
+    </ion-row>
     <ion-row size="12">
-      <ion-col size="12">
-        <ion-row size="11">
-          <ion-col size="4"></ion-col>
-          <ion-col size="4">
-            <ion-button (click)="drop_call('me')">Cancel</ion-button>
-          </ion-col>
-          <ion-col size="4"></ion-col>
-        </ion-row>
-        <ion-row size="1">
-          <ion-col size="12">
-            <ion-row size="12">
-              <ion-col
-                size="2"
-                [ngStyle]="{ backgroundColor: state == 1 ? 'white' : 'black' }"
-              ></ion-col>
-              <ion-col
-                size="2"
-                [ngStyle]="{ backgroundColor: state == 2 ? 'blue' : 'black' }"
-              ></ion-col>
-              <ion-col
-                size="2"
-                [ngStyle]="{ backgroundColor: state == 3 ? 'green' : 'black' }"
-              ></ion-col>
-              <ion-col
-                size="2"
-                [ngStyle]="{ backgroundColor: state == 4 ? 'yellow' : 'black' }"
-              ></ion-col>
-              <ion-col
-                size="2"
-                [ngStyle]="{ backgroundColor: state == 5 ? 'orange' : 'black' }"
-              ></ion-col>
-              <ion-col
-                size="2"
-                [ngStyle]="{ backgroundColor: state == 6 ? 'red' : 'black' }"
-              ></ion-col>
-            </ion-row>
-          </ion-col>
-        </ion-row>
+      <ion-col size="3">
+        <ion-button
+          [disabled]="aud_stop"
+          *ngIf="!mute && audio_started_already"
+          (click)="aud_stop = true; stop_audio()"
+        >
+          <img class="svgiconimg" src="assets/icon/mic-outline.svg" />
+        </ion-button>
+
+        <ion-button
+          *ngIf="mute && audio_started_already"
+          [disabled]="aud_resume"
+          (click)="aud_resume = true; resume_audio()"
+        >
+          <img class="svgiconimg" src="assets/icon/mic-off-outline.svg" />
+        </ion-button>
+
+        <ion-button
+          *ngIf="!audio_started_already"
+          [disabled]="true"
+          (click)="aud_start = true; start_audio()"
+          id="fsa"
+        >
+          <img class="svgiconimg" src="assets/icon/mic-off-outline.svg" />
+        </ion-button>
+      </ion-col>
+      <ion-col size="3">
+        <ion-button
+          *ngIf="!off_video && video_started_already"
+          [disabled]="vid_stop"
+          (click)="vid_stop = true; stop_video()"
+        >
+          <img class="svgiconimg" src="assets/icon/videocam-outline.svg" />
+        </ion-button>
+        <ion-button
+          *ngIf="off_video && video_started_already"
+          [disabled]="vid_resume"
+          (click)="vid_resume = true; resume_video()"
+        >
+          <img class="svgiconimg" src="assets/icon/videocam-off-outline.svg" />
+        </ion-button>
+        <ion-button
+          id="fsv"
+          [disabled]="vid_start"
+          *ngIf="!video_started_already"
+          (click)="vid_start = true; start_video()"
+        >
+          <img class="svgiconimg" src="assets/icon/videocam-off-outline.svg" />
+        </ion-button>
+      </ion-col>
+      <ion-col size="3">
+        <ion-button
+          [disabled]="off_video"
+          *ngIf="more_camera"
+          (click)="switch_camera()"
+        >
+          <img
+            class="svgiconimg"
+            src="assets/icon/camera-reverse-outline.svg"
+          />
+        </ion-button>
+        <ion-button *ngIf="!more_camera">
+          <img
+            class="svgiconimg"
+            src="assets/icon/camera-reverse-outline.svg"
+          />
+        </ion-button>
+      </ion-col>
+      <ion-col size="3">
+        <ion-button id="cancel" (click)="drop_call('me')">
+          <img class="svgiconimg" src="assets/icon/cancel-call.svg" />
+        </ion-button>
       </ion-col>
     </ion-row>
   </ion-grid>

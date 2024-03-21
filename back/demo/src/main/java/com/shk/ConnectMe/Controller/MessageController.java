@@ -57,9 +57,11 @@ public class MessageController {
 	private JSONObject job_info= new JSONObject();
 	@Autowired
 	private JwtTokenUtil jwtutil;
-	private List<Message> messages = new ArrayList<Message>();
-	private List<MessageResponse> messagesResponse = new ArrayList<>();
-	private List<Gifformat> gifs = new ArrayList<>();
+	
+//	private List<Message> messages = new ArrayList<Message>();
+//	private List<MessageResponse> messagesResponse = new ArrayList<>();
+//	private List<Gifformat> gifs = new ArrayList<>();
+	
 	@Autowired
 	FileService fileService ;
 	@Autowired
@@ -70,17 +72,17 @@ public class MessageController {
 		
 		try {
 			
-			this.messagesResponse = new ArrayList<>();
+			List<MessageResponse> tmessagesResponse = new ArrayList<>();
 			
 			List<Message> messagesTemp = (List<Message>) this.msg_rpt.findAll();
 			log.info(string_info);
 			
 			messagesTemp.forEach((msg)->{log.info(msg.getText());
 				if(msg.getSender().getName().equals(string_info) || msg.getReciever().getName().equals(string_info)) {
-					this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getTimemili(),msg.getDeleted(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData()));
+					tmessagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getTimemili(),msg.getDeleted(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData()));
 				}
 			});
-			return ResponseEntity.ok(this.messagesResponse);
+			return ResponseEntity.ok(tmessagesResponse);
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -102,12 +104,12 @@ public class MessageController {
 			
 			User user1 = this.user_rpt.getUsersByKey(username[0]);
 			User user2 = this.user_rpt.getUsersByKey(username[1]);
-			this.messagesResponse = new ArrayList<>();
-			this.messages = this.msg_rpt.getMessagesByUser(user1.getId(),user2.getId());
-			messages.forEach((msg)->{log.info(msg.getText());
-			   this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getTimemili(),msg.getDeleted(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData()));
+			List<MessageResponse> tmessagesResponse = new ArrayList<>();
+			List<Message> tmessages = this.msg_rpt.getMessagesByUser(user1.getId(),user2.getId());
+			tmessages.forEach((msg)->{log.info(msg.getText());
+			   tmessagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getTimemili(),msg.getDeleted(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData()));
 			});
-			return ResponseEntity.ok(this.messagesResponse);
+			return ResponseEntity.ok(tmessagesResponse);
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -124,9 +126,9 @@ public class MessageController {
 		try {
 			
 			String key = data[0];
-			this.gifs=this.gifservice.getGif(key, 15);
-			this.messagesResponse = new ArrayList<>();
-			return ResponseEntity.ok(this.gifs);
+			List<Gifformat> tgifs=this.gifservice.getGif(key, 15);
+			List<MessageResponse> tmessagesResponse = new ArrayList<>();
+			return ResponseEntity.ok(tgifs);
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

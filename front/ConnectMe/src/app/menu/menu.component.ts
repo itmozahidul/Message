@@ -8,6 +8,18 @@ import * as selector from '../store/selector';
 import * as action from '../store/action';
 import { chatResponse } from '../DTO/chatResponse';
 import { dispatch } from 'rxjs/internal/observable/pairs';
+import {
+  ActionSheetController,
+  IonContent,
+  IonInfiniteScroll,
+  LoadingController,
+  ModalController,
+  ToastController,
+} from '@ionic/angular';
+import { CalldispComponent } from '../calldisp/calldisp.component';
+import { MecalldispComponent } from '../mecalldisp/mecalldisp.component';
+import { OthercalldispComponent } from '../othercalldisp/othercalldisp.component';
+import { TestComponent } from '../test/test.component';
 
 @Component({
   selector: 'app-menu',
@@ -34,32 +46,21 @@ export class MenuComponent implements OnInit {
   constructor(
     private store: Store<State>,
     private router: Router,
-    private generalService: GeneralService
+    private generalService: GeneralService,
+    public modalController: ModalController
   ) {
     this.currrentUser$ = this.store.select(selector.selectCurrentUser);
     this.image$ = this.store.select(selector.selectUserImage);
     this.call$ = this.store.select(selector.selectCall);
-    this.callend$ = this.store.select(selector.selectCallend);
   }
 
   ngOnInit() {
-    this.subscriptionList.push(
-      this.currrentUser$.subscribe((s) => {
-        if (s == '') {
-          let temp_user = this.generalService.getUser();
-          if (temp_user == '') {
-            this.router.navigate(['login']);
-          } else {
-            this.currentUser = temp_user;
-            this.store.dispatch(
-              action.updateurrentUser({ currentUser: temp_user })
-            );
-          }
-        } else {
-          this.currentUser = s;
-        }
-      })
-    );
+    this.sub_currentuser();
+    this.sub_currentuserImage();
+    this.subscreib_call();
+  }
+
+  sub_currentuserImage() {
     this.subscriptionList.push(
       this.image$.subscribe((s) => {
         if (s == '') {
@@ -86,172 +87,167 @@ export class MenuComponent implements OnInit {
         }
       })
     );
-    this.subscreib_call();
+  }
 
-    this.subscreibcallend();
+  sub_currentuser() {
+    this.subscriptionList.push(
+      this.currrentUser$.subscribe((s) => {
+        if (s == '') {
+          let temp_user = this.generalService.getUser();
+          if (temp_user == '') {
+            this.router.navigate(['login']);
+          } else {
+            this.currentUser = temp_user;
+            this.store.dispatch(
+              action.updateurrentUser({ currentUser: temp_user })
+            );
+          }
+        } else {
+          this.currentUser = s;
+        }
+      })
+    );
   }
 
   subscreib_call() {
     this.subscriptionList.push(
-      this.call$.subscribe((s) => {
+      this.call$.subscribe(async (s) => {
         this.call = s;
-
+        console.log('in menu component trigering modal');
         if (s != '') {
-          this.take_reply_to_call(
+          try {
+            await this.handel_call_data(s);
+          } catch (error) {
+            this.reset_calling_value();
+          }
+
+          /* this.take_reply_to_call(
             this.id_v_el,
             this.id_ion_g_el,
             this.callingurl,
             this.generalService.waiting_time
-          );
+          ); */
         }
       })
     );
   }
-
-  subscreibcallend() {
-    this.subscriptionList.push(
-      this.callend$.subscribe((d) => {
-        this.callend = d;
-
-        if (d == 1) {
-          this.cancel_call(0);
-          this.store.dispatch(action.updateCallend({ callend: 0 }));
-        }
-      })
-    );
-  }
-
-  take_reply_to_call(id_v, id_g, url, waiting_time) {
-    let vl: HTMLVideoElement = document.createElement('video');
-    this.temp_v = vl;
-    vl.setAttribute('id', id_v);
-    vl.setAttribute(
-      'style',
-      'position: absolute;background:black;width: 100vw;height: 100vh;'
-    );
-    vl.autoplay = true;
-
-    let vls = document.createElement('source');
-    vls.src = url;
-
-    vl.appendChild(vls);
-
-    let i_g = document.createElement('ion-grid');
-    this.temp_g = i_g;
-    i_g.setAttribute('id', id_g);
-    i_g.setAttribute(
-      'style',
-      'margin-top: 90vh;height: 10vh;text-align: center;'
-    );
-
-    let i_r = document.createElement('ion-row');
-    i_r.setAttribute('size', '12');
-
-    let i_c1 = document.createElement('ion-col');
-    i_c1.setAttribute('size', '4');
-    let i_b1 = document.createElement('ion-button');
-    i_b1.setAttribute('id', 'answer_call_ok');
-    i_b1.innerHTML = 'Accept';
-    i_b1.addEventListener('click', () => {
-      i_g.remove();
-      vl.remove();
-      this.answer_call();
-    });
-    i_c1.appendChild(i_b1);
-
-    let i_c2 = document.createElement('ion-col');
-    i_c2.setAttribute('size', '4');
-
-    let i_c3 = document.createElement('ion-col');
-    i_c3.setAttribute('size', '4');
-    let i_b2 = document.createElement('ion-button');
-    i_b2.setAttribute('id', 'answer_call_cancel');
-    i_b2.innerHTML = 'Cancel';
-    i_b2.addEventListener('click', () => {
-      i_g.remove();
-      vl.remove();
-      this.cancel_call_front();
-    });
-    i_c3.appendChild(i_b2);
-
-    i_r.appendChild(i_c1);
-    i_r.appendChild(i_c2);
-    i_r.appendChild(i_c3);
-
-    i_g.appendChild(i_r);
-
-    document.body.appendChild(vl);
-    document.body.appendChild(i_g);
-    /*document.body.insertBefore(i_g, document.body.firstChild);
-    document.body.insertBefore(vl, document.body.firstChild); */
-
-    setTimeout(() => {
-      i_g.remove();
-      vl.remove();
-      this.cancel_call(1);
-    }, waiting_time);
-  }
-
-  cancel_call_front() {
-    let cr: chatResponse = new chatResponse(
-      -1111,
-      '',
-      1,
-      0,
-      this.generalService.call_cancelled,
-      true,
-      this.generalService.getUser(),
-      this.call
-    );
-    this.generalService.sendMessage2(cr, 'ansr');
-    this.cancel_call(1);
-  }
-
-  cancel_call(mode) {
-    if (mode == 0) {
-      try {
-        this.temp_g.remove();
-        this.temp_v.remove();
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    /* if (mode == 2) {
-      let cr2: chatResponse = new chatResponse(
-        -1111,
-        '',
-        1,
-        0,
-        this.generalService.call_cancelled,
-        true,
-        this.generalService.getUser(),
-        this.call
-      ); 
-      this.generalService.sendMessage2(cr, 'missed');
-    }*/
+  reset_calling_value() {
     this.store.dispatch(action.updateCall({ call: '' }));
   }
 
-  answer_call() {
-    if (this.call != '') {
-      let cr: chatResponse = new chatResponse(
-        -1111,
-        '',
-        1,
-        0,
-        this.generalService.getUser(),
-        true,
-        this.generalService.getUser(),
-        this.call
-      );
+  async endModeal() {
+    await this.modalController.dismiss({
+      dismissed: true,
+    });
+    //await this.loadingStart('loading...');
+  }
 
-      this.router.navigate(['/call', this.call]);
-      setTimeout(() => {
-        this.generalService.sendMessage2(cr, 'ansr');
-        this.store.dispatch(action.updateCall({ call: '' }));
-      }, 1000);
+  async handel_call_data(data: string) {
+    let datas: string[] = data.split(this.generalService.separator);
+    if (datas.length > 1) {
+      let key = datas[0];
+      let person = datas[1];
+      switch (key) {
+        case this.generalService.call_started_me:
+          await this.call_started_me_f(person);
+          break;
+        case this.generalService.call_started_other:
+          await this.call_started_other_f(person);
+          break;
+        case this.generalService.call_answered_me:
+          this.call_answered_me_f(person);
+          break;
+        case this.generalService.call_answered_other:
+          this.call_answered_other(person);
+          break;
+        case this.generalService.call_cancelled_me:
+          this.call_cancelled_me_f(person);
+          break;
+        case this.generalService.call_cancelled_other:
+          this.call_cancelled_other_f(person);
+          break;
+        default:
+          break;
+      }
+    } else {
+      throw new Error(
+        'calling data were not correct , there was no proper separation between user and call data text'
+      );
     }
+  }
+
+  async call_started_me_f(p: string) {
+    this.generalService.sendWebrtcCallMessage(
+      this.generalService.call_started_other +
+        this.generalService.separator +
+        this.generalService.getUser(),
+      p,
+      'call'
+    );
+    this.store.dispatch(action.updatetalkingpartner({ talkingpartner: p }));
+    await this.presentCallMeDispModal();
+  }
+  async presentCallMeDispModal() {
+    const modal = await this.modalController.create({
+      component: MecalldispComponent,
+      backdropDismiss: false,
+    });
+    return await modal.present();
+  }
+  async call_started_other_f(p: string) {
+    console.log(p + ' is calling you');
+    this.store.dispatch(action.updatetalkingpartnero({ talkingpartnero: p }));
+    await this.presentOtherCallDispModal();
+  }
+  async presentOtherCallDispModal() {
+    const modal = await this.modalController.create({
+      component: OthercalldispComponent,
+      backdropDismiss: false,
+    });
+    return await modal.present();
+  }
+  async call_answered_me_f(p: string) {
+    this.generalService.sendWebrtcCallMessage(
+      this.generalService.call_answered_other +
+        this.generalService.separator +
+        this.generalService.getUser(),
+      p,
+      'call'
+    );
+    await this.endModeal();
+    await this.presentOtherIncallModal();
+    this.store.dispatch(action.updategotocallwith({ gotocallwith: p }));
+  }
+  async presentOtherIncallModal() {
+    const modal = await this.modalController.create({
+      component: TestComponent,
+      backdropDismiss: false,
+    });
+    return await modal.present();
+  }
+  async call_answered_other(p: string) {
+    await this.endModeal();
+    await this.presentOtherIncallModal();
+    this.store.dispatch(action.updategotocallwith({ gotocallwith: p }));
+  }
+  call_cancelled_me_f(p: string) {
+    this.generalService.sendWebrtcCallMessage(
+      this.generalService.call_cancelled_other +
+        this.generalService.separator +
+        this.generalService.getUser(),
+      p,
+      'call'
+    );
+    this.endModeal();
+  }
+  call_cancelled_other_f(p: string) {
+    console.log(p + ' canceled the call');
+    this.store.dispatch(
+      action.updategotocallwith({
+        gotocallwith: this.generalService.call_cancelled_other,
+      })
+    );
+    this.endModeal();
   }
 
   logout() {

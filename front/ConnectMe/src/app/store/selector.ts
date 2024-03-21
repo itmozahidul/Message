@@ -116,6 +116,16 @@ export const selectAns = createSelector(selectAppState, (state) => {
 export const selectCand = createSelector(selectAppState, (state) => {
   return state.cand;
 });
+export const selectOffer2 = createSelector(selectAppState, (state) => {
+  return state.offer2;
+});
+export const selectAns2 = createSelector(selectAppState, (state) => {
+  return state.ans2;
+});
+
+export const selectCand2 = createSelector(selectAppState, (state) => {
+  return state.cand2;
+});
 
 export const selectCallend = createSelector(selectAppState, (state) => {
   return state.callend;
@@ -129,6 +139,25 @@ export const selectansr = createSelector(selectAppState, (state) => {
   return state.ansr;
 });
 
+export const selecttalkingpartner = createSelector(selectAppState, (state) => {
+  return state.talkingpartner;
+});
+
+export const selecttalkingpartnero = createSelector(selectAppState, (state) => {
+  return state.talkingpartnero;
+});
+export const selectgotocallwith = createSelector(selectAppState, (state) => {
+  return state.gotocallwith;
+});
+
 export const selectPc = createSelector(selectAppState, (state) => {
   return state.pc;
+});
+
+export const selectrequesttomute = createSelector(selectAppState, (state) => {
+  return state.requesttomute;
+});
+
+export const selectpausevideo = createSelector(selectAppState, (state) => {
+  return state.pausevideo;
 });

@@ -134,6 +134,20 @@ export const updateCand = createAction(
   '[app] updateCand',
   props<{ cand: string }>()
 );
+export const updateOffer2 = createAction(
+  '[app] updateOffer2',
+  props<{ offer2: string }>()
+);
+
+export const updateAns2 = createAction(
+  '[app] updateAns2',
+  props<{ ans2: string }>()
+);
+
+export const updateCand2 = createAction(
+  '[app] updateCand2',
+  props<{ cand2: string }>()
+);
 
 export const updateCallend = createAction(
   '[app] updateCallend',
@@ -150,7 +164,32 @@ export const updateansr = createAction(
   props<{ ansr: string }>()
 );
 
+export const updatetalkingpartner = createAction(
+  '[app] updatetalkingpartner',
+  props<{ talkingpartner: string }>()
+);
+
+export const updatetalkingpartnero = createAction(
+  '[app] updatetalkingpartnero',
+  props<{ talkingpartnero: string }>()
+);
+
+export const updategotocallwith = createAction(
+  '[app] updategotocallwith',
+  props<{ gotocallwith: string }>()
+);
+
 export const updatePc = createAction(
   '[app] updatePc',
   props<{ pc: RTCPeerConnection }>()
+);
+
+export const updaterequesttomute = createAction(
+  '[app] updaterequesttomute',
+  props<{ requesttomute: string }>()
+);
+
+export const updatepausevideo = createAction(
+  '[app] updatepausevideo',
+  props<{ pausevideo: string }>()
 );

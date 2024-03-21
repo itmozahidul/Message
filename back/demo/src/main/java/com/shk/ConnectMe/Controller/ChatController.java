@@ -51,36 +51,36 @@ Logger log = LoggerFactory.getLogger(ChatController.class);
 	
 	
 	
-	private JSONObject job_info= new JSONObject();
-
-	private List<Chat> chat = new ArrayList<Chat>();
-	private List<Chathead> chatHeads = new ArrayList<Chathead>();
-	
-	private List<Message> messages = new ArrayList<Message>();
-	private List<MessageResponse> messagesResponse = new ArrayList<>();
-	
-	private String time;
-	private static Date date;
+//	private JSONObject job_info= new JSONObject();
+//
+//	private List<Chat> chat = new ArrayList<Chat>();
+//	private List<Chathead> chatHeads = new ArrayList<Chathead>();
+//	
+//	private List<Message> messages = new ArrayList<Message>();
+//	private List<MessageResponse> messagesResponse = new ArrayList<>();
+//	
+//	private String time;
+//	private static Date date;
 	
 	@PostMapping("/create")
 	ResponseEntity<?> register(@RequestBody String[] name) {
 		JSONObject ans = new JSONObject();
 		
 		
-		this.job_info = new JSONObject();
+		JSONObject job_info = new JSONObject();
 		try {
 			
 			User u = this.user_rpt.getUsersByKey(name[0]);// key means username
 			User u2 = this.user_rpt.getUsersByKey(name[1]);
 			
-			this.chat =this.chat_rpt.doesChatwithNameexists(u.getName().trim()+"_"+u2.getName().trim(), u2.getName().trim()+"_"+u.getName().trim());
+			List<Chat> tchat =this.chat_rpt.doesChatwithNameexists(u.getName().trim()+"_"+u2.getName().trim(), u2.getName().trim()+"_"+u.getName().trim());
 			
-			if(this.chat.size()>0) {
-				if(this.chat.size()==1) {
-					ans.put("id", this.chat.get(0).getId());
+			if(tchat.size()>0) {
+				if(tchat.size()==1) {
+					ans.put("id", tchat.get(0).getId());
 				}else {
-					for(int i=0;i<this.chat.size();i++) {
-						ans.put("id"+String.valueOf(i), this.chat.get(i).getId());
+					for(int i=0;i<tchat.size();i++) {
+						ans.put("id"+String.valueOf(i), tchat.get(i).getId());
 					}
 				}
 			}else {
@@ -113,22 +113,22 @@ Logger log = LoggerFactory.getLogger(ChatController.class);
 		JSONObject ans = new JSONObject();
 		
 		
-		this.job_info = new JSONObject();
+		JSONObject job_info = new JSONObject();
 		try {
 			
 			User u = this.user_rpt.getUsersByKey(name[0]);// key means username
 			User u2 = this.user_rpt.getUsersByKey(name[1]);
 			
 			//this.chat =this.chat_rpt.doesChatwithNameexists(u.getName().trim()+"_"+u2.getName().trim(), u2.getName().trim()+"_"+u.getName().trim());         
-			this.chat =this.chat_rpt.doesChatwithUseridexists(u.getId(), u2.getId());         
+			List<Chat> tchat =this.chat_rpt.doesChatwithUseridexists(u.getId(), u2.getId());         
 			
-			if(this.chat.size()>0 ) {
+			if(tchat.size()>0 ) {
 				
-				if(this.chat.size()==1) {
-					ans.put("id", this.chat.get(0).getId());
+				if(tchat.size()==1) {
+					ans.put("id", tchat.get(0).getId());
 				}else {
-					for(int i=0;i<this.chat.size();i++) {
-						ans.put("id"+String.valueOf(i), this.chat.get(i).getId());
+					for(int i=0;i<tchat.size();i++) {
+						ans.put("id"+String.valueOf(i), tchat.get(i).getId());
 					}
 				}
 			}else {
@@ -153,7 +153,7 @@ Logger log = LoggerFactory.getLogger(ChatController.class);
 	public static String now() {
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
-		date = cal.getTime();
+		Date date = cal.getTime();
 		return sdf.format(cal.getTime());
 	}
 	
@@ -178,19 +178,19 @@ Logger log = LoggerFactory.getLogger(ChatController.class);
 				User u = this.user_rpt.getUsersByKey(data[1]);
 				//this.sendMessageToUsers(cht.getName().split("_"));
 				UserChat uc = this.usrcht_rpt.getUserChatByuserandchatid(u.getId(), id);
-				this.messagesResponse = new ArrayList<>();
+				List<MessageResponse> tmessagesResponse = new ArrayList<>();
 				if(uc!=null) {
 					if(uc.getBlocked()==0) {
-						this.messages = this.msg_rpt.getMessagesbyChatIdoffset(id,uc.getMsglimit(),limit,u.getId(),offset);
-						if(this.messages.size()==0) {
+						List<Message> tmessages = this.msg_rpt.getMessagesbyChatIdoffset(id,uc.getMsglimit(),limit,u.getId(),offset);
+						if(tmessages.size()==0) {
 							this.log.warn("########################################## empty chat ###########################");
 						}
 						
-						messages.forEach((msg)->{log.info(msg.getText());
-							this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getTimemili(),msg.getDeleted(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData(), String.valueOf(id)));
+						tmessages.forEach((msg)->{log.info(msg.getText());
+							tmessagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getTimemili(),msg.getDeleted(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData(), String.valueOf(id)));
 							
 						});
-						chhd=new Chathead(id,String.valueOf(cht.getUnreadMessageNo()),cht.getCreateTime(),cht.getName(),this.messagesResponse);
+						chhd=new Chathead(id,String.valueOf(cht.getUnreadMessageNo()),cht.getCreateTime(),cht.getName(),tmessagesResponse);
 						
 						return ResponseEntity.ok(chhd);
 					}else {
@@ -226,16 +226,16 @@ Logger log = LoggerFactory.getLogger(ChatController.class);
 							
 							
 							if(uc2.getBlocked()==0) {
-								this.messages = this.msg_rpt.getMessagesbyChatIdoffset(id,uc2.getMsglimit(),limit,u.getId(),offset);
-								if(this.messages.size()==0) {
+								List<Message> tmessages = this.msg_rpt.getMessagesbyChatIdoffset(id,uc2.getMsglimit(),limit,u.getId(),offset);
+								if(tmessages.size()==0) {
 									this.log.warn("########################################## empty chat ###########################");
 								}
 								
-								messages.forEach((msg)->{log.info(msg.getText());
-									this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getTimemili(),msg.getDeleted(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData()));
+								tmessages.forEach((msg)->{log.info(msg.getText());
+									tmessagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getTimemili(),msg.getDeleted(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData()));
 									
 								});
-								chhd=new Chathead(String.valueOf(cht.getUnreadMessageNo()),cht.getCreateTime(),cht.getName(),this.messagesResponse);
+								chhd=new Chathead(String.valueOf(cht.getUnreadMessageNo()),cht.getCreateTime(),cht.getName(),tmessagesResponse);
 								
 								return ResponseEntity.ok(chhd);
 							}else {
@@ -270,33 +270,33 @@ Logger log = LoggerFactory.getLogger(ChatController.class);
 		try {
 			
 			User user1 = this.user_rpt.getUsersByKey(username[0]);
-			this.chatHeads = new ArrayList<>();
-			this.chat = this.chat_rpt.getallChateadforauser(user1.getId());
+			List<Chathead> tchatHeads = new ArrayList<>();
+			List<Chat> tchat = this.chat_rpt.getallChateadforauser(user1.getId());
 			
-			for(Chat cht : this.chat ){
+			for(Chat cht : tchat ){
 				
-				this.messagesResponse = new ArrayList<>();
+				List<MessageResponse> tmessagesResponse = new ArrayList<>();
 				int unreadmsgno = this.msg_rpt.getNoOfUnreadMsgBychatid(cht.getId(),user1.getId());
 				UserChat uc = this.usrcht_rpt.getUserChatByuserandchatid(user1.getId(), cht.getId());
-				this. messages =  this.msg_rpt.getMessagesbyChatId(cht.getId(),uc.getMsglimit(),1,user1.getId());
-				if(this.messages.size()<1) {
+				List<Message> tmessages =  this.msg_rpt.getMessagesbyChatId(cht.getId(),uc.getMsglimit(),1,user1.getId());
+				if(tmessages.size()<1) {
 					this.log.warn("empty chat");
 				}else {
-					Message msg = messages.get(messages.size()-1);
-					this.messagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getTimemili(),msg.getDeleted(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData(),String.valueOf(msg.getChat().getId())));
+					Message msg = tmessages.get(tmessages.size()-1);
+					tmessagesResponse.add(new MessageResponse(msg.getId(),msg.getTime(),msg.getTimemili(),msg.getDeleted(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData(),String.valueOf(msg.getChat().getId())));
 					
 				}
 				
 				
 				
 				 
-			   Chathead chhd=new Chathead(cht.getId(),String.valueOf(unreadmsgno),cht.getCreateTime(),cht.getName(),this.messagesResponse);
-			   this.chatHeads.add(chhd);
+			   Chathead chhd=new Chathead(cht.getId(),String.valueOf(unreadmsgno),cht.getCreateTime(),cht.getName(),tmessagesResponse);
+			   tchatHeads.add(chhd);
 			}
 			
 			
 			
-		return ResponseEntity.ok(this.chatHeads);	
+		return ResponseEntity.ok(tchatHeads);	
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
