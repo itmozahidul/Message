@@ -3,6 +3,7 @@ package com.shk.ConnectMe.WebSocket;
 
 import DTO.Location;
 import DTO.MessageResponse;
+import DTO.Rtcdata;
 import DTO.actionEvent;
 
 import java.security.Principal;
@@ -133,13 +134,13 @@ public class WebSocketBroadcastController {
 	    }
 	    
 	    @MessageMapping("/call")
-	    public void callToSpecificUser( actionEvent action, Principal user, 
+	    public void callToSpecificUser( Rtcdata action, Principal user, 
 	    		  @Header("simpSessionId") String sessionId) throws Exception {
 	    	try {
 	    		if(action.getType().equals("answer") || action.getType().equals("candidate") || action.getType().equals("offer") ||
 	    				action.getType().equals("answer2") || action.getType().equals("candidate2") || action.getType().equals("offer2") ||
 	    				action.getType().equals("pausevideo") || action.getType().equals("requesttomute") ) {
-	    			this.messagingTemplate.convertAndSendToUser(action.getTo(), "/call/reply", action);
+	    			this.messagingTemplate.convertAndSendToUser(action.getReciever(), "/call/reply", action);
 	    	    }
 	    	}catch(Exception e) {
 	    		e.printStackTrace();

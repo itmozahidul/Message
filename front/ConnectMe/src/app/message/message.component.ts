@@ -64,11 +64,6 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
   chatid: string;
   deletedmsgidid$: Observable<string>;
 
-  ansr: string;
-  answer$: Observable<string>;
-  candidate: string;
-  candidate$: Observable<string>;
-
   deletedmsgidid: string;
   deletedmsgidse$: Observable<string>;
   deletedmsgidse: string;
@@ -109,8 +104,6 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     this.chatid$ = this.store.select(selector.selectCurrentchatid);
     this.deletedmsgidid$ = this.store.select(selector.selectDeletedmessageidid);
     this.deletedmsgidse$ = this.store.select(selector.selectDeletedmessageidse);
-    this.answer$ = this.store.select(selector.selectAns);
-    this.candidate$ = this.store.select(selector.selectCand);
   }
   ngAfterViewInit(): void {
     console.log('this.inputFile');

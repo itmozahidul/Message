@@ -1,6 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 import { chatResponse } from '../DTO/chatResponse';
 import { Gifformat } from '../DTO/Gifformat';
+import { rtcdata } from '../DTO/rtcdata';
 
 export const updateImgList = createAction(
   '[puzzle] updateImgList',
@@ -122,31 +123,31 @@ export const updateGifs = createAction(
 
 export const updateOffer = createAction(
   '[app] updateOffer',
-  props<{ offer: string }>()
+  props<{ offer: rtcdata }>()
 );
 
 export const updateAns = createAction(
   '[app] updateAns',
-  props<{ ans: string }>()
+  props<{ ans: rtcdata }>()
 );
 
 export const updateCand = createAction(
   '[app] updateCand',
-  props<{ cand: string }>()
+  props<{ cand: rtcdata }>()
 );
 export const updateOffer2 = createAction(
   '[app] updateOffer2',
-  props<{ offer2: string }>()
+  props<{ offer2: rtcdata }>()
 );
 
 export const updateAns2 = createAction(
   '[app] updateAns2',
-  props<{ ans2: string }>()
+  props<{ ans2: rtcdata }>()
 );
 
 export const updateCand2 = createAction(
   '[app] updateCand2',
-  props<{ cand2: string }>()
+  props<{ cand2: rtcdata }>()
 );
 
 export const updateCallend = createAction(

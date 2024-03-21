@@ -116,9 +116,14 @@ export class MenuComponent implements OnInit {
         console.log('in menu component trigering modal');
         if (s != '') {
           try {
+            if (s == 'cancel_me|-|') {
+              //debugger;
+            }
+
             await this.handel_call_data(s);
           } catch (error) {
             this.reset_calling_value();
+            this.modalController.dismiss();
           }
 
           /* this.take_reply_to_call(
@@ -215,19 +220,20 @@ export class MenuComponent implements OnInit {
       'call'
     );
     await this.endModeal();
-    await this.presentOtherIncallModal();
+    await this.presentOtherIncallModal(p);
     this.store.dispatch(action.updategotocallwith({ gotocallwith: p }));
   }
-  async presentOtherIncallModal() {
+  async presentOtherIncallModal(caller) {
     const modal = await this.modalController.create({
       component: TestComponent,
       backdropDismiss: false,
+      componentProps: { talker: caller },
     });
     return await modal.present();
   }
   async call_answered_other(p: string) {
     await this.endModeal();
-    await this.presentOtherIncallModal();
+    await this.presentOtherIncallModal(p);
     this.store.dispatch(action.updategotocallwith({ gotocallwith: p }));
   }
   call_cancelled_me_f(p: string) {

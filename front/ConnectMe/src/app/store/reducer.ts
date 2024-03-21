@@ -2,6 +2,7 @@ import { Action, createReducer, on } from '@ngrx/store';
 import { chatResponse } from '../DTO/chatResponse';
 import * as action from './action';
 import { Gifformat } from '../DTO/Gifformat';
+import { rtcdata } from '../DTO/rtcdata';
 
 export interface State {
   //   imgList: any[];
@@ -30,12 +31,12 @@ export interface State {
   deletedmessageidid: string;
   deletedmessageidse: string;
   gifs: Gifformat[];
-  offer: string;
-  ans: string;
-  cand: string;
-  offer2: string;
-  ans2: string;
-  cand2: string;
+  offer: rtcdata;
+  ans: rtcdata;
+  cand: rtcdata;
+  offer2: rtcdata;
+  ans2: rtcdata;
+  cand2: rtcdata;
   callend: number;
   pc: RTCPeerConnection;
   call: string;
@@ -74,12 +75,12 @@ export const initialState: State = {
   deletedmessageidid: '',
   deletedmessageidse: '',
   gifs: [],
-  offer: '',
-  ans: '',
-  cand: '',
-  offer2: '',
-  ans2: '',
-  cand2: '',
+  offer: null,
+  ans: null,
+  cand: null,
+  offer2: null,
+  ans2: null,
+  cand2: null,
   callend: 0,
   pc: null,
   call: '',
@@ -294,42 +295,42 @@ return {
     };
   }),
   on(action.updateOffer, (state, { offer }) => {
-    var newOffer: string = offer;
+    var newOffer: rtcdata = offer;
     return {
       ...state,
       offer: newOffer,
     };
   }),
   on(action.updateAns, (state, { ans }) => {
-    var newAns: string = ans;
+    var newAns: rtcdata = ans;
     return {
       ...state,
       ans: newAns,
     };
   }),
   on(action.updateCand, (state, { cand }) => {
-    var newCand: string = cand;
+    var newCand: rtcdata = cand;
     return {
       ...state,
       cand: newCand,
     };
   }),
   on(action.updateOffer2, (state, { offer2 }) => {
-    var newOffer2: string = offer2;
+    var newOffer2: rtcdata = offer2;
     return {
       ...state,
       offer2: newOffer2,
     };
   }),
   on(action.updateAns2, (state, { ans2 }) => {
-    var newAns2: string = ans2;
+    var newAns2: rtcdata = ans2;
     return {
       ...state,
       ans2: newAns2,
     };
   }),
   on(action.updateCand2, (state, { cand2 }) => {
-    var newCand2: string = cand2;
+    var newCand2: rtcdata = cand2;
     return {
       ...state,
       cand2: newCand2,

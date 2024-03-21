@@ -38,6 +38,7 @@ import { NewFriendComponent } from '../new-friend/new-friend.component';
 import { Chathead } from '../DTO/chatHead';
 import * as dragmaker from '../../assets/script/drag.js';
 import { actionEvent } from '../DTO/actionEvent';
+import { rtcdata } from '../DTO/rtcdata';
 
 @Component({
   selector: 'app-test',
@@ -46,19 +47,19 @@ import { actionEvent } from '../DTO/actionEvent';
 })
 export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   state = -1;
-  offer: string;
-  offer$: Observable<string>;
-  answer: string;
-  answer$: Observable<string>;
-  candidate: string;
-  candidate$: Observable<string>;
+  offer: rtcdata;
+  offer$: Observable<rtcdata>;
+  answer: rtcdata;
+  answer$: Observable<rtcdata>;
+  candidate: rtcdata;
+  candidate$: Observable<rtcdata>;
 
-  offer2: string;
-  offer2$: Observable<string>;
-  answer2: string;
-  answer2$: Observable<string>;
-  candidate2: string;
-  candidate2$: Observable<string>;
+  offer2: rtcdata;
+  offer2$: Observable<rtcdata>;
+  answer2: rtcdata;
+  answer2$: Observable<rtcdata>;
+  candidate2: rtcdata;
+  candidate2$: Observable<rtcdata>;
 
   reciever: string = null;
   reciever$: Observable<string>;
@@ -153,6 +154,8 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   aud_start = false;
   aud_stop = false;
   aud_resume = false;
+
+  constate = '';
 
   constructor(
     private store: Store<State>,
@@ -334,7 +337,7 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   subscreib_offer() {
     this.subscriptionList.push(
       this.offer$.subscribe((strobj) => {
-        if (strobj != '') {
+        if (strobj != null) {
           this.offer = strobj;
           this.handelOffer(strobj, this.AUDIO_PEERCON);
         }
@@ -345,7 +348,7 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   subscreib_offer2() {
     this.subscriptionList.push(
       this.offer2$.subscribe((strobj) => {
-        if (strobj != '') {
+        if (strobj != null) {
           this.offer2 = strobj;
           this.handelOffer(strobj, this.VIDEO_PEERCON);
         }
@@ -366,10 +369,10 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
           })
         );
       }
+      this.talker = '';
       this.terminateWebrtcCon(this.AUDIO_PEERCON);
       this.terminateWebrtcCon(this.VIDEO_PEERCON);
       setTimeout(() => {
-        this.talker = '';
         try {
           if (this.stream_aud != null) {
             if (this.stream_aud.getAudioTracks().length > 0) {
@@ -395,12 +398,8 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
               });
             }
           }
-
+          this.store.dispatch(action.updategotocallwith({ gotocallwith: '' }));
           setTimeout(() => {
-            //this.router.navigate(['chat']);
-            this.store.dispatch(
-              action.updategotocallwith({ gotocallwith: '' })
-            );
             this.unsub_subs();
           }, 100);
         } catch (error) {
@@ -424,7 +423,7 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subscriptionList.push(
       this.answer$.subscribe((strobj) => {
         this.answer = strobj;
-        if (strobj != '') {
+        if (strobj != null) {
           if (this.client != null) {
             this.handelAnswer(strobj, this.AUDIO_PEERCON);
           } else {
@@ -438,12 +437,8 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subscriptionList.push(
       this.answer2$.subscribe((strobj) => {
         this.answer2 = strobj;
-        if (strobj != '') {
-          if (this.client != null) {
-            this.handelAnswer(strobj, this.VIDEO_PEERCON);
-          } else {
-            //this.connect(this.talker);
-          }
+        if (strobj != null) {
+          this.handelAnswer(strobj, this.VIDEO_PEERCON);
         }
       })
     );
@@ -453,7 +448,7 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subscriptionList.push(
       this.candidate$.subscribe((strobj) => {
         this.candidate = strobj;
-        if (strobj != '') {
+        if (strobj != null) {
           this.handelCandidate(strobj, this.AUDIO_PEERCON);
         }
       })
@@ -463,7 +458,7 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subscriptionList.push(
       this.candidate2$.subscribe((strobj) => {
         this.candidate2 = strobj;
-        if (strobj != '') {
+        if (strobj != null) {
           this.handelCandidate(strobj, this.VIDEO_PEERCON);
         }
       })
@@ -499,24 +494,14 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   sendWebrtcrequest(type, obj, rcv) {
-    let text = JSON.stringify({
-      event: type,
-      reciever: this.generalService.getUser(), //after reciver recieved the message, can use this property to send it back to its sender, in that case he is a reciever
-      data: obj,
-    });
-
-    let newMsge = new chatResponse(
-      -1111,
-      '00.00',
-      1,
-      0,
-      text,
-      false,
+    let d = new rtcdata(
+      JSON.stringify(obj),
+      type,
       this.generalService.getUser(),
       rcv
     );
 
-    this.sendMessage(newMsge, type);
+    this.sendMessage(d);
   }
   createsignalcon(rcv, type) {
     this.create_Peerconnection(rcv, this.peerConnections, type);
@@ -528,6 +513,7 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
       // this.dataChannel = this.peerConnection.createDataChannel('dataChannel');
 
       peerConnection.oniceconnectionstatechange = (event) => {
+        this.constate = peerConnection.iceConnectionState;
         console.log(
           '##################################################################'
         );
@@ -543,10 +529,14 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
         );
         try {
           if (peerConnection.iceConnectionState == 'failed') {
-            peerConnection.restartIce();
-            this.generalService.loading_notification_short_hoover(
-              'Connecting..'
-            );
+            if (this.talker != '') {
+              peerConnection.restartIce();
+
+              this.generalService.loading_notification_short_hoover(
+                'Connecting..'
+              );
+              console.log('ICE agent got stuck in checking state');
+            }
           }
         } catch (error) {
           console.log(error);
@@ -554,14 +544,15 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
       };
 
       if (type == this.AUDIO_PEERCON) {
-        peerConnection.onicecandidate = ({ candidate }) => {
+        peerConnection.onicecandidate = (event) => {
           try {
-            this.sendWebrtcrequest('candidate', candidate, rcv);
+            this.sendWebrtcrequest('candidate', event.candidate, rcv);
           } catch (error) {
             console.log(error);
           }
         };
         peerConnection.onnegotiationneeded = async () => {
+          this.settimerTocutthecallunlessconectionisstable(peerConnection);
           try {
             await peerConnection.setLocalDescription(
               await peerConnection.createOffer()
@@ -594,9 +585,9 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
         pc.set(this.AUDIO_PEERCON, peerConnection);
       }
       if (type == this.VIDEO_PEERCON) {
-        peerConnection.onicecandidate = ({ candidate }) => {
+        peerConnection.onicecandidate = (event) => {
           try {
-            this.sendWebrtcrequest('candidate2', candidate, rcv);
+            this.sendWebrtcrequest('candidate2', event.candidate, rcv);
           } catch (error) {
             console.log(error);
           }
@@ -642,12 +633,20 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
       console.log(error);
     }
   }
+  settimerTocutthecallunlessconectionisstable(p: RTCPeerConnection) {
+    setTimeout(() => {
+      if (p.iceConnectionState == 'checking') {
+        this.generalService.loading_notification_short_hoover('Network Error');
+        this.drop_call('me');
+      }
+    }, 10000);
+  }
 
-  async handelOffer(strobj, key) {
+  async handelOffer(t: rtcdata, key) {
     try {
-      let t = JSON.parse(strobj);
-
-      await this.peerConnections.get(key).setRemoteDescription(t.data);
+      await this.peerConnections
+        .get(key)
+        .setRemoteDescription(JSON.parse(t.data));
 
       await this.peerConnections
         .get(key)
@@ -658,43 +657,39 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
         this.sendWebrtcrequest(
           'answer',
           this.peerConnections.get(key).localDescription,
-          t.reciever
+          t.sender
         );
       } else if (key == this.VIDEO_PEERCON) {
         this.sendWebrtcrequest(
           'answer2',
           this.peerConnections.get(key).localDescription,
-          t.reciever
+          t.sender
         );
       }
     } catch (error) {
       console.log(error);
-      this.generalService.loading_notification_short_hoover('Connecting.');
-      this.peerConnections.get(key).restartIce();
     }
   }
 
-  async handelCandidate(strobj, key) {
+  async handelCandidate(t: rtcdata, key) {
     try {
-      let ca = JSON.parse(strobj);
-      await this.peerConnections.get(key).addIceCandidate(ca.t);
+      if (t.data != null) {
+        await this.peerConnections.get(key).addIceCandidate(JSON.parse(t.data));
+      }
     } catch (error) {
       console.log(error);
-      this.generalService.loading_notification_short_hoover(
-        'Connecting.......'
-      );
-      this.peerConnections.get(key).restartIce();
     }
   }
 
-  async handelAnswer(strobj, key) {
+  async handelAnswer(t: rtcdata, key) {
     try {
-      let t = JSON.parse(strobj);
-      await this.peerConnections.get(key).setRemoteDescription(t.data);
+      if (t.data != null) {
+        await this.peerConnections
+          .get(key)
+          .setRemoteDescription(JSON.parse(t.data));
+      }
     } catch (error) {
       console.log(error);
-      this.generalService.loading_notification_short_hoover('Connecting....');
-      this.peerConnections.get(key).restartIce();
     }
   }
 
@@ -755,11 +750,14 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
         this.audioConstrains
       );
 
-      navigator.mediaDevices
+      /*  navigator.mediaDevices
         .enumerateDevices()
         .then(function (MediaDeviceInfo) {
           console.log(MediaDeviceInfo);
-        });
+          MediaDeviceInfo.forEach(m=>{
+            m.
+          });
+        }); */
 
       this.stream_aud.getTracks().forEach((track) => {
         this.audio_sender = this.peerConnections
@@ -952,69 +950,69 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.wsendpoint + '/call';
   }
 
-  handelWebrtcMessage(data: actionEvent) {
+  handelWebrtcMessage(data) {
     //if (true) {
 
     switch (data.type) {
       case 'answer':
-        if (data.from != this.generalService.getUser()) {
+        if (data.sender != this.generalService.getUser()) {
           this.store.dispatch(
             action.updateAns({
-              ans: data.msgr.text,
+              ans: data,
             })
           );
         }
         break;
       case 'offer':
-        if (data.from != this.generalService.getUser()) {
+        if (data.sender != this.generalService.getUser()) {
           console.log('in recieveing offer ');
           this.store.dispatch(
             action.updateOffer({
-              offer: data.msgr.text,
+              offer: data,
             })
           );
         }
         break;
       case 'candidate':
-        if (data.from != this.generalService.getUser()) {
+        if (data.sender != this.generalService.getUser()) {
           this.store.dispatch(
             action.updateCand({
-              cand: data.msgr.text,
+              cand: data,
             })
           );
         }
         break;
       case 'answer2':
-        if (data.from != this.generalService.getUser()) {
+        if (data.sender != this.generalService.getUser()) {
           this.store.dispatch(
             action.updateAns2({
-              ans2: data.msgr.text,
+              ans2: data,
             })
           );
         }
         break;
       case 'offer2':
-        if (data.from != this.generalService.getUser()) {
+        if (data.sender != this.generalService.getUser()) {
           console.log('in recieveing offer ');
           this.store.dispatch(
             action.updateOffer2({
-              offer2: data.msgr.text,
+              offer2: data,
             })
           );
         }
         break;
       case 'candidate2':
-        if (data.from != this.generalService.getUser()) {
+        if (data.sender != this.generalService.getUser()) {
           this.store.dispatch(
             action.updateCand2({
-              cand2: data.msgr.text,
+              cand2: data,
             })
           );
         }
         break;
       case 'requesttomute':
-        if (data.from != this.generalService.getUser()) {
-          let t: string = JSON.parse(data.msgr.text).data;
+        if (data.sender != this.generalService.getUser()) {
+          let t: string = JSON.parse(data).data;
           this.store.dispatch(
             action.updaterequesttomute({
               requesttomute: t,
@@ -1023,8 +1021,8 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         break;
       case 'pausevideo':
-        if (data.from != this.generalService.getUser()) {
-          let t: string = JSON.parse(data.msgr.text).data;
+        if (data.sender != this.generalService.getUser()) {
+          let t: string = JSON.parse(data).data;
           this.store.dispatch(
             action.updatepausevideo({
               pausevideo: t,
@@ -1037,26 +1035,17 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  sendMessage(d, type: string) {
+  sendMessage(d: rtcdata) {
     //console.log(new Date().getTime().toString());
     let url = '/webrtc/call';
 
     if (this.client != null) {
-      let data = new actionEvent(
-        new Date().getUTCDate().toString(),
-        1,
-        type,
-        this.generalService.getUser(),
-        d.reciever,
-        d
-      );
-
       this.client.send(
         //'/app/broadcast',
         //`${url}/${to}`,
         url,
         { Authorization: this.generalService.getBearerToken() },
-        JSON.stringify(data)
+        JSON.stringify(d)
       );
     }
   }
