@@ -46,6 +46,7 @@ import { rtcdata } from '../DTO/rtcdata';
   styleUrls: ['./test.component.scss'],
 })
 export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
+  @Input() talker: string;
   state = -1;
   offer: rtcdata;
   offer$: Observable<rtcdata>;
@@ -112,7 +113,7 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   topic_single: string = '/users/call/reply';
   client: Stomp.Client = null;
   webSoket: WebSocket = null;
-  talker = '';
+  //talker = '';
   talker$: Observable<string>;
   switch = true;
   videoConstrains_front = {
@@ -200,6 +201,11 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
+    console.log('###################################################');
+    console.log('################## In Call    #####################');
+    console.log(this.talker);
+    this.connect(this.talker);
+    console.log('###################################################');
     this.subscreibcurrentuser();
     this.subscreibtoreciever();
     this.subscreib_current_user_image();
@@ -210,7 +216,7 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subscreib_ans2();
     this.subscreib_cand();
     this.subscreib_cand2();
-    this.subscreib_talker();
+    // this.subscreib_talker();
     this.subscreib_requesttomute();
     this.subscreib_pausevideo();
   }
@@ -341,7 +347,6 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
           this.offer = strobj;
           this.handelOffer(strobj, this.AUDIO_PEERCON);
         }
-        console.log('in recieveing audio offer ');
       })
     );
   }
@@ -509,24 +514,13 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
 
   create_Peerconnection(rcv: string, pc: Map<string, RTCPeerConnection>, type) {
     try {
-      let peerConnection = new RTCPeerConnection(this.configuration);
+      // let peerConnection = new RTCPeerConnection(this.configuration);
+      let peerConnection = new RTCPeerConnection();
       // this.dataChannel = this.peerConnection.createDataChannel('dataChannel');
 
       peerConnection.oniceconnectionstatechange = (event) => {
         this.constate = peerConnection.iceConnectionState;
-        console.log(
-          '##################################################################'
-        );
-        console.log(
-          '##################################################################'
-        );
-        console.log(peerConnection.iceConnectionState);
-        console.log(
-          '##################################################################'
-        );
-        console.log(
-          '##################################################################'
-        );
+
         try {
           if (peerConnection.iceConnectionState == 'failed') {
             if (this.talker != '') {
@@ -635,7 +629,7 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   settimerTocutthecallunlessconectionisstable(p: RTCPeerConnection) {
     setTimeout(() => {
-      if (p.iceConnectionState == 'checking') {
+      if (p.iceConnectionState == 'checking' && this.talker != '') {
         this.generalService.loading_notification_short_hoover('Network Error');
         this.drop_call('me');
       }
@@ -759,11 +753,14 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
           });
         }); */
 
-      this.stream_aud.getTracks().forEach((track) => {
+      /* this.stream_aud.getTracks().forEach((track) => {
         this.audio_sender = this.peerConnections
           .get(this.AUDIO_PEERCON)
           .addTrack(track, this.stream_aud);
-      });
+      }); */
+      this.audio_sender = this.peerConnections
+        .get(this.AUDIO_PEERCON)
+        .addTrack(this.stream_aud.getTracks()[0], this.stream_aud);
       //i dont want to hear my voice
       // this.selfAud.nativeElement.srcObject = this.stream_aud;
 
@@ -965,7 +962,6 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
         break;
       case 'offer':
         if (data.sender != this.generalService.getUser()) {
-          console.log('in recieveing offer ');
           this.store.dispatch(
             action.updateOffer({
               offer: data,
@@ -1064,15 +1060,15 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
           (suc) => {
             resolve(true);
             reject(false);
+            console.log('################### websoket is prepared');
+            this.createsignalcon(d, this.AUDIO_PEERCON);
+            this.createsignalcon(d, this.VIDEO_PEERCON);
 
             this.subscriptionList.push(
               this.client.subscribe(this.topic_single, (msg) => {
                 this.handelWebrtcMessage(JSON.parse(msg.body));
               })
             );
-            console.log('################### websoket is prepared');
-            this.createsignalcon(d, this.AUDIO_PEERCON);
-            this.createsignalcon(d, this.VIDEO_PEERCON);
           },
           (err) => {
             resolve(false);
@@ -1134,5 +1130,10 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
       backdropDismiss: false,
     });
     await actionSheet.present();
+  }
+
+  async start() {
+    this.createsignalcon(this.talker, this.AUDIO_PEERCON);
+    await this.start_audio();
   }
 }

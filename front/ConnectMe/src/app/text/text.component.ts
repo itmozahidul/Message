@@ -1,4 +1,12 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { LoadingController, ModalController } from '@ionic/angular';
 import { GeneralService } from '../service/general.service';
@@ -25,7 +33,11 @@ export class TextComponent implements OnInit {
   @Input() data: string = '';
   @Input() type: string = '';
   @ViewChild('cnt', { read: ElementRef }) cnt: ElementRef;
+  @Output() onTouchCouple = new EventEmitter<any>();
   isLeftSide: boolean = true;
+  couple_text = '';
+  couple_text_id = -111;
+  couple_text_sender = '';
   subscriptionList = [];
   image: string = 'http://localhost:8100/assets/avatar.png';
   image$: Observable<string>;
@@ -63,6 +75,21 @@ export class TextComponent implements OnInit {
         this.file_data_type = 'img';
       } else {
         this.file_data_type = 'data';
+      }
+    }
+
+    if (this.type == 'couple') {
+      try {
+        this.generalService.getMesssagebyId(this.data).subscribe((m) => {
+          this.couple_text = m.text;
+          this.couple_text_sender = m.sender;
+          this.couple_text_id = m.id;
+        });
+      } catch (error) {
+        console.log(error);
+        this.couple_text = '';
+        this.couple_text_sender = '';
+        this.couple_text_id = -111;
       }
     }
 
@@ -156,5 +183,14 @@ export class TextComponent implements OnInit {
   bypassUrlSecurity(data) {
     return data;
     //return this.generalService.bypassUrlSecurity(data);
+  }
+
+  coupleTouch() {
+    console.log('ccouple is touched id:' + this.couple_text_id);
+    if (this.couple_text_id > 0) {
+      this.onTouchCouple.emit(this.couple_text_id.toString());
+    } else {
+      console.log('replyed message has no id');
+    }
   }
 }

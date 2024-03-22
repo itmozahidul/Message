@@ -42,6 +42,9 @@ import { act } from '@ngrx/effects';
   encapsulation: ViewEncapsulation.None,
 })
 export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
+  hold_map: Map<string, boolean> = new Map();
+  holdtime_map: Map<string, number> = new Map();
+  intv_map: Map<string, any> = new Map();
   toggledemo: boolean = false;
   isNativePlatform: boolean = false;
   imageURI: any;
@@ -878,8 +881,13 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     // this.router.navigate(['/chat']);
   }
 
-  async presentActionSheet(msgid: number, sender: string, reciever, ele: any) {
-    console.log(ele);
+  async presentActionSheetdelete(
+    msgid: number,
+    sender: string,
+    reciever,
+    ele: any
+  ) {
+    console.log(sender + ' ' + reciever);
     if (sender == this.generalService.getUser()) {
       const actionSheet = await this.actionSheetController.create({
         header: 'Message',
@@ -902,25 +910,7 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
               this.deleteMsgbykey(msgid, sender, reciever);
             },
           },
-          /*,  {
-          text: 'Share',
-          icon: 'share',
-          handler: () => {
-            console.log('Share clicked');
-          }
-        }, {
-          text: 'Play (open modal)',
-          icon: 'arrow-dropright-circle',
-          handler: () => {
-            console.log('Play clicked');
-          }
-        }, {
-          text: 'Favorite',
-          icon: 'heart',
-          handler: () => {
-            console.log('Favorite clicked');
-          }
-        } */ {
+          {
             text: 'Cancel',
             icon: 'close',
             role: 'cancel',
@@ -932,6 +922,172 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
       });
       await actionSheet.present();
     }
+  }
+
+  async presentActionSheet(msgid: number, sender: string, reciever, ele: any) {
+    console.log(sender + ' ' + reciever);
+    if (sender == this.generalService.getUser()) {
+      const actionSheet = await this.actionSheetController.create({
+        header: 'Message',
+        buttons: [
+          {
+            text: 'Delete',
+            role: 'destructive',
+            icon: 'trash',
+            handler: () => {
+              actionSheet.dismiss();
+              this.presentActionSheetdelete(msgid, sender, reciever, ele);
+            },
+          },
+          {
+            text: 'Share',
+            icon: 'share',
+            handler: () => {
+              console.log('Share clicked');
+            },
+          },
+          {
+            text: 'Cancel',
+            icon: 'close',
+            role: 'cancel',
+            handler: () => {
+              console.log('Cancel clicked');
+            },
+          },
+        ],
+      });
+      await actionSheet.present();
+    } else {
+      const actionSheet = await this.actionSheetController.create({
+        header: 'Message',
+        buttons: [
+          {
+            text: 'Reply',
+            icon: 'arrow-dropright-circle',
+            handler: () => {
+              console.log('Play clicked');
+              this.ReplayOnMessage(msgid, sender, reciever);
+            },
+          },
+          {
+            text: 'Share',
+            icon: 'share',
+            handler: () => {
+              console.log('Share clicked');
+            },
+          },
+          {
+            text: 'Favorite',
+            icon: 'heart',
+            handler: () => {
+              console.log('Favorite clicked');
+            },
+          },
+          {
+            text: 'Cancel',
+            icon: 'close',
+            role: 'cancel',
+            handler: () => {
+              console.log('Cancel clicked');
+            },
+          },
+        ],
+      });
+      await actionSheet.present();
+    }
+  }
+  ReplayOnMessage(msgid: number, sender: string, reciever: any) {
+    let ele = document.getElementById(msgid.toString());
+    console.log(ele);
+    let d = document.createElement('div');
+    d.setAttribute('style', 'width: 50vw;background: inherit;');
+
+    let i = document.createElement('input');
+    i.setAttribute(
+      'style',
+      'border-top-left-radius: 8px;border-top-right-radius: 8px;width: -webkit-fill-available;'
+    );
+    d.appendChild(i);
+    ele.appendChild(d);
+
+    let d2 = document.createElement('div');
+    d2.setAttribute('style', 'width: 50vw;background: inherit;');
+    let b1 = document.createElement('button');
+    b1.setAttribute(
+      'style',
+      'border-bottom-left-radius: 15px;width: 49%;margin-right: 0.5%;'
+    );
+    b1.innerHTML = 'Cancel';
+    let b2 = document.createElement('button');
+    b2.setAttribute(
+      'style',
+      'border-bottom-right-radius: 15px;width: 50%;margin-left: 0.5%;'
+    );
+    b2.innerHTML = 'Send';
+
+    d2.appendChild(b1);
+    d2.appendChild(b2);
+    ele.appendChild(d2);
+
+    b1.addEventListener('click', () => {
+      b1.remove();
+      b2.remove();
+      i.innerHTML = '';
+      i.remove();
+      d.remove();
+      d2.remove();
+    });
+    b2.addEventListener('click', () => {
+      this.sendReply(msgid, sender, i.value);
+      b1.remove();
+      b2.remove();
+      i.value = '';
+      i.remove();
+      d.remove();
+      d2.remove();
+    });
+  }
+  sendReply(msgid: number, reciever: string, text: string) {
+    console.log(
+      msgid + ' ' + this.generalService.getUser() + ' ' + reciever + ' ' + text
+    );
+    let input: string = text;
+    try {
+      if (
+        input != null &&
+        input.length > 0 &&
+        input.trim() != '' &&
+        input.trim() != ' ' &&
+        reciever != '' &&
+        this.generalService.getUser() != '' &&
+        msgid != null &&
+        msgid > 0 &&
+        msgid != undefined
+      ) {
+        let newMsge = new chatResponse(
+          -1111,
+          '00.00',
+          1,
+          0,
+          input,
+          false,
+          this.generalService.getUser(),
+          reciever
+        );
+        newMsge.chatid = this.generalService.getFromLocal(
+          this.generalService.currentchatid
+        );
+        newMsge.type = 'couple';
+        newMsge.data = msgid.toString();
+
+        this.generalService.sendMessage(newMsge);
+      } else {
+        throw new Error('text or reciever or sender might be empty');
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    this.activetext = '';
   }
   deleteMsgbykey(key: number, sender: string, reciever: string) {
     let cr: chatResponse = new chatResponse(
@@ -1058,4 +1214,60 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     };
   } */
+
+  mouseisdown(mid, snd, rcv, ele) {
+    console.log('mouse down');
+    this.hold_map.set(mid, true);
+    this.holdtime_map.set(mid, 0);
+    this.intv_map.set(
+      mid,
+      setInterval(() => {
+        if (this.hold_map.get(mid)) {
+          this.holdtime_map.set(mid, this.holdtime_map.get(mid) + 0.5);
+          console.log(this.holdtime_map.get(mid));
+          if (this.holdtime_map.get(mid) >= 1.5) {
+            this.hold_map.delete(mid);
+            clearInterval(this.intv_map.get(mid));
+            this.intv_map.delete(mid);
+            this.holdtime_map.delete(mid);
+            this.presentActionSheet(mid, snd, rcv, ele);
+          }
+        }
+      }, 500)
+    );
+  }
+  mouseisup(mid) {
+    if (this.hold_map.has(mid)) {
+      this.hold_map.delete(mid);
+    }
+    if (this.holdtime_map.has(mid)) {
+      this.holdtime_map.delete(mid);
+    }
+    if (this.intv_map.has(mid)) {
+      clearInterval(this.intv_map.get(mid));
+      this.intv_map.delete(mid);
+    }
+    console.log('mouseup');
+  }
+
+  handelCoupleTouch(event) {
+    console.log(event);
+    let msg_id = event;
+    let ele = null;
+    try {
+      ele = document.getElementById(msg_id);
+    } catch (error) {
+      console.log(error);
+      return;
+    }
+    if (ele != null) {
+      ele.scrollIntoView();
+      ele.setAttribute('style', 'background-color:orange;');
+      setTimeout(() => {
+        ele.setAttribute('style', 'background-color:inherit;');
+      }, 500);
+    } else {
+      console.log('need to be fetch from back');
+    }
+  }
 }

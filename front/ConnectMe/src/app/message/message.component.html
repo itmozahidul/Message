@@ -60,6 +60,7 @@
         </ion-infinite-scroll>
         <app-text
           #smsg
+          id="msg.id.toString()"
           class="chatTest"
           *ngFor="let msg of msgs"
           [id]="msg.id.toString()"
@@ -71,7 +72,9 @@
           [seen]="msg.seen"
           [user]="this.generalService.getUser()"
           [data]="msg.data"
-          (click)="presentActionSheet(msg.id, msg.sender, msg.reciever, smsg)"
+          (mousedown)="mouseisdown(msg.id, msg.sender, msg.reciever, smsg)"
+          (mouseup)="mouseisup(msg.id)"
+          (onTouchCouple)="handelCoupleTouch($event)"
         >
         </app-text>
       </ion-col>

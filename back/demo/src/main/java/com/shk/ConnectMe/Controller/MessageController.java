@@ -120,6 +120,27 @@ public class MessageController {
 		
 	}
 	
+	@PostMapping("/id")
+	ResponseEntity<?> getMessageOById(@RequestBody String[] data){
+		
+		try {
+			
+			String id = data[0];
+			Long m_id = Long.valueOf(id);
+			Message msg = this.msg_rpt.findById(m_id).get();
+			MessageResponse mr =new MessageResponse(msg.getId(),msg.getTime(),msg.getTimemili(),msg.getDeleted(),msg.getText(),msg.isSeen(),msg.getSender().getName(),msg.getReciever().getName(),msg.getType(), msg.getData());
+			
+			return ResponseEntity.ok(mr);
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return ResponseEntity.badRequest().body("no messages found for id "+data[0]);
+		}
+		
+		
+	}
+	
 	@PostMapping("/gif")
 	ResponseEntity<?> getgifs(@RequestBody String[] data){
 		

@@ -221,20 +221,21 @@ export class MenuComponent implements OnInit {
     );
     await this.endModeal();
     await this.presentOtherIncallModal(p);
-    this.store.dispatch(action.updategotocallwith({ gotocallwith: p }));
   }
-  async presentOtherIncallModal(caller) {
+  async presentOtherIncallModal(caller: string) {
+    let talker = 'talker';
     const modal = await this.modalController.create({
       component: TestComponent,
       backdropDismiss: false,
-      componentProps: { talker: caller },
+      componentProps: {
+        talker: caller,
+      },
     });
     return await modal.present();
   }
   async call_answered_other(p: string) {
     await this.endModeal();
     await this.presentOtherIncallModal(p);
-    this.store.dispatch(action.updategotocallwith({ gotocallwith: p }));
   }
   call_cancelled_me_f(p: string) {
     this.generalService.sendWebrtcCallMessage(

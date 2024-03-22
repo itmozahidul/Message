@@ -142,6 +142,14 @@ export class GeneralService {
     );
   }
 
+  getMesssagebyId(id: string): Observable<chatResponse> {
+    return this.httpClient.post<any>(
+      this.endpoint + '/message/id',
+      [id],
+      this.httpHeader
+    );
+  }
+
   getGifs(key: string): Observable<Gifformat[]> {
     console.log(key);
     let p = this.httpClient.post<any>(
