@@ -9,22 +9,67 @@
   </ion-toolbar>
 </ion-header>
 <ion-content>
+  <ion-grid>
+    <ion-row size="12">
+      <ion-col size="2.7" class="leftcol">
+        <ion-list>
+          <ion-button
+            [ngClass]="t.value ? 'selectedTab' : 'Tab'"
+            *ngFor="let t of tabs | keyvalue"
+            (click)="selectTab(t.key)"
+          >
+            {{ t.key }}
+          </ion-button>
+        </ion-list>
+      </ion-col>
+      <ion-col size="0.6" class="midcol"> </ion-col>
+      <ion-col size="8.7" class="rightcol" *ngIf="tabs.get(notification)">
+        <ion-row size="12" style="text-align: center">
+          <h5 class="mb-0 mt-5">{{ notification }} Settings</h5>
+          <p>Select notification you want to receive</p>
+        </ion-row>
+        <ion-row size="12" class="settingsitem">
+          <ion-col size="11">
+            Allow other users to see your current location. Only people with
+            whom you had once Conversations.
+          </ion-col>
+          <ion-col size="1">
+            <input
+              type="checkbox"
+              id="alert1"
+              (change)="updateLocationsettings($event)"
+              checked=""
+            />
+          </ion-col>
+        </ion-row>
+      </ion-col>
+      <ion-col size="8.7" class="rightcol" *ngIf="tabs.get(ux)">
+        <app-themsapp [name]="ux"></app-themsapp>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+
+<!-- 
+<ion-content>
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-12 col-lg-10 col-xl-8 mx-auto">
         <h2 class="h3 mb-4 page-title">Settings</h2>
         <div class="my-4">
           <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
-            <li class="nav-item">
+            <li
+              class="nav-item"
+              *ngFor="let t of tabs | keyvalue : originalOrder"
+            >
               <a
                 class="nav-link active"
                 id="contact-tab"
                 data-toggle="tab"
-                href="#contact"
                 role="tab"
                 aria-controls="contact"
-                aria-selected="false"
-                >Notifications</a
+                aria-selected="t.value"
+                >{{ t.key }}</a
               >
             </li>
           </ul>
@@ -158,3 +203,4 @@
     </div>
   </div>
 </ion-content>
+ -->

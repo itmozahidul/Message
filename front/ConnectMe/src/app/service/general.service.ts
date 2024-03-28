@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { Store } from '@ngrx/store';
 import jwt_decode from 'jwt-decode';
@@ -15,6 +15,8 @@ import { environment } from 'src/environments/environment.prod';
 import { updateUser } from '../model/updateUser';
 import { Geolocation } from '@capacitor/geolocation';
 import { LoadingController } from '@ionic/angular';
+import * as Color from 'color';
+import { Storage } from '@ionic/storage';
 import {
   DomSanitizer,
   SafeHtml,
@@ -22,6 +24,7 @@ import {
 } from '@angular/platform-browser';
 import { Chathead } from '../DTO/chatHead';
 import { Gifformat } from '../DTO/Gifformat';
+import { DOCUMENT } from '@angular/common';
 
 @Injectable({
   providedIn: 'root',
@@ -42,6 +45,7 @@ export class GeneralService {
   call_started_other = 'start_other';
   call_answered_me = 'answer_me';
   call_answered_other = 'answer_other';
+  webrtc_conected_tosoket = 'webrtc_conected_tosoket';
   separator = '|-|';
   notificationDuration = 0;
   notificationDurationfix = 1000;
@@ -51,6 +55,13 @@ export class GeneralService {
   topic_single: string = '/users/queue/reply';
   client: Stomp.Client = null;
   webSoket: WebSocket = null;
+
+  connectTryNoWebrtc = 0;
+  wsendpointWebrtc = environment.webSoket;
+  topic_singleWebrtc: string = '/users/call/reply';
+  clientWebrtc: Stomp.Client = null;
+  webSoketWebrtc: WebSocket = null;
+
   msgStore = {};
   msgs: chatResponse[] = [];
   msgs$: Observable<chatResponse[]>;
@@ -66,7 +77,9 @@ export class GeneralService {
     private httpClient: HttpClient,
     private store: Store<State>,
     public loadingCtrl: LoadingController,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    @Inject(DOCUMENT) private document: Document,
+    private storage: Storage
   ) {
     this.msgs$ = this.store.select(selector.selectViewMessage);
 
@@ -138,6 +151,14 @@ export class GeneralService {
     return this.httpClient.post<any>(
       this.endpoint + '/message/user',
       [this.getUser(), user],
+      this.httpHeader
+    );
+  }
+
+  getMesssagesohneLimit(id: string): Observable<chatResponse[]> {
+    return this.httpClient.post<any>(
+      this.endpoint + '/message/till/id',
+      [this.getUser(), id],
       this.httpHeader
     );
   }
@@ -277,6 +298,7 @@ export class GeneralService {
   }
   prepareSession(token) {
     let ans: boolean = false;
+
     ans = this.setToken(token);
 
     if (ans) {
@@ -286,6 +308,7 @@ export class GeneralService {
       console.log(currentUser);
       this.store.dispatch(action.updateurrentUser({ currentUser }));
     }
+
     return ans;
   }
   destroySession() {
@@ -352,6 +375,9 @@ export class GeneralService {
 
   getWebsoketUrl() {
     return this.wsendpoint + '/ws';
+  }
+  getWebsoketUrlWebrtc() {
+    return this.wsendpointWebrtc + '/call';
   }
   getWebsoket() {
     return new WebSocket(this.getWebsoketUrl());
@@ -490,15 +516,148 @@ export class GeneralService {
       );
     }
   }
+  //############################# webrtc start ###########################################
+  connectWebrtc() {
+    return new Promise((resolve, reject) => {
+      console.log('websoket connect try no :' + this.connectTryNo);
+      this.webSoketWebrtc = new WebSocket(this.getWebsoketUrl());
+      this.clientWebrtc = Stomp.over(this.webSoketWebrtc); //todo
+      this.clientWebrtc.connect(
+        {
+          Authorization: this.getBearerToken(),
+          username: this.getUser(),
+        },
+        (suc) => {
+          resolve(true);
+          reject(false);
+
+          this.subscriptions.push(
+            this.clientWebrtc.subscribe(this.topic_singleWebrtc, (msg) => {
+              this.handelWebrtcMessage(JSON.parse(msg.body));
+            })
+          );
+        },
+        (err) => {
+          console.log(err);
+          if (this.connectTryNoWebrtc < 30) {
+            this.connectWebrtc().then((suc) => {
+              if (suc) {
+                this.connectTryNoWebrtc = 0;
+                this.loadingCtrl.dismiss().then(
+                  (s) => {
+                    console.log(s);
+                  },
+                  (f) => {
+                    console.log(f);
+                  }
+                );
+              } else {
+                this.connectTryNoWebrtc++;
+              }
+            });
+          } else {
+            resolve(false);
+            reject(true);
+            console.log('App lost Webrtc backend Connection');
+          }
+        }
+      );
+    });
+  }
+  handelWebrtcMessage(data) {
+    //if (true) {
+
+    switch (data.type) {
+      case 'answer':
+        if (data.sender != this.getUser()) {
+          this.store.dispatch(
+            action.updateAns({
+              ans: data,
+            })
+          );
+        }
+        break;
+      case 'offer':
+        if (data.sender != this.getUser()) {
+          this.store.dispatch(
+            action.updateOffer({
+              offer: data,
+            })
+          );
+        }
+        break;
+      case 'candidate':
+        if (data.sender != this.getUser()) {
+          this.store.dispatch(
+            action.updateCand({
+              cand: data,
+            })
+          );
+        }
+        break;
+      case 'answer2':
+        if (data.sender != this.getUser()) {
+          this.store.dispatch(
+            action.updateAns2({
+              ans2: data,
+            })
+          );
+        }
+        break;
+      case 'offer2':
+        if (data.sender != this.getUser()) {
+          console.log('in recieveing offer ');
+          this.store.dispatch(
+            action.updateOffer2({
+              offer2: data,
+            })
+          );
+        }
+        break;
+      case 'candidate2':
+        if (data.sender != this.getUser()) {
+          this.store.dispatch(
+            action.updateCand2({
+              cand2: data,
+            })
+          );
+        }
+        break;
+      case 'requesttomute':
+        if (data.sender != this.getUser()) {
+          let t: string = JSON.parse(data).data;
+          this.store.dispatch(
+            action.updaterequesttomute({
+              requesttomute: t,
+            })
+          );
+        }
+        break;
+      case 'pausevideo':
+        if (data.sender != this.getUser()) {
+          let t: string = JSON.parse(data).data;
+          this.store.dispatch(
+            action.updatepausevideo({
+              pausevideo: t,
+            })
+          );
+        }
+        break;
+      default:
+        break;
+    }
+  }
+  //################################### web rtc end ############################################
 
   connect() {
     return new Promise((resolve, reject) => {
       console.log('websoket connect try no :' + this.connectTryNo);
-      this.webSoket = new WebSocket(this.getWebsoketUrl());
+      this.webSoket = new WebSocket(this.getWebsoketUrlWebrtc());
       this.client = Stomp.over(this.webSoket);
       this.client.connect(
         { Authorization: this.getBearerToken(), username: this.getUser() },
         (suc) => {
+          this.createStorage();
           resolve(true);
           reject(false);
           console.log(suc);
@@ -515,8 +674,6 @@ export class GeneralService {
           );
         },
         (err) => {
-          resolve(false);
-          reject(true);
           console.log(err);
           if (this.connectTryNo < 30) {
             this.connect().then((suc) => {
@@ -538,36 +695,75 @@ export class GeneralService {
             this.loading_notification_short_hoover(
               'App lost backend Connection'
             );
+            resolve(false);
+            reject(true);
           }
         }
       );
     });
   }
 
-  logout(): Promise<boolean> {
-    return this.disConnect();
+  async logout(): Promise<boolean> {
+    return await this.disConnect();
   }
 
-  disConnect(): Promise<boolean> {
+  async disConnect(): Promise<boolean> {
+    console.log('logging out');
     let _this = this;
 
+    return await new Promise(async (resolve, reject) => {
+      try {
+        await this.terminateSoketCon(_this);
+        await this.terminateWebrtcSoketCon();
+        resolve(true);
+        reject(false);
+      } catch (error) {
+        resolve(false);
+        reject(true);
+      }
+    });
+  }
+  async terminateSoketCon(_this) {
     return new Promise((resolve, reject) => {
-      if (_this.client != null) {
-        _this.client.disconnect(function (frame) {
-          console.log('STOMP client succesfully disconnected.');
-          _this.subscriptions.forEach((s) => {
-            s.unsubscribe();
+      try {
+        if (_this.client != null) {
+          _this.client.disconnect(function (frame) {
+            console.log('STOMP client succesfully disconnected.');
+            _this.subscriptions.forEach((s) => {
+              s.unsubscribe();
+            });
+            _this.subscriptions.forEach((s) => {
+              _this.subscriptions.pop();
+            });
+            _this.destroySession();
+            if (_this.webSoket != null && _this.webSoket.OPEN) {
+              _this.webSoket.close();
+            }
+            resolve(true);
+            reject(false);
           });
-          _this.subscriptions.forEach((s) => {
-            _this.subscriptions.pop();
+        }
+      } catch (error) {
+        throw new Error(error);
+      }
+    });
+  }
+
+  async terminateWebrtcSoketCon() {
+    return new Promise((resolve, reject) => {
+      try {
+        if (this.clientWebrtc != null) {
+          this.clientWebrtc.disconnect(function (frame) {
+            console.log('Wrtweb STOMP client succesfully disconnected.');
+            if (this.generalService.webSoketWebrtc != null) {
+              this.generalService.webSoketWebrtc.close();
+            }
+            resolve(true);
+            reject(false);
           });
-          _this.destroySession();
-          if (_this.webSoket != null && _this.webSoket.OPEN) {
-            _this.webSoket.close();
-          }
-          resolve(true);
-          reject(false);
-        });
+        }
+      } catch (error) {
+        throw new Error(error);
       }
     });
   }
@@ -837,5 +1033,145 @@ export class GeneralService {
     } else {
       throw new Error('Reciever or sender or text or type was empty');
     }
+  }
+
+  //#################### color service #########################################
+  async createStorage() {
+    await this.storage.create();
+  }
+  defaults = {
+    primary: '#3880ff',
+    secondary: '#0cd1e8',
+    tertiary: '#7044ff',
+    success: '#10dc60',
+    warning: '#ffce00',
+    danger: '#f04141',
+    dark: '#222428',
+    medium: '#989aa2',
+    light: '#f4f5f8',
+  };
+  setTheme(theme) {
+    return new Promise((resolve, reject) => {
+      const cssText = this.CSSTextGenerator(theme);
+      this.setGlobalCSS(cssText);
+      this.storage.set('theme', cssText).then(
+        (suc) => {
+          resolve(suc);
+        },
+        (err) => {
+          reject(err);
+        }
+      );
+    });
+  }
+
+  // Define a single CSS variable
+  setVariable(name, value) {
+    this.document.documentElement.style.setProperty(name, value);
+  }
+
+  private setGlobalCSS(css: string) {
+    this.document.documentElement.style.cssText = css;
+  }
+
+  get storedTheme() {
+    return this.storage.get('theme');
+  }
+
+  CSSTextGenerator(colors) {
+    colors = { ...this.defaults, ...colors };
+
+    const {
+      primary,
+      secondary,
+      tertiary,
+      success,
+      warning,
+      danger,
+      dark,
+      medium,
+      light,
+    } = colors;
+
+    const shadeRatio = 0.1;
+    const tintRatio = 0.1;
+
+    return `
+    --ion-color-base: ${light};
+    --ion-color-contrast: ${dark};
+    --ion-background-color: ${light};
+    --ion-text-color: ${dark};
+    --ion-toolbar-background-color: ${this.contrast(light, 0.1)};
+    --ion-toolbar-text-color: ${this.contrast(dark, 0.1)};
+    --ion-item-background-color: ${this.contrast(light, 0.3)};
+    --ion-item-text-color: ${this.contrast(dark, 0.3)};
+
+    --ion-color-primary: ${primary};
+    --ion-color-primary-rgb: 56,128,255;
+    --ion-color-primary-contrast: ${this.contrast(primary)};
+    --ion-color-primary-contrast-rgb: 255,255,255;
+    --ion-color-primary-shade:  ${Color(primary).darken(shadeRatio)};
+    --ion-color-primary-tint:  ${Color(primary).lighten(tintRatio)};
+
+    --ion-color-secondary: ${secondary};
+    --ion-color-secondary-rgb: 12,209,232;
+    --ion-color-secondary-contrast: ${this.contrast(secondary)};
+    --ion-color-secondary-contrast-rgb: 255,255,255;
+    --ion-color-secondary-shade:  ${Color(secondary).darken(shadeRatio)};
+    --ion-color-secondary-tint: ${Color(secondary).lighten(tintRatio)};
+
+    --ion-color-tertiary:  ${tertiary};
+    --ion-color-tertiary-rgb: 112,68,255;
+    --ion-color-tertiary-contrast: ${this.contrast(tertiary)};
+    --ion-color-tertiary-contrast-rgb: 255,255,255;
+    --ion-color-tertiary-shade: ${Color(tertiary).darken(shadeRatio)};
+    --ion-color-tertiary-tint:  ${Color(tertiary).lighten(tintRatio)};
+
+    --ion-color-success: ${success};
+    --ion-color-success-rgb: 16,220,96;
+    --ion-color-success-contrast: ${this.contrast(success)};
+    --ion-color-success-contrast-rgb: 255,255,255;
+    --ion-color-success-shade: ${Color(success).darken(shadeRatio)};
+    --ion-color-success-tint: ${Color(success).lighten(tintRatio)};
+
+    --ion-color-warning: ${warning};
+    --ion-color-warning-rgb: 255,206,0;
+    --ion-color-warning-contrast: ${this.contrast(warning)};
+    --ion-color-warning-contrast-rgb: 255,255,255;
+    --ion-color-warning-shade: ${Color(warning).darken(shadeRatio)};
+    --ion-color-warning-tint: ${Color(warning).lighten(tintRatio)};
+
+    --ion-color-danger: ${danger};
+    --ion-color-danger-rgb: 245,61,61;
+    --ion-color-danger-contrast: ${this.contrast(danger)};
+    --ion-color-danger-contrast-rgb: 255,255,255;
+    --ion-color-danger-shade: ${Color(danger).darken(shadeRatio)};
+    --ion-color-danger-tint: ${Color(danger).lighten(tintRatio)};
+
+    --ion-color-dark: ${dark};
+    --ion-color-dark-rgb: 34,34,34;
+    --ion-color-dark-contrast: ${this.contrast(dark)};
+    --ion-color-dark-contrast-rgb: 255,255,255;
+    --ion-color-dark-shade: ${Color(dark).darken(shadeRatio)};
+    --ion-color-dark-tint: ${Color(dark).lighten(tintRatio)};
+
+    --ion-color-medium: ${medium};
+    --ion-color-medium-rgb: 152,154,162;
+    --ion-color-medium-contrast: ${this.contrast(medium)};
+    --ion-color-medium-contrast-rgb: 255,255,255;
+    --ion-color-medium-shade: ${Color(medium).darken(shadeRatio)};
+    --ion-color-medium-tint: ${Color(medium).lighten(tintRatio)};
+
+    --ion-color-light: ${light};
+    --ion-color-light-rgb: 244,244,244;
+    --ion-color-light-contrast: $${this.contrast(light)};
+    --ion-color-light-contrast-rgb: 0,0,0;
+    --ion-color-light-shade: ${Color(light).darken(shadeRatio)};
+    --ion-color-light-tint: ${Color(light).lighten(tintRatio)};`;
+  }
+
+  contrast(color, ratio = 0.8) {
+    color = Color(color);
+    return color.isDark() ? color.lighten(ratio) : color.darken(ratio);
   }
 }

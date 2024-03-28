@@ -318,6 +318,19 @@ export class ChatComponent implements OnInit, OnDestroy {
         // if websoket connection is there then as usual prosess
         this.prepareChatHead(s, 0);
       }
+      if (
+        this.generalService.clientWebrtc == null ||
+        this.generalService.clientWebrtc.connected == false
+      ) {
+        this.generalService.connectWebrtc().then(
+          (suc) => {
+            console.log(suc);
+          },
+          (err) => {
+            console.log(err);
+          }
+        );
+      }
     } else {
       //TODO when no user is in local storage?
       this.loadingEnd(292);

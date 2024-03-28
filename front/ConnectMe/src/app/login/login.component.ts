@@ -102,7 +102,16 @@ export class LoginComponent implements OnInit {
 
               this.general.connect().then(
                 (suc) => {
+                  console.log(suc);
                   this.router.navigate(['/chat', '']);
+                },
+                (err) => {
+                  console.log(err);
+                }
+              );
+              this.general.connectWebrtc().then(
+                (suc) => {
+                  console.log(suc);
                 },
                 (err) => {
                   console.log(err);

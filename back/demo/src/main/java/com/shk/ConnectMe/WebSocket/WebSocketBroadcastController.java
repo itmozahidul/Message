@@ -139,7 +139,7 @@ public class WebSocketBroadcastController {
 	    	try {
 	    		if(action.getType().equals("answer") || action.getType().equals("candidate") || action.getType().equals("offer") ||
 	    				action.getType().equals("answer2") || action.getType().equals("candidate2") || action.getType().equals("offer2") ||
-	    				action.getType().equals("pausevideo") || action.getType().equals("requesttomute") ) {
+	    				action.getType().equals("pausevideo") || action.getType().equals("requesttomute")|| action.getType().equals("connected") ) {
 	    			this.messagingTemplate.convertAndSendToUser(action.getReciever(), "/call/reply", action);
 	    	    }
 	    	}catch(Exception e) {

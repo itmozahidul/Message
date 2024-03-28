@@ -1,0 +1,40 @@
+<br />
+<ion-row>
+  <h5>{{ name }} Settings</h5>
+</ion-row>
+<ion-row>
+  <p>Select appropiate Designe for your better {{ name }}</p>
+</ion-row>
+<br />{{ ux }}
+<ion-row> Theme </ion-row>
+<ion-row>
+  <ion-list>
+    <ion-radio-group #radio value="default" (ionChange)="handel(radio)">
+      <ion-item>
+        <ion-label>default</ion-label>
+        <ion-radio slot="end" value="default" [disabled]="false"></ion-radio>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Autumn</ion-label>
+        <ion-radio slot="end" value="autumn"></ion-radio>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Night</ion-label>
+        <ion-radio slot="end" value="night"></ion-radio>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Neon</ion-label>
+        <ion-radio slot="end" value="neon"></ion-radio>
+      </ion-item>
+    </ion-radio-group>
+  </ion-list>
+</ion-row>
+<ion-row size="12">
+  <ion-col size="9"></ion-col>
+  <ion-col size="3">
+    <ion-button (click)="confirmTheme()">save</ion-button>
+  </ion-col>
+</ion-row>

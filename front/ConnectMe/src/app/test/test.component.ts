@@ -47,6 +47,7 @@ import { rtcdata } from '../DTO/rtcdata';
 })
 export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() talker: string;
+  @Input() other: string = '';
   state = -1;
   offer: rtcdata;
   offer$: Observable<rtcdata>;
@@ -108,11 +109,7 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   stream_aud: MediaStream;
   stream_vid: MediaStream;
   temp = null;
-  connectTryNo = 0;
-  wsendpoint = environment.webSoket;
-  topic_single: string = '/users/call/reply';
-  client: Stomp.Client = null;
-  webSoket: WebSocket = null;
+
   //talker = '';
   talker$: Observable<string>;
   switch = true;
@@ -194,17 +191,17 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
   ngAfterViewInit(): void {
-    setTimeout(async () => {
+    /* setTimeout(async () => {
       await this.start_audio();
       //this.remoteView.nativeElement.click();
-    }, 2000);
+    }, 2000); */
   }
 
   ngOnInit() {
     console.log('###################################################');
     console.log('################## In Call    #####################');
     console.log(this.talker);
-    this.connect(this.talker);
+    this.createWebrtcPeerConnection(this.talker);
     console.log('###################################################');
     this.subscreibcurrentuser();
     this.subscreibtoreciever();
@@ -216,9 +213,17 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subscreib_ans2();
     this.subscreib_cand();
     this.subscreib_cand2();
-    // this.subscreib_talker();
+    this.subscreib_talker();
     this.subscreib_requesttomute();
     this.subscreib_pausevideo();
+  }
+  createWebrtcPeerConnection(d) {
+    this.createsignalcon(d, this.AUDIO_PEERCON);
+    this.createsignalcon(d, this.VIDEO_PEERCON);
+    setTimeout(async () => {
+      //await this.start_audio();
+      //this.remoteView.nativeElement.click();
+    }, 2000);
   }
   subscreib_requesttomute() {
     this.subscriptionList.push(
@@ -264,19 +269,6 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
         if (d == this.generalService.call_cancelled_other) {
           d = '';
           this.drop_call('other');
-        }
-        this.talker = d;
-        if (d != '') {
-          console.log(
-            '##########################################################'
-          );
-          console.log(
-            '#####################new talker ' + d + '#######################'
-          );
-          console.log(
-            '##########################################################'
-          );
-          this.connect(d);
         }
       })
     );
@@ -355,9 +347,9 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
       this.offer2$.subscribe((strobj) => {
         if (strobj != null) {
           this.offer2 = strobj;
+          console.log('video offer recieved');
           this.handelOffer(strobj, this.VIDEO_PEERCON);
         }
-        console.log('in recieveing video offer ');
       })
     );
   }
@@ -403,10 +395,24 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
               });
             }
           }
+          console.log(this.remoteAud.nativeElement.srcObject);
+          console.log(this.remoteView);
+          this.remoteAud.nativeElement.srcObject
+            .getTracks()
+            .forEach((track) => track.stop());
+          this.remoteView.nativeElement.srcObject
+            .getTracks()
+            .forEach((track) => track.stop());
+          this.offer = null;
+          this.offer2 = null;
+          this.answer = null;
+          this.answer2 = null;
+          this.candidate = null;
+          this.candidate2 = null;
           this.store.dispatch(action.updategotocallwith({ gotocallwith: '' }));
           setTimeout(() => {
             this.unsub_subs();
-          }, 100);
+          }, 500);
         } catch (error) {
           console.log(error);
         }
@@ -429,11 +435,7 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
       this.answer$.subscribe((strobj) => {
         this.answer = strobj;
         if (strobj != null) {
-          if (this.client != null) {
-            this.handelAnswer(strobj, this.AUDIO_PEERCON);
-          } else {
-            this.connect(this.talker);
-          }
+          this.handelAnswer(strobj, this.AUDIO_PEERCON);
         }
       })
     );
@@ -638,15 +640,18 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async handelOffer(t: rtcdata, key) {
     try {
+      console.log('handeling recieved offer ');
+      console.log('settting remote discription');
       await this.peerConnections
         .get(key)
         .setRemoteDescription(JSON.parse(t.data));
-
+      console.log('setting local description');
       await this.peerConnections
         .get(key)
         .setLocalDescription(
           await this.peerConnections.get(key).createAnswer()
         );
+      console.log('sending answer back for this offer');
       if (key == this.AUDIO_PEERCON) {
         this.sendWebrtcrequest(
           'answer',
@@ -666,56 +671,83 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async handelCandidate(t: rtcdata, key) {
+    console.log('handeling recieved candidate');
     try {
       if (t.data != null) {
         await this.peerConnections.get(key).addIceCandidate(JSON.parse(t.data));
+        console.log('candidate is added to peerconnection ');
       }
     } catch (error) {
+      console.log('error happend handeling candidate');
       console.log(error);
     }
   }
 
   async handelAnswer(t: rtcdata, key) {
+    console.log('handeling recieved answer');
     try {
       if (t.data != null) {
         await this.peerConnections
           .get(key)
           .setRemoteDescription(JSON.parse(t.data));
+        console.log('answer as remote discription is added to peerconnection ');
       }
     } catch (error) {
+      console.log('error happend handeling answer');
       console.log(error);
     }
   }
 
   terminateWebrtcCon(key) {
     //this.dataChannel.close();
+    console.log(
+      '########................#####################################################################'
+    );
+
     try {
-      /* this.peerConnections.get(key).removeTrack(this.audio_sender);
-      this.peerConnections.get(key).removeTrack(this.video_sender); */
       if (this.peerConnections.has(key)) {
+        if (this.AUDIO_PEERCON == key) {
+          if (this.audio_sender != undefined && this.audio_sender != null) {
+            this.peerConnections.get(key).removeTrack(this.audio_sender);
+          } else {
+            console.warn('audio sender is not defined or it is null');
+            console.log(this.audio_sender);
+          }
+        }
+        if (this.VIDEO_PEERCON == key) {
+          if (this.video_sender != undefined && this.video_sender != null) {
+            this.peerConnections.get(key).removeTrack(this.video_sender);
+          } else {
+            console.warn('video sender is not defined or it is null');
+          }
+        }
+        this.peerConnections.get(key).ontrack = null;
+        this.peerConnections.get(key).onicecandidateerror = null;
+        this.peerConnections.get(key).onconnectionstatechange = null;
+        this.peerConnections.get(key).onicecandidate = null;
+        this.peerConnections.get(key).oniceconnectionstatechange = null;
+        this.peerConnections.get(key).onsignalingstatechange = null;
+        this.peerConnections.get(key).onicegatheringstatechange = null;
+        this.peerConnections.get(key).onnegotiationneeded = null;
+        this.peerConnections.get(key).ondatachannel = null;
         this.peerConnections.get(key).close();
+        this.peerConnections.set(key, null);
         this.peerConnections.delete(key);
+      } else {
+        if (this.AUDIO_PEERCON == key) {
+          console.warn('audio peer connection is empty');
+          console.log(this.peerConnections);
+        }
+        if (this.VIDEO_PEERCON == key) {
+          console.warn('video peer connection is empty');
+          console.log(this.peerConnections);
+        }
       }
     } catch (error) {
       console.log(error);
       this.generalService.loading_notification_short_hoover(
         'Please Reopen the App'
       );
-    }
-  }
-
-  terminateSoketCon() {
-    try {
-      if (this.client != null) {
-        this.client.disconnect(function (frame) {
-          console.log('Wrtweb STOMP client succesfully disconnected.');
-          if (this.webSoket != null) {
-            this.webSoket.close();
-          }
-        });
-      }
-    } catch (error) {
-      console.log(error);
     }
   }
 
@@ -943,100 +975,12 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  getWebsoketUrl() {
-    return this.wsendpoint + '/call';
-  }
-
-  handelWebrtcMessage(data) {
-    //if (true) {
-
-    switch (data.type) {
-      case 'answer':
-        if (data.sender != this.generalService.getUser()) {
-          this.store.dispatch(
-            action.updateAns({
-              ans: data,
-            })
-          );
-        }
-        break;
-      case 'offer':
-        if (data.sender != this.generalService.getUser()) {
-          this.store.dispatch(
-            action.updateOffer({
-              offer: data,
-            })
-          );
-        }
-        break;
-      case 'candidate':
-        if (data.sender != this.generalService.getUser()) {
-          this.store.dispatch(
-            action.updateCand({
-              cand: data,
-            })
-          );
-        }
-        break;
-      case 'answer2':
-        if (data.sender != this.generalService.getUser()) {
-          this.store.dispatch(
-            action.updateAns2({
-              ans2: data,
-            })
-          );
-        }
-        break;
-      case 'offer2':
-        if (data.sender != this.generalService.getUser()) {
-          console.log('in recieveing offer ');
-          this.store.dispatch(
-            action.updateOffer2({
-              offer2: data,
-            })
-          );
-        }
-        break;
-      case 'candidate2':
-        if (data.sender != this.generalService.getUser()) {
-          this.store.dispatch(
-            action.updateCand2({
-              cand2: data,
-            })
-          );
-        }
-        break;
-      case 'requesttomute':
-        if (data.sender != this.generalService.getUser()) {
-          let t: string = JSON.parse(data).data;
-          this.store.dispatch(
-            action.updaterequesttomute({
-              requesttomute: t,
-            })
-          );
-        }
-        break;
-      case 'pausevideo':
-        if (data.sender != this.generalService.getUser()) {
-          let t: string = JSON.parse(data).data;
-          this.store.dispatch(
-            action.updatepausevideo({
-              pausevideo: t,
-            })
-          );
-        }
-        break;
-      default:
-        break;
-    }
-  }
-
   sendMessage(d: rtcdata) {
     //console.log(new Date().getTime().toString());
     let url = '/webrtc/call';
 
-    if (this.client != null) {
-      this.client.send(
+    if (this.generalService.clientWebrtc != null) {
+      this.generalService.clientWebrtc.send(
         //'/app/broadcast',
         //`${url}/${to}`,
         url,
@@ -1044,63 +988,6 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
         JSON.stringify(d)
       );
     }
-  }
-
-  connect(d) {
-    return new Promise((resolve, reject) => {
-      if (d != '') {
-        console.log('websoket connect try no :' + this.connectTryNo);
-        this.webSoket = new WebSocket(this.getWebsoketUrl());
-        this.client = Stomp.over(this.webSoket); //todo
-        this.client.connect(
-          {
-            Authorization: this.generalService.getBearerToken(),
-            username: this.generalService.getUser(),
-          },
-          (suc) => {
-            resolve(true);
-            reject(false);
-            console.log('################### websoket is prepared');
-            this.createsignalcon(d, this.AUDIO_PEERCON);
-            this.createsignalcon(d, this.VIDEO_PEERCON);
-
-            this.subscriptionList.push(
-              this.client.subscribe(this.topic_single, (msg) => {
-                this.handelWebrtcMessage(JSON.parse(msg.body));
-              })
-            );
-          },
-          (err) => {
-            resolve(false);
-            reject(true);
-            console.log(err);
-            if (this.connectTryNo < 30) {
-              if (this.talker != '') {
-                this.connect(d).then((suc) => {
-                  if (suc) {
-                    this.connectTryNo = 0;
-                    this.loadingCtrl.dismiss().then(
-                      (s) => {
-                        console.log(s);
-                      },
-                      (f) => {
-                        console.log(f);
-                      }
-                    );
-                  } else {
-                    this.connectTryNo++;
-                  }
-                });
-              }
-            } else {
-              console.log('App lost backend Connection');
-            }
-          }
-        );
-      } else {
-        console.log('######################### there is no one to call');
-      }
-    });
   }
 
   async presentActionSheet(mode) {

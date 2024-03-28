@@ -6,7 +6,37 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <WebView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+  <WebView
+    android:id="@+id/webView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="visible">
+
+    <Switch
+      android:id="@+id/switch1"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_x="362dp"
+      android:layout_y="76dp"
+      android:text="Switch"
+      android:visibility="visible"
+      tools:visibility="visible" />
+
+    <Button
+      android:id="@+id/button"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_x="153dp"
+      android:layout_y="532dp"
+      android:text="Button" />
+
+    <Button
+      android:id="@+id/button2"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_x="295dp"
+      android:layout_y="42dp"
+      android:text="Button" />
+  </WebView>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

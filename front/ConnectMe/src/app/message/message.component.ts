@@ -42,6 +42,10 @@ import { act } from '@ngrx/effects';
   encapsulation: ViewEncapsulation.None,
 })
 export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
+  reply = false;
+  replyToText = '';
+  replyToTextId = -111;
+  replyToPerson = '';
   hold_map: Map<string, boolean> = new Map();
   holdtime_map: Map<string, number> = new Map();
   intv_map: Map<string, any> = new Map();
@@ -924,7 +928,13 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  async presentActionSheet(msgid: number, sender: string, reciever, ele: any) {
+  async presentActionSheet(
+    msgid: number,
+    sender: string,
+    reciever: string,
+    text: string,
+    ele: any
+  ) {
     console.log(sender + ' ' + reciever);
     if (sender == this.generalService.getUser()) {
       const actionSheet = await this.actionSheetController.create({
@@ -966,7 +976,7 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
             icon: 'arrow-dropright-circle',
             handler: () => {
               console.log('Play clicked');
-              this.ReplayOnMessage(msgid, sender, reciever);
+              this.ReplayOnMessage(msgid, sender, reciever, text);
             },
           },
           {
@@ -996,8 +1006,12 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
       await actionSheet.present();
     }
   }
-  ReplayOnMessage(msgid: number, sender: string, reciever: any) {
-    let ele = document.getElementById(msgid.toString());
+  ReplayOnMessage(msgid: number, sender: string, reciever: any, text: string) {
+    this.reply = true;
+    this.replyToText = text;
+    this.replyToTextId = msgid;
+    this.replyToPerson = reciever;
+    /* let ele = document.getElementById(msgid.toString());
     console.log(ele);
     let d = document.createElement('div');
     d.setAttribute('style', 'width: 50vw;background: inherit;');
@@ -1045,11 +1059,17 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
       i.remove();
       d.remove();
       d2.remove();
-    });
+    }); */
   }
-  sendReply(msgid: number, reciever: string, text: string) {
+  sendReply(text: string) {
     console.log(
-      msgid + ' ' + this.generalService.getUser() + ' ' + reciever + ' ' + text
+      this.replyToTextId +
+        ' ' +
+        this.generalService.getUser() +
+        ' ' +
+        this.reciever +
+        ' ' +
+        text
     );
     let input: string = text;
     try {
@@ -1058,11 +1078,11 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
         input.length > 0 &&
         input.trim() != '' &&
         input.trim() != ' ' &&
-        reciever != '' &&
+        this.reciever != '' &&
         this.generalService.getUser() != '' &&
-        msgid != null &&
-        msgid > 0 &&
-        msgid != undefined
+        this.replyToTextId != null &&
+        this.replyToTextId > 0 &&
+        this.replyToTextId != undefined
       ) {
         let newMsge = new chatResponse(
           -1111,
@@ -1072,15 +1092,16 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
           input,
           false,
           this.generalService.getUser(),
-          reciever
+          this.reciever
         );
         newMsge.chatid = this.generalService.getFromLocal(
           this.generalService.currentchatid
         );
         newMsge.type = 'couple';
-        newMsge.data = msgid.toString();
+        newMsge.data = this.replyToTextId.toString();
 
         this.generalService.sendMessage(newMsge);
+        this.replyclean();
       } else {
         throw new Error('text or reciever or sender might be empty');
       }
@@ -1089,6 +1110,14 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     this.activetext = '';
   }
+
+  replyclean() {
+    this.reply = false;
+    this.replyToText = '';
+    this.replyToTextId = -111;
+    this.replyToPerson = '';
+  }
+
   deleteMsgbykey(key: number, sender: string, reciever: string) {
     let cr: chatResponse = new chatResponse(
       key,
@@ -1215,7 +1244,7 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     };
   } */
 
-  mouseisdown(mid, snd, rcv, ele) {
+  mouseisdown(mid, snd, rcv, text, ele) {
     console.log('mouse down');
     this.hold_map.set(mid, true);
     this.holdtime_map.set(mid, 0);
@@ -1225,12 +1254,12 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
         if (this.hold_map.get(mid)) {
           this.holdtime_map.set(mid, this.holdtime_map.get(mid) + 0.5);
           console.log(this.holdtime_map.get(mid));
-          if (this.holdtime_map.get(mid) >= 1.5) {
+          if (this.holdtime_map.get(mid) >= 0.5) {
             this.hold_map.delete(mid);
             clearInterval(this.intv_map.get(mid));
             this.intv_map.delete(mid);
             this.holdtime_map.delete(mid);
-            this.presentActionSheet(mid, snd, rcv, ele);
+            this.presentActionSheet(mid, snd, rcv, text, ele);
           }
         }
       }, 500)
@@ -1250,6 +1279,16 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     console.log('mouseup');
   }
 
+  checkBAckendReplyMsg(data: chatResponse[]): boolean {
+    let ans = false;
+    if (data != undefined && data != null) {
+      if (data.length > 0) {
+        ans = true;
+      }
+    }
+    return ans;
+  }
+
   handelCoupleTouch(event) {
     console.log(event);
     let msg_id = event;
@@ -1262,12 +1301,42 @@ export class MessageComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     if (ele != null) {
       ele.scrollIntoView();
-      ele.setAttribute('style', 'background-color:orange;');
+      ele.setAttribute('style', 'background-color: #ffa5006b;');
       setTimeout(() => {
-        ele.setAttribute('style', 'background-color:inherit;');
+        ele.setAttribute('style', '');
       }, 500);
     } else {
       console.log('need to be fetch from back');
+      this.generalService.getMesssagesohneLimit(event).subscribe((rs) => {
+        if (this.checkBAckendReplyMsg(rs)) {
+          // this.msgs = resolve.rsp.slice().reverse().concat(this.msgs);
+          let temp: any[] = rs.slice().reverse();
+          console.log(this.msgs);
+          this.msgs = [...temp];
+          console.log(this.msgs);
+          setTimeout(() => {
+            console.log('messeges were fetched newly from backend');
+            let ele2 = null;
+            try {
+              ele2 = document.getElementById(msg_id);
+            } catch (error) {
+              console.log(error);
+              return;
+            }
+            if (ele2 != null) {
+              console.log('messege was found');
+              ele2.setAttribute('style', 'background-color: #ffa5006b;');
+              setTimeout(() => {
+                ele2.setAttribute('style', '');
+              }, 500);
+            }
+          }, 1000);
+        } else {
+          this.generalService.loading_notification_short_hoover(
+            'Message is not found in chat'
+          );
+        }
+      });
     }
   }
 }

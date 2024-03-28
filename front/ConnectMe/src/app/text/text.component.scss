@@ -40,9 +40,8 @@ ion-card {
   max-width: 100%;
   padding: 0.5vh;
   margin: 0.5vh;
-  font-size: 23px;
-  background-color: lavender;
-  color: currentColor;
+  font-size: 16px;
+  color: var(--ion-color-primary-contrast);
 }
 
 .chat_image {
@@ -51,7 +50,7 @@ ion-card {
 
 .time {
   font-size: 10px;
-  color: black;
+  color: var(--ion-color-primary);
   font-weight: bold;
   text-align: center;
 }
@@ -61,14 +60,14 @@ ion-icon {
   height: 15px;
 }
 .seen {
-  color: green;
+  color: var(--ion-color-success);
 }
 .notseen {
-  color: grey;
+  color: var(--ion-color-medium-tint);
 }
 
 .my-custom-class-dsp-img {
-  --background: rgba(0, 0, 0, 0);
+  //--background: rgba(0, 0, 0, 0);
   --height: 50vh;
   --width: 80vw;
 }
@@ -76,13 +75,13 @@ ion-icon {
 .couple {
   background: #0000003d;
   padding: 1px;
-  color: white;
-  border-left: 2px solid orange;
+  color: var(--ion-color-warning-tint);
+  border-left: 2px solid var(--ion-color-warning);
   text-align: left;
   padding-left: 4px;
   font-size: 16px;
 }
 .couple_header {
-  color: #f3cd86;
+  color: var(--ion-color-warning);
   font-size: 20px;
 }

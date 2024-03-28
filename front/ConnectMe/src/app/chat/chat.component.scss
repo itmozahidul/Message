@@ -23,7 +23,7 @@ ion-row {
 }
 
 .online {
-  color: rgb(0, 255, 21);
+  color: var(--ion-color-success);
   padding: 2px;
 }
 .offlineline {
@@ -31,11 +31,11 @@ ion-row {
   padding: 2px;
 }
 .error {
-  color: orange;
+  // color: orange;
   padding: 2px;
 }
 .errbx {
-  color: orange;
+  // color: orange;
   text-align: center;
   padding: 10px;
 }
@@ -50,24 +50,24 @@ div {
   left: 20vw;
   top: 20vw;
   text-align: center;
-  border: 0.5px solid black;
-  background-color: white;
+  border: 0.5px solid var(--ion-color-primary-tint);
+  //background-color: white;
 }
 .overlay {
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.384);
+  // background-color: rgba(255, 255, 255, 0.384);
 }
 
 ion-content {
   // --background: #fff url("../../assets/images/advertise/advertise.png")
   //    no-repeat center center / cover;
-  --background: #000000;
+  // --background: #000000;
 }
 
 ion-searchbar {
-  --background: aliceblue;
+  // --background: aliceblue;
 }
 
 ion-list {
@@ -75,9 +75,9 @@ ion-list {
 }
 
 ion-item-sliding {
-  --background: #ffffff70;
-  --color: #ffffff;
-  --ripple-color: purple;
+  --background: var(--ion-color-primary-shade);
+  --color: var(--ion-color-primary-contrast);
+  --ripple-color: var(--ion-color-tertiary-tint);
   padding: 1vh;
   border-top-left-radius: 28px;
   border-top-right-radius: 28px;
@@ -85,17 +85,18 @@ ion-item-sliding {
   border-bottom-right-radius: 28px;
 }
 ion-item {
-  --background: #ffffff70;
-  --color: #ffffff;
-  --ripple-color: purple;
+  --background: var(--ion-color-primary-shade);
+  --color: var(--ion-color-primary-contrast);
+  --ripple-color: var(--ion-color-tertiary-tint);
 }
 ion-item-options {
-  --background: #ffffff70;
-  --color: #ffffff;
-  --ripple-color: purple;
+  --background: var(--ion-color-primary-shade);
+  --color: var(--ion-color-primary-contrast);
+  --ripple-color: var(--ion-color-tertiary-tint);
   padding: 1vh;
 }
 .ficon {
+  /* 
   color: black;
-  background-color: white;
+  background-color: white; */
 }

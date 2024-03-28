@@ -212,6 +212,7 @@ export class MenuComponent implements OnInit {
     return await modal.present();
   }
   async call_answered_me_f(p: string) {
+    await this.endModeal();
     this.generalService.sendWebrtcCallMessage(
       this.generalService.call_answered_other +
         this.generalService.separator +
@@ -219,10 +220,9 @@ export class MenuComponent implements OnInit {
       p,
       'call'
     );
-    await this.endModeal();
-    await this.presentOtherIncallModal(p);
+    await this.presentMeIncallModal(p);
   }
-  async presentOtherIncallModal(caller: string) {
+  async presentMeIncallModal(caller: string) {
     let talker = 'talker';
     const modal = await this.modalController.create({
       component: TestComponent,
@@ -233,11 +233,24 @@ export class MenuComponent implements OnInit {
     });
     return await modal.present();
   }
+  async presentOtherIncallModal(caller: string) {
+    let talker = 'talker';
+    const modal = await this.modalController.create({
+      component: TestComponent,
+      backdropDismiss: false,
+      componentProps: {
+        talker: caller,
+        other: caller,
+      },
+    });
+    return await modal.present();
+  }
   async call_answered_other(p: string) {
     await this.endModeal();
     await this.presentOtherIncallModal(p);
   }
   call_cancelled_me_f(p: string) {
+    debugger;
     this.generalService.sendWebrtcCallMessage(
       this.generalService.call_cancelled_other +
         this.generalService.separator +

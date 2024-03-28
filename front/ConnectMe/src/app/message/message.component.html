@@ -72,8 +72,10 @@
           [seen]="msg.seen"
           [user]="this.generalService.getUser()"
           [data]="msg.data"
-          (mousedown)="mouseisdown(msg.id, msg.sender, msg.reciever, smsg)"
-          (mouseup)="mouseisup(msg.id)"
+          (touchstart)="
+            mouseisdown(msg.id, msg.sender, msg.reciever, msg.text, smsg)
+          "
+          (touchend)="mouseisup(msg.id)"
           (onTouchCouple)="handelCoupleTouch($event)"
         >
         </app-text>
@@ -84,6 +86,27 @@
 <!--<ion-footer *ngIf="!calling">-->
 <ion-footer>
   <ion-grid>
+    <ion-row *ngIf="reply">
+      <ion-card id="replycard">
+        <ion-grid>
+          <ion-row size="12">
+            <ion-col size="11">
+              <div>
+                {{ replyToPerson }}
+              </div>
+              <div class="replytext">
+                {{ replyToText }}
+              </div>
+            </ion-col>
+            <ion-col size="1">
+              <div class="clearreply" (click)="replyclean()">
+                <img src="assets/icon/close-outline.svg" />
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card>
+    </ion-row>
     <ion-row size="12">
       <ion-col size="11">
         <ion-row size="12">
@@ -93,6 +116,7 @@
               #inputFile
               type="file"
               (change)="handelfile($event)"
+              *ngIf="!reply"
             />
             <ion-icon
               *ngIf="inptmode == 2"
@@ -100,15 +124,15 @@
               (click)="inptmodeSet(1)"
             ></ion-icon>
             <ion-icon
-              *ngIf="inptmode == 1"
+              *ngIf="inptmode == 1 && !reply"
               name="attach-outline"
               (click)="inptmodeSet(2); inputFile.click()"
             ></ion-icon>
           </ion-col>
-          <ion-col size="1"
+          <ion-col size="1" *ngIf="!reply"
             ><ion-icon name="camera" (click)="inptmodeSet(3)"></ion-icon
           ></ion-col>
-          <ion-col size="1" *ngIf="isNativePlatform || true">
+          <ion-col size="1" *ngIf="(isNativePlatform || true) && !reply">
             <ion-icon name="mic" (click)="inptmodeSet(4)"></ion-icon>
           </ion-col>
 
@@ -142,6 +166,12 @@
         <ion-icon
           name="send"
           (click)="send(activetext); emojimode = 0"
+          *ngIf="!reply"
+        ></ion-icon>
+        <ion-icon
+          name="send"
+          (click)="sendReply(activetext); emojimode = 0"
+          *ngIf="reply"
         ></ion-icon>
       </ion-col>
       <ion-col size="1" *ngIf="inptmode == 2">

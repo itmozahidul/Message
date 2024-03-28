@@ -1,23 +1,23 @@
 ion-content {
   // --background: #fff url("../../assets/images/advertise/advertise.png")
   //   no-repeat center center / cover;
-  --background: #000000;
+  // --background: #000000;
 }
 ion-icon {
   width: 95%;
   height: 95%;
-  color: rgb(255, 255, 255);
+  // color: rgb(255, 255, 255);
   padding: 2.5%;
   border-radius: 1vh;
 }
 ion-icon:hover {
   width: 100%;
   height: 100%;
-  color: rgb(255, 208, 0);
+  // color: rgb(255, 208, 0);
 }
 #call {
-  background-color: black;
-  color: white;
+  //background-color: black;
+  //color: white;
   border-bottom-left-radius: 18px;
   border-bottom-right-radius: 18px;
   border-top-left-radius: 18px;
@@ -30,41 +30,41 @@ ion-col {
   padding: 0;
 }
 #ioninputtext {
-  background-color: white;
-  color: #000000;
+  //background-color: white;
+  //color: #000000;
   border-bottom-left-radius: 18px;
   border-bottom-right-radius: 18px;
   border-top-left-radius: 18px;
   border-top-right-radius: 18px;
 }
 #emotic {
-  color: rgb(184, 83, 0);
+  color: var(--ion-color-danger);
 }
 
 ion-footer {
-  background: rgb(0, 0, 0);
+  //background: rgb(0, 0, 0);
 }
 #gif {
   text-align: center;
-  color: white;
+  //color: white;
 }
 #gif:hover {
   background-color: cornflowerblue;
-  color: white;
+  //color: white;
 }
 .fileInput {
-  background-color: white;
-  color: #000000;
+  //background-color: white;
+  //color: #000000;
   border-bottom-left-radius: 18px;
   border-bottom-right-radius: 18px;
   border-top-left-radius: 18px;
   border-top-right-radius: 18px;
 }
 .filename {
-  background-color: #000000;
+  //background-color: #000000;
   width: -moz-fit-content;
   width: fit-content;
-  color: white;
+  //color: white;
   margin-left: 2vw;
   margin-top: 2vh;
   padding: 2px;
@@ -99,19 +99,19 @@ app-text {
 }
 
 .my-custom-class-record {
-  --background: rgba(0, 0, 0, 0);
+  //--background: rgba(0, 0, 0, 0);
   --height: 50vh;
   --width: 80vw;
 }
 
 .my-custom-class-img {
-  --background: rgba(0, 0, 0, 0);
+  //--background: rgba(0, 0, 0, 0);
   --height: 50vh;
   --width: 80vw;
 }
 
 .my-custom-class-dsp-img {
-  --background: rgba(0, 0, 0, 0);
+  //--background: rgba(0, 0, 0, 0);
   --height: 50vh;
   --width: 80vw;
 }
@@ -122,5 +122,5 @@ app-text {
 .fs {
   width: 100vw;
   height: 100vh;
-  background: black;
+  //background: black;
 }

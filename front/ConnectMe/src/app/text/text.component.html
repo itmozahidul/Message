@@ -38,7 +38,7 @@
               class="couple"
               *ngIf="couple_text != ''"
             >
-              <div class="couple_header">{{ couple_text_sender }}</div>
+              <div class="couple_header">You</div>
               {{ couple_text }}
             </div>
             {{ text }}
@@ -127,15 +127,6 @@
         <ion-col size="11" style="text-align: -webkit-right">
           <ion-card>
             {{ text }}
-            <div *ngIf="seen">
-              <ion-icon class="seen" name="checkmark-done-outline"></ion-icon>
-            </div>
-            <div *ngIf="!seen">
-              <ion-icon
-                class="notseen"
-                name="checkmark-done-outline"
-              ></ion-icon>
-            </div>
           </ion-card>
         </ion-col>
         <ion-col size="1">
@@ -162,15 +153,6 @@
               {{ couple_text }}
             </div>
             {{ text }}
-            <div *ngIf="seen">
-              <ion-icon class="seen" name="checkmark-done-outline"></ion-icon>
-            </div>
-            <div *ngIf="!seen">
-              <ion-icon
-                class="notseen"
-                name="checkmark-done-outline"
-              ></ion-icon>
-            </div>
           </ion-card>
         </ion-col>
         <ion-col size="1">
@@ -274,6 +256,27 @@
           </ion-row>
         </ion-col>
       </ion-row>
+    </ion-col>
+  </ion-row>
+  <ion-row size="12" *ngIf="!leftSide()" style="text-align: right">
+    <ion-col size="1"></ion-col>
+    <ion-col size="1"></ion-col>
+    <ion-col size="1"></ion-col>
+    <ion-col size="1"></ion-col>
+    <ion-col size="1"></ion-col>
+    <ion-col size="1"></ion-col>
+    <ion-col size="1"></ion-col>
+    <ion-col size="1"></ion-col>
+    <ion-col size="1"></ion-col>
+    <ion-col size="1"></ion-col>
+    <ion-col size="1"></ion-col>
+    <ion-col size="1">
+      <div *ngIf="seen">
+        <ion-icon class="seen" name="checkmark-done-outline"></ion-icon>
+      </div>
+      <div *ngIf="!seen">
+        <ion-icon class="notseen" name="checkmark-done-outline"></ion-icon>
+      </div>
     </ion-col>
   </ion-row>
 </ion-grid>

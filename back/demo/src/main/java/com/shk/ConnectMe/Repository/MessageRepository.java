@@ -27,8 +27,12 @@ public interface MessageRepository extends CrudRepository<Message, Long> {
 	@Query(value="select* from (select * from (select * from message where message.chat=?1 and message.timemili>=?2 ) as t where not ( t.deleted=1 and  t.sender=?4)) as tt order by tt.timemili DESC limit ?3", nativeQuery = true)
 	public  List<Message> getMessagesbyChatId(long chatid, long timemili,int limit, long senderid);
 	
+	@Query(value="select* from (select * from (select * from message where message.chat=?1 and message.timemili>=?2 ) as t where not ( t.deleted=1 and  t.sender=?3)) as tt order by tt.timemili DESC", nativeQuery = true)
+	public  List<Message> getMessagesbyChatIdohneLimit(long chatid, long timemili, long senderid);
+	
 	@Query(value="select* from (select * from (select * from message where message.chat=?1 and message.timemili>=?2 ) as t where not ( t.deleted=1 and  t.sender=?4)) as tt order by tt.timemili DESC limit ?3 offset ?5", nativeQuery = true)
 	public  List<Message> getMessagesbyChatIdoffset(long chatid, long timemili,int limit, long senderid,int offset);
+	
 	
 	@Query(value="select count(*) from message where message.chat=?1 and message.seen = 0 and message.deleted=0 and message.reciever=?2", nativeQuery = true)
 	public  int getNoOfUnreadMsgBychatid(long chatid, long sender);

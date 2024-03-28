@@ -37,6 +37,9 @@ import { TestComponent } from './test/test.component';
 import { CalldispComponent } from './calldisp/calldisp.component';
 import { MecalldispComponent } from './mecalldisp/mecalldisp.component';
 import { OthercalldispComponent } from './othercalldisp/othercalldisp.component';
+import { ThemsappComponent } from './themsapp/themsapp.component';
+import { Storage } from '@ionic/storage';
+import { SettingsComponent } from './settings/settings.component';
 //import { FileUploadOptions } from '@ionic-native/file-transfer/__ivy_ngcc__/ngx';
 
 @NgModule({
@@ -64,6 +67,8 @@ import { OthercalldispComponent } from './othercalldisp/othercalldisp.component'
     CalldispComponent,
     MecalldispComponent,
     OthercalldispComponent,
+    ThemsappComponent,
+    SettingsComponent,
   ],
   entryComponents: [],
   imports: [
@@ -92,6 +97,7 @@ import { OthercalldispComponent } from './othercalldisp/othercalldisp.component'
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     GeneralService,
     Media,
+    Storage,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptorService,
