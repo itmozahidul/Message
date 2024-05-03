@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
@@ -12,6 +12,7 @@ import {
   ActionSheetController,
   IonContent,
   IonInfiniteScroll,
+  IonModal,
   LoadingController,
   ModalController,
   ToastController,
@@ -42,7 +43,13 @@ export class MenuComponent implements OnInit {
   temp_v = null;
   temp_g = null;
 
+  callstarted = false;
+  callanswered = false;
+
   callingurl = 'assets/video/calling.mp4';
+  talker: string = '';
+  other: string = '';
+  @ViewChild(IonModal) callmodal: IonModal;
   constructor(
     private store: Store<State>,
     private router: Router,
@@ -166,10 +173,19 @@ export class MenuComponent implements OnInit {
           this.call_answered_other(person);
           break;
         case this.generalService.call_cancelled_me:
-          this.call_cancelled_me_f(person);
+          if (datas.length > 2) {
+            this.call_cancelled_me_f(person, datas[2]);
+          } else {
+            this.call_cancelled_me_f(person);
+          }
+
           break;
         case this.generalService.call_cancelled_other:
-          this.call_cancelled_other_f(person);
+          if (datas.length > 2) {
+            this.call_cancelled_other_f(person, datas[2]);
+          } else {
+            this.call_cancelled_other_f(person);
+          }
           break;
         default:
           break;
@@ -182,6 +198,7 @@ export class MenuComponent implements OnInit {
   }
 
   async call_started_me_f(p: string) {
+    this.callstarted = true;
     this.generalService.sendWebrtcCallMessage(
       this.generalService.call_started_other +
         this.generalService.separator +
@@ -200,6 +217,7 @@ export class MenuComponent implements OnInit {
     return await modal.present();
   }
   async call_started_other_f(p: string) {
+    this.callstarted = true;
     console.log(p + ' is calling you');
     this.store.dispatch(action.updatetalkingpartnero({ talkingpartnero: p }));
     await this.presentOtherCallDispModal();
@@ -212,6 +230,7 @@ export class MenuComponent implements OnInit {
     return await modal.present();
   }
   async call_answered_me_f(p: string) {
+    this.callanswered = true;
     await this.endModeal();
     this.generalService.sendWebrtcCallMessage(
       this.generalService.call_answered_other +
@@ -220,54 +239,66 @@ export class MenuComponent implements OnInit {
       p,
       'call'
     );
-    await this.presentMeIncallModal(p);
+    if (this.callstarted && this.callanswered) {
+      await this.presentMeIncallModal(p);
+    }
   }
   async presentMeIncallModal(caller: string) {
-    let talker = 'talker';
-    const modal = await this.modalController.create({
-      component: TestComponent,
-      backdropDismiss: false,
-      componentProps: {
-        talker: caller,
-      },
-    });
-    return await modal.present();
+    this.talker = caller;
+    this.other = '';
+
+    return await this.callmodal.present();
   }
   async presentOtherIncallModal(caller: string) {
-    let talker = 'talker';
-    const modal = await this.modalController.create({
-      component: TestComponent,
-      backdropDismiss: false,
-      componentProps: {
-        talker: caller,
-        other: caller,
-      },
-    });
-    return await modal.present();
+    this.talker = caller;
+    this.other = caller;
+    return await this.callmodal.present();
   }
   async call_answered_other(p: string) {
+    this.callanswered = true;
     await this.endModeal();
-    await this.presentOtherIncallModal(p);
+    if (this.callstarted && this.callanswered) {
+      await this.presentOtherIncallModal(p);
+    }
   }
-  call_cancelled_me_f(p: string) {
-    debugger;
-    this.generalService.sendWebrtcCallMessage(
-      this.generalService.call_cancelled_other +
-        this.generalService.separator +
-        this.generalService.getUser(),
-      p,
-      'call'
-    );
-    this.endModeal();
+  async call_cancelled_me_f(p: string, none?) {
+    this.callstarted = false;
+    this.callanswered = false;
+
+    if (none != null && none != undefined) {
+      this.generalService.sendWebrtcCallMessage(
+        this.generalService.call_cancelled_other +
+          this.generalService.separator +
+          this.generalService.getUser() +
+          this.generalService.separator +
+          none,
+        p,
+        'call'
+      );
+      await this.endModeal();
+    } else {
+      this.generalService.sendWebrtcCallMessage(
+        this.generalService.call_cancelled_other +
+          this.generalService.separator +
+          this.generalService.getUser(),
+        p,
+        'call'
+      );
+      await this.callmodal.dismiss();
+    }
   }
-  call_cancelled_other_f(p: string) {
-    console.log(p + ' canceled the call');
-    this.store.dispatch(
-      action.updategotocallwith({
-        gotocallwith: this.generalService.call_cancelled_other,
-      })
-    );
-    this.endModeal();
+  async call_cancelled_other_f(p: string, none?) {
+    if (none != null && none != undefined) {
+      console.log(p + ' canceled the call');
+      this.callstarted = false;
+      this.callanswered = false;
+      await this.endModeal();
+    } else {
+      console.log(p + ' canceled the call');
+      this.callstarted = false;
+      this.callanswered = false;
+      await this.callmodal.dismiss();
+    }
   }
 
   logout() {
@@ -290,5 +321,14 @@ export class MenuComponent implements OnInit {
   }
   gotoChat() {
     this.router.navigate(['chat']);
+  }
+
+  endcall(e) {
+    debugger;
+    try {
+      this.callmodal.dismiss();
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

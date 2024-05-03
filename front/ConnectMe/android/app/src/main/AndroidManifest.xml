@@ -37,6 +37,12 @@
       <meta-data
         android:name="com.google.android.geo.API_KEY"
         android:value="AIzaSyBA_fW9cbJG9BLihpvrAisbDz1FQeMAJCY"/>
+
+      <service
+        android:name=".NotificationService"
+        android:foregroundServiceType="phoneCall|camera|microphone|location|mediaPlayback"
+        android:exported="false">
+      </service>
     </application>
 
     <!-- Permissions -->
@@ -52,6 +58,12 @@
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
   <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
   <uses-permission android:name="android.permission.CAMERA" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL"/>
   <uses-feature
     android:name="android.hardware.camera"
     android:required="false" />

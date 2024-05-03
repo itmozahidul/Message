@@ -43,13 +43,31 @@ export class ThemsappComponent implements OnInit {
     this.name = this.ux;
   }
 
+  getcolorset(key) {
+    switch (key) {
+      case 'autumn':
+        return this.themes.autumn;
+        break;
+      case 'night':
+        return this.themes.night;
+        break;
+      case 'neon':
+        return this.themes.neon;
+        break;
+
+      default:
+        return {};
+        break;
+    }
+  }
+
   handel(ele) {
     console.log(ele.value);
     this.selectedTheme = ele.value;
   }
   confirmTheme() {
     if (this.selectedTheme != '') {
-      this.generalService.setTheme(this.selectedTheme).then(
+      this.generalService.setTheme(this.getcolorset(this.selectedTheme)).then(
         (suc) => {
           this.generalService.loading_notification_short_hoover(
             'Theme is successfully changed!'

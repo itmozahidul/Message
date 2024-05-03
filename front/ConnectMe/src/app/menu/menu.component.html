@@ -20,6 +20,7 @@
       <ion-item (click)="gotoChat()">Chat</ion-item>
     </ion-list>
   </ion-content>
+
   <ion-footer>
     <ion-toolbar>
       <ion-buttons>
@@ -28,3 +29,18 @@
     </ion-toolbar>
   </ion-footer>
 </ion-menu>
+<ion-modal
+  #callmodal
+  [canDismiss]="false"
+  [initialBreakpoint]="1"
+  [breakpoints]="[0.1, 1]"
+  [backdropBreakpoint]="0.1"
+>
+  <ng-template>
+    <app-test
+      [talker]="talker"
+      [other]="other"
+      (onEndCall)="endcall($event)"
+    ></app-test>
+  </ng-template>
+</ion-modal>

@@ -82,7 +82,9 @@ export class OthercalldispComponent implements OnInit, OnDestroy {
         call:
           this.generalService.call_cancelled_me +
           this.generalService.separator +
-          this.callfrom,
+          this.callfrom +
+          this.generalService.separator +
+          'me',
       })
     );
     this.store.dispatch(action.updatetalkingpartnero({ talkingpartnero: '' }));

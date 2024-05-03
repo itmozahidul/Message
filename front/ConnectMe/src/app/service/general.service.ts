@@ -1095,6 +1095,7 @@ export class GeneralService {
 
     const shadeRatio = 0.1;
     const tintRatio = 0.1;
+    const tintRatio2 = 0.7;
 
     return `
     --ion-color-base: ${light};
@@ -1111,21 +1112,21 @@ export class GeneralService {
     --ion-color-primary-contrast: ${this.contrast(primary)};
     --ion-color-primary-contrast-rgb: 255,255,255;
     --ion-color-primary-shade:  ${Color(primary).darken(shadeRatio)};
-    --ion-color-primary-tint:  ${Color(primary).lighten(tintRatio)};
+    --ion-color-primary-tint:  ${Color(primary).lighten(tintRatio2)};
 
     --ion-color-secondary: ${secondary};
     --ion-color-secondary-rgb: 12,209,232;
     --ion-color-secondary-contrast: ${this.contrast(secondary)};
     --ion-color-secondary-contrast-rgb: 255,255,255;
     --ion-color-secondary-shade:  ${Color(secondary).darken(shadeRatio)};
-    --ion-color-secondary-tint: ${Color(secondary).lighten(tintRatio)};
+    --ion-color-secondary-tint: ${Color(secondary).lighten(tintRatio2)};
 
     --ion-color-tertiary:  ${tertiary};
     --ion-color-tertiary-rgb: 112,68,255;
     --ion-color-tertiary-contrast: ${this.contrast(tertiary)};
     --ion-color-tertiary-contrast-rgb: 255,255,255;
     --ion-color-tertiary-shade: ${Color(tertiary).darken(shadeRatio)};
-    --ion-color-tertiary-tint:  ${Color(tertiary).lighten(tintRatio)};
+    --ion-color-tertiary-tint:  ${Color(tertiary).lighten(tintRatio2)};
 
     --ion-color-success: ${success};
     --ion-color-success-rgb: 16,220,96;

@@ -1,4 +1,4 @@
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar>
     <ion-buttons slot="end">
       <ion-button (click)="back()">back</ion-button>
@@ -7,13 +7,13 @@
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 <ion-content>
   <ion-card>
     <h1 style="text-align: center">
       {{ talker }}
     </h1>
-    <button (click)="start()">start</button>
+    <button id="audiostartbtn" #audiostartbtnn (click)="start()">start</button>
     <h1 style="text-align: center">
       {{ constate }}
     </h1>
@@ -84,10 +84,10 @@
       </video>
     </ion-row>
     <ion-row>
-      <!--i dont want to hear my voice-->
+      <!--i dont want to hear my voice
       <audio #aud1 autoplay="autoplay">
         <source [src]="aud_src" type="audio/mpeg" />
-      </audio>
+      </audio>-->
     </ion-row>
     <ion-row size="12">
       <ion-col size="3">
@@ -159,7 +159,7 @@
         </ion-button>
       </ion-col>
       <ion-col size="3">
-        <ion-button id="cancel" (click)="drop_call('me')">
+        <ion-button id="cancel" (click)="drop_call('me', '4')">
           <img class="svgiconimg" src="assets/icon/cancel-call.svg" />
         </ion-button>
       </ion-col>

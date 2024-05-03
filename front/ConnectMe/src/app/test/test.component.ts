@@ -2,9 +2,11 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  EventEmitter,
   Input,
   OnDestroy,
   OnInit,
+  Output,
   ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
@@ -48,6 +50,8 @@ import { rtcdata } from '../DTO/rtcdata';
 export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() talker: string;
   @Input() other: string = '';
+  @Output() onEndCall = new EventEmitter<any>();
+  firsttime = true;
   state = -1;
   offer: rtcdata;
   offer$: Observable<rtcdata>;
@@ -106,12 +110,12 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('disp2', { read: ElementRef }) remoteView: ElementRef;
   @ViewChild('aud1', { read: ElementRef }) selfAud: ElementRef;
   @ViewChild('aud2', { read: ElementRef }) remoteAud: ElementRef;
+  @ViewChild('audiostartbtnn', { read: ElementRef }) audiostartbtnn: ElementRef;
   stream_aud: MediaStream;
   stream_vid: MediaStream;
   temp = null;
 
-  //talker = '';
-  talker$: Observable<string>;
+  // talker$: Observable<string>;
   switch = true;
   videoConstrains_front = {
     video: {
@@ -183,18 +187,39 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.callend$ = this.store.select(selector.selectCallend);
     this.peercon$ = this.store.select(selector.selectPc);
-    this.talker$ = this.store.select(selector.selectgotocallwith);
+    // this.talker$ = this.store.select(selector.selectgotocallwith);
   }
   ngOnDestroy(): void {
     console.log(
       '##############||||#############destroying----- webrtc call component...##########||||###########'
     );
+    this.drop_call('others', '1');
   }
   ngAfterViewInit(): void {
-    /* setTimeout(async () => {
-      await this.start_audio();
+    //this.start_audio_first_time();
+    setTimeout(() => {
+      this.audiostartbtnn.nativeElement.click();
+    }, 2000);
+  }
+  start_audio_first_time() {
+    setTimeout(() => {
+      if (
+        this.peerConnections.get(this.AUDIO_PEERCON).signalingState ==
+          'stable' &&
+        this.firsttime
+      ) {
+        this.start_audio().then(
+          (suc) => {
+            console.warn(suc);
+          },
+          (err) => {
+            console.warn(err);
+          }
+        );
+      }
+
       //this.remoteView.nativeElement.click();
-    }, 2000); */
+    }, 2000);
   }
 
   ngOnInit() {
@@ -213,7 +238,7 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subscreib_ans2();
     this.subscreib_cand();
     this.subscreib_cand2();
-    this.subscreib_talker();
+    //this.subscreib_talker();
     this.subscreib_requesttomute();
     this.subscreib_pausevideo();
   }
@@ -263,16 +288,17 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  subscreib_talker() {
+  /*  subscreib_talker() {
     this.subscriptionList.push(
       this.talker$.subscribe((d) => {
         if (d == this.generalService.call_cancelled_other) {
           d = '';
-          this.drop_call('other');
+          this.drop_call('other', '1');
+          this.store.dispatch(action.updategotocallwith({ gotocallwith: '' }));
         }
       })
     );
-  }
+  } */
 
   /* subscreib_router() {
     this.activatedroute.paramMap.subscribe((params) => {
@@ -335,8 +361,8 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   subscreib_offer() {
     this.subscriptionList.push(
       this.offer$.subscribe((strobj) => {
+        this.offer = strobj;
         if (strobj != null) {
-          this.offer = strobj;
           this.handelOffer(strobj, this.AUDIO_PEERCON);
         }
       })
@@ -345,28 +371,63 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   subscreib_offer2() {
     this.subscriptionList.push(
       this.offer2$.subscribe((strobj) => {
+        this.offer2 = strobj;
         if (strobj != null) {
-          this.offer2 = strobj;
+          //debugger;
           console.log('video offer recieved');
           this.handelOffer(strobj, this.VIDEO_PEERCON);
         }
       })
     );
   }
+  subscreib_ans() {
+    this.subscriptionList.push(
+      this.answer$.subscribe((strobj) => {
+        this.answer = strobj;
+        if (strobj != null) {
+          // debugger;
+          this.handelAnswer(strobj, this.AUDIO_PEERCON);
+        }
+      })
+    );
+  }
+  subscreib_ans2() {
+    this.subscriptionList.push(
+      this.answer2$.subscribe((strobj) => {
+        this.answer2 = strobj;
+        if (strobj != null) {
+          // debugger;
+          this.handelAnswer(strobj, this.VIDEO_PEERCON);
+        }
+      })
+    );
+  }
 
-  drop_call(mode) {
+  subscreib_cand() {
+    this.subscriptionList.push(
+      this.candidate$.subscribe((strobj) => {
+        this.candidate = strobj;
+        if (strobj != null) {
+          //debugger;
+          this.handelCandidate(strobj, this.AUDIO_PEERCON);
+        }
+      })
+    );
+  }
+  subscreib_cand2() {
+    this.subscriptionList.push(
+      this.candidate2$.subscribe((strobj) => {
+        this.candidate2 = strobj;
+        if (strobj != null) {
+          // debugger;
+          this.handelCandidate(strobj, this.VIDEO_PEERCON);
+        }
+      })
+    );
+  }
+
+  drop_call(mode, origin) {
     try {
-      if (mode == 'me') {
-        this.store.dispatch(
-          action.updateCall({
-            call:
-              this.generalService.call_cancelled_me +
-              this.generalService.separator +
-              this.talker,
-          })
-        );
-      }
-      this.talker = '';
       this.terminateWebrtcCon(this.AUDIO_PEERCON);
       this.terminateWebrtcCon(this.VIDEO_PEERCON);
       setTimeout(() => {
@@ -374,45 +435,135 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
           if (this.stream_aud != null) {
             if (this.stream_aud.getAudioTracks().length > 0) {
               this.stream_aud.getAudioTracks().forEach((t) => {
+                t.enabled = false;
                 t.stop();
               });
             }
             if (this.stream_aud.getTracks().length > 0) {
               this.stream_aud.getTracks().forEach((t) => {
+                t.enabled = false;
                 t.stop();
               });
             }
+            if (
+              this.stream_aud.onaddtrack != null &&
+              this.stream_aud.onaddtrack != undefined
+            ) {
+              this.stream_aud.onaddtrack = null;
+            }
+            if (
+              this.stream_aud.onremovetrack != null &&
+              this.stream_aud.onremovetrack != undefined
+            ) {
+              this.stream_aud.onremovetrack = null;
+            }
           }
+          this.stream_aud = null;
+
           if (this.stream_vid != null) {
             if (this.stream_vid.getVideoTracks().length > 0) {
               this.stream_vid.getVideoTracks().forEach((t) => {
+                t.enabled = false;
                 t.stop();
               });
             }
             if (this.stream_vid.getTracks().length > 0) {
               this.stream_vid.getTracks().forEach((t) => {
+                t.enabled = false;
                 t.stop();
               });
             }
+            if (
+              this.stream_vid.onaddtrack != null &&
+              this.stream_vid.onaddtrack != undefined
+            ) {
+              this.stream_vid.onaddtrack = null;
+            }
+            if (
+              this.stream_vid.onremovetrack != null &&
+              this.stream_vid.onremovetrack != undefined
+            ) {
+              this.stream_vid.onremovetrack = null;
+            }
           }
-          console.log(this.remoteAud.nativeElement.srcObject);
-          console.log(this.remoteView);
-          this.remoteAud.nativeElement.srcObject
-            .getTracks()
-            .forEach((track) => track.stop());
-          this.remoteView.nativeElement.srcObject
-            .getTracks()
-            .forEach((track) => track.stop());
+          this.stream_vid = null;
+
+          if (this.remoteAud != null && this.remoteAud != undefined) {
+            if (
+              this.remoteAud.nativeElement != null &&
+              this.remoteAud.nativeElement != undefined
+            ) {
+              if (
+                this.remoteAud.nativeElement.srcObject != null &&
+                this.remoteAud.nativeElement.srcObject != undefined
+              ) {
+                this.remoteAud.nativeElement.srcObject
+                  .getTracks()
+                  .forEach((track) => {
+                    track.enabled = false;
+                    track.stop();
+                  });
+                this.remoteAud.nativeElement.srcObject = null;
+              }
+              this.remoteAud.nativeElement.remove();
+            }
+            this.remoteAud = null;
+          }
+
+          if (this.remoteView != null && this.remoteView != undefined) {
+            if (
+              this.remoteView.nativeElement != null &&
+              this.remoteView.nativeElement != undefined
+            ) {
+              if (
+                this.remoteView.nativeElement.srcObject != null &&
+                this.remoteView.nativeElement.srcObject != undefined
+              ) {
+                this.remoteView.nativeElement.srcObject
+                  .getTracks()
+                  .forEach((track) => {
+                    track.enabled = false;
+                    track.stop();
+                  });
+                this.remoteView.nativeElement.srcObject = null;
+              }
+              this.remoteView.nativeElement.remove();
+            }
+            this.remoteView = null;
+          }
+
           this.offer = null;
+          this.store.dispatch(action.updateOffer({ offer: this.offer }));
           this.offer2 = null;
+          this.store.dispatch(action.updateOffer2({ offer2: this.offer2 }));
           this.answer = null;
+          this.store.dispatch(action.updateAns({ ans: this.answer }));
           this.answer2 = null;
+          this.store.dispatch(action.updateAns2({ ans2: this.answer2 }));
           this.candidate = null;
+          this.store.dispatch(action.updateCand({ cand: this.candidate }));
           this.candidate2 = null;
-          this.store.dispatch(action.updategotocallwith({ gotocallwith: '' }));
+          this.store.dispatch(action.updateCand2({ cand2: this.candidate2 }));
           setTimeout(() => {
             this.unsub_subs();
-          }, 500);
+            setTimeout(() => {
+              if (mode == 'other') {
+                this.onEndCall.emit('1');
+              }
+              if (mode == 'me') {
+                this.store.dispatch(
+                  action.updateCall({
+                    call:
+                      this.generalService.call_cancelled_me +
+                      this.generalService.separator +
+                      this.talker,
+                  })
+                );
+              }
+
+              this.talker = '';
+            }, 100);
+          }, 100);
         } catch (error) {
           console.log(error);
         }
@@ -430,50 +581,8 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  subscreib_ans() {
-    this.subscriptionList.push(
-      this.answer$.subscribe((strobj) => {
-        this.answer = strobj;
-        if (strobj != null) {
-          this.handelAnswer(strobj, this.AUDIO_PEERCON);
-        }
-      })
-    );
-  }
-  subscreib_ans2() {
-    this.subscriptionList.push(
-      this.answer2$.subscribe((strobj) => {
-        this.answer2 = strobj;
-        if (strobj != null) {
-          this.handelAnswer(strobj, this.VIDEO_PEERCON);
-        }
-      })
-    );
-  }
-
-  subscreib_cand() {
-    this.subscriptionList.push(
-      this.candidate$.subscribe((strobj) => {
-        this.candidate = strobj;
-        if (strobj != null) {
-          this.handelCandidate(strobj, this.AUDIO_PEERCON);
-        }
-      })
-    );
-  }
-  subscreib_cand2() {
-    this.subscriptionList.push(
-      this.candidate2$.subscribe((strobj) => {
-        this.candidate2 = strobj;
-        if (strobj != null) {
-          this.handelCandidate(strobj, this.VIDEO_PEERCON);
-        }
-      })
-    );
-  }
-
   back() {
-    this.drop_call('me');
+    //this.drop_call('me', '2');
   }
 
   sendCallendMessage(text, rcv, type) {
@@ -515,11 +624,15 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   create_Peerconnection(rcv: string, pc: Map<string, RTCPeerConnection>, type) {
+    console.warn('creating ' + type + ' peer connection');
     try {
-      // let peerConnection = new RTCPeerConnection(this.configuration);
-      let peerConnection = new RTCPeerConnection();
+      let peerConnection = new RTCPeerConnection(this.configuration);
+      //  let peerConnection = new RTCPeerConnection();
       // this.dataChannel = this.peerConnection.createDataChannel('dataChannel');
-
+      console.warn('new peer connection has been created');
+      let pt = peerConnection;
+      console.log(pt);
+      console.warn('event handler are being added');
       peerConnection.oniceconnectionstatechange = (event) => {
         this.constate = peerConnection.iceConnectionState;
 
@@ -540,6 +653,12 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
       };
 
       if (type == this.AUDIO_PEERCON) {
+        /* peerConnection.onsignalingstatechange = (event) => {
+          if (peerConnection.signalingState == 'stable' && this.firsttime) {
+            this.firsttime = false;
+            this.start_audio();
+          }
+        }; */
         peerConnection.onicecandidate = (event) => {
           try {
             this.sendWebrtcrequest('candidate', event.candidate, rcv);
@@ -571,6 +690,7 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
           try {
             if (this.remoteAud.nativeElement.srcObject) return;
             this.remoteAud.nativeElement.srcObject = event.streams[0];
+            this.remoteAud.nativeElement.play();
             this.remote_voice_on = true;
           } catch (error) {
             console.log(error);
@@ -618,8 +738,11 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
             console.log(error);
           }
         };
-
+        console.warn('peersonnection has all the event handler now');
+        let pt2 = peerConnection;
+        console.log(pt2);
         pc.set(this.VIDEO_PEERCON, peerConnection);
+        console.log(pc);
       }
     } catch (error) {
       console.log('Peer connection type ' + type + ', was not succesfull');
@@ -632,10 +755,15 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   settimerTocutthecallunlessconectionisstable(p: RTCPeerConnection) {
     setTimeout(() => {
       if (p.iceConnectionState == 'checking' && this.talker != '') {
-        this.generalService.loading_notification_short_hoover('Network Error');
-        this.drop_call('me');
+        this.peerConnections.get(this.AUDIO_PEERCON).restartIce();
       }
-    }, 10000);
+    }, 5000);
+    setTimeout(() => {
+      if (p.iceConnectionState == 'checking' && this.talker != '') {
+        this.generalService.loading_notification_short_hoover('Network Error');
+        this.drop_call('other', '3');
+      }
+    }, 60000);
   }
 
   async handelOffer(t: rtcdata, key) {
@@ -700,27 +828,43 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
 
   terminateWebrtcCon(key) {
     //this.dataChannel.close();
-    console.log(
-      '########................#####################################################################'
-    );
-
+    console.warn('terminating ' + key + ' peerconnection :');
     try {
+      console.warn('checking if the list has the given key of peerconnection');
       if (this.peerConnections.has(key)) {
+        console.warn('key was found in the list');
+        console.warn('checking if it is audio or video peer');
         if (this.AUDIO_PEERCON == key) {
+          console.warn('It is audio peerconnection');
+          console.warn(this.audio_sender);
           if (this.audio_sender != undefined && this.audio_sender != null) {
+            console.warn('removing audio sender from peerconnection');
+            let plts3 = this.peerConnections.get(key);
+            console.log(plts3);
             this.peerConnections.get(key).removeTrack(this.audio_sender);
+            console.warn('audio sender is removed');
+            let plts4 = this.peerConnections.get(key);
+            console.log(plts4);
           } else {
             console.warn('audio sender is not defined or it is null');
-            console.log(this.audio_sender);
           }
         }
         if (this.VIDEO_PEERCON == key) {
+          console.warn('It is video peerconnection');
+          console.warn(this.video_sender);
           if (this.video_sender != undefined && this.video_sender != null) {
+            console.warn('removing video sender from peerconnection');
+            let plts1 = this.peerConnections.get(key);
+            console.log(plts1);
             this.peerConnections.get(key).removeTrack(this.video_sender);
+            console.warn('video sender is removed');
+            let plts2 = this.peerConnections.get(key);
+            console.log(plts2);
           } else {
             console.warn('video sender is not defined or it is null');
           }
         }
+        console.warn('setting all the event handler to null');
         this.peerConnections.get(key).ontrack = null;
         this.peerConnections.get(key).onicecandidateerror = null;
         this.peerConnections.get(key).onconnectionstatechange = null;
@@ -731,16 +875,22 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
         this.peerConnections.get(key).onnegotiationneeded = null;
         this.peerConnections.get(key).ondatachannel = null;
         this.peerConnections.get(key).close();
+        let plt2 = this.peerConnections;
+        console.log(plt2);
+
         this.peerConnections.set(key, null);
+
         this.peerConnections.delete(key);
       } else {
         if (this.AUDIO_PEERCON == key) {
           console.warn('audio peer connection is empty');
-          console.log(this.peerConnections);
+          let plt3 = this.peerConnections;
+          console.log(plt3);
         }
         if (this.VIDEO_PEERCON == key) {
           console.warn('video peer connection is empty');
-          console.log(this.peerConnections);
+          let plt4 = this.peerConnections;
+          console.log(plt4);
         }
       }
     } catch (error) {
@@ -776,20 +926,6 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
         this.audioConstrains
       );
 
-      /*  navigator.mediaDevices
-        .enumerateDevices()
-        .then(function (MediaDeviceInfo) {
-          console.log(MediaDeviceInfo);
-          MediaDeviceInfo.forEach(m=>{
-            m.
-          });
-        }); */
-
-      /* this.stream_aud.getTracks().forEach((track) => {
-        this.audio_sender = this.peerConnections
-          .get(this.AUDIO_PEERCON)
-          .addTrack(track, this.stream_aud);
-      }); */
       this.audio_sender = this.peerConnections
         .get(this.AUDIO_PEERCON)
         .addTrack(this.stream_aud.getTracks()[0], this.stream_aud);
@@ -798,10 +934,6 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
 
       this.audio_started_already = true;
       this.mute = false;
-      /*this.switchtofocus(
-        this.selfView.nativeElement,
-        this.mainfView.nativeElement
-      );*/
       this.aud_start = false;
     } catch (err) {
       console.log(err);
@@ -1020,7 +1152,7 @@ export class TestComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async start() {
-    this.createsignalcon(this.talker, this.AUDIO_PEERCON);
+    //this.createsignalcon(this.talker, this.AUDIO_PEERCON);
     await this.start_audio();
   }
 }

@@ -84,7 +84,9 @@ export class MecalldispComponent implements OnInit, OnDestroy {
         call:
           this.generalService.call_cancelled_me +
           this.generalService.separator +
-          this.callingto,
+          this.callingto +
+          this.generalService.separator +
+          'me',
       })
     );
     this.store.dispatch(action.updatetalkingpartner({ talkingpartner: '' }));
